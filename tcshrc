@@ -1,0 +1,69 @@
+#! /bin/tcsh -x
+###############################################################################
+# This file is read by tcsh every time you start a shell.
+###############################################################################
+# For CCS machines:
+# This file loads the central .tcshrc that is stored in /ccs/etc/dotfiles.
+# This is done because the Systems Group will occasionally update that 
+# file to reflect changes in the network, and you may be better off if
+# those changes are made for you.
+###############################################################################
+# Matt Bisson
+
+# This is the only way I know of to determine if I am on a CCS computer
+# Place CCS only commands here...
+if (-f "/ccs/etc/dotfiles/.tcshrc") then
+    source "/ccs/etc/dotfiles/.tcshrc"
+endif
+
+# Put csh aliases all in one file, in order to collect them in one
+# place.  If you create more aliases, just add them to that file. 
+if (-f "${HOME}/.alias.csh") then
+    source "${HOME}/.alias.csh"
+endif
+
+###############################################################################
+# Miscellaneous settings
+###############################################################################
+set history=100
+
+unset ignoreeof                         # I want to log out with ^D
+set   autocomplete                      # TAB does this (not just ^D)
+unset autocorrect                       # Don't fix spelling mistakes?
+set   autolist='ambiguous'
+unset autologout
+unset correct
+unset complete                          # Case SENSITIVE autocomplete
+unset fignore                           # Don't ignore anything in completion
+set   listflags='a'
+set   listjobs='long'
+set   listmaxrows=50
+set   matchbeep='nomatch'
+set   savehistory='merge'
+# Use emacs keybindings
+bindkey -e
+
+# Using stuff set in .login
+if (${?PROMPT}) then
+    set prompt="${PROMPT}"
+endif
+if (${?PROMPT2}) then
+    set prompt2="${PROMPT2}"
+endif
+if (${?PROMPT3}) then
+    set prompt3="${PROMPT3}"
+endif
+
+##############################################################################
+# Set limits for the environment
+##############################################################################
+limit coredumpsize    unlimited         # Core file size (blocks)
+#limit datasize        unlimited        # Data seg size (kbytes)
+#limit filesize        unlimited        # File size (blocks)
+#limit memorylocked    unlimited        # Max locked memory (kbytes)
+#limit memoryuse       unlimited        # Max memory size (kbytes)
+#limit descriptors     1024             # Open file descriptors
+#limit openfiles       1024             # Open files
+#limit stacksize       8192 kbytes      # Stack size (kbytes)
+#limit cputime         unlimited        # CPU time (seconds)
+#limit maxproc         2048             # Max user processes

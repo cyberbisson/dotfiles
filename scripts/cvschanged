@@ -1,0 +1,2 @@
+#!/bin/sh
+cvs st -q | grep -v Up-to-date | grep -v '^\?' | awk '{print "\t"$2 }'

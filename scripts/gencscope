@@ -1,0 +1,98 @@
+#!/bin/sh
+OUTFILE="cscope.files"
+
+if [ "$1" ]
+then
+	OUTFILE="$1"
+fi
+
+chmod 644 ${OUTFILE}
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.cpp' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.cxx' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.c' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.cc' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.hpp' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.hxx' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+find . -path './device/Tools'                        -prune -o \
+       -path './device/Unused'                       -prune -o \
+       -path './device/Octane/FrameWork/TestHarness' -prune -o \
+       -iname '*.h' \
+	| grep -v -i '\bpalm\b'                              \
+	| grep -v -i '\bidatatest\b'                         \
+	| grep -v -i '\bunittest\b'                          \
+	| grep -v -i 'platform\/g'                           \
+	| grep -v '\/device\/Tools'                          \
+	| grep -v '\/device\/Unused'                         \
+	| grep -v '\/device\/Octane\/FrameWork\/TestHarness' \
+	>> tmp.out
+
+cat tmp.out | sort -uf > ${OUTFILE}
+chmod 444 ${OUTFILE}
+rm -f tmp.out
+#cscope -b -q

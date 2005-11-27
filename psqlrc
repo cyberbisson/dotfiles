@@ -1,0 +1,13 @@
+--
+--	psql configuration file
+--
+--  This file is read before the .psqlrc file in the user's home directory.
+--
+
+-- \set AUTOCOMMIT  'off'
+\set ECHO        'all'
+\set ECHO_HIDDEN 'on'
+\set PROMPT1     '[%n]:%/%# '
+\set PROMPT2     '[%n]:%/%(2)# '
+\set PROMPT3     '>> '
+\set VERBOSITY   'verbose'

@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+##############################################################################
+# This script is used to list the titles of Nintendo ROMs in a particular
+# directory.
+
+use strict;
+
+my @fileList = `ls *.???`;
+my @newList;
+
+foreach my $file (@fileList)
+{
+    if ($file =~ m/\.nes$/i)
+    {
+	push (@newList, $file);
+    }
+}
+
+foreach my $file (@newList)
+{
+    $file =~ s/\.nes//i;
+    $file =~ s/(\S)([A-Z])/$1 $2/g;
+    $file =~ s/([a-z])([0-9])/$1 $2/g;
+
+    print $file;
+}

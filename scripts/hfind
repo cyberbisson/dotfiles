@@ -1,0 +1,15 @@
+#!/bin/tcsh
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.cpp' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.cxx' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.c'   -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.cc'  -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.hpp' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.hxx' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/Octane -type f -iname '*.h'   -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.cpp' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.cxx' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.c'   -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.cc'  -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.hpp' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.hxx' -exec grep "$1" {} \; -print
+find /home/mbisson/ws/mbisson/holly/device/MM     -type f -iname '*.h'   -exec grep "$1" {} \; -print
