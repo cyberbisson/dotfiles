@@ -232,6 +232,24 @@ SINIX-N)
     ;;
 
 ########################################
+## CygWin (for Win2k & XP)
+########################################
+CYGWIN_NT-5.1)
+    machtype="cygwin-${hwclass}"
+
+
+    machdirs=`cmd /c path`
+    machdirs=`echo "${machdirs};"                             | \
+                  sed 's/^PATH\\=/;/'                         | \
+                  sed 's/\\([A-Za-z]\\):/\\/cygdrive\\/\\1/g' | \
+                  sed 's/\\\\/\\//g'                          | \
+                  sed 's/[^;]*cygwin[^;]*;//g'                | \
+                  sed 's/ /\\\\ /g'                           | \
+                  sed 's/;/ /g'`
+    machman=
+    ;;
+
+########################################
 ## Undeterminable UNIX type
 ########################################
 *)
@@ -266,8 +284,8 @@ if [ ${USE_HOLLY} ] ; then
     export HOLLY_DEV_BRANCH HOLLY_DIR HOLLY_BASE
 
     # PBS crap
-    if [ -f ${HOME}/PBS/.pbsInit-sh ] ; then
-        . ${HOME}/PBS/.pbsInit-sh
+    if [ -f "${HOME}/PBS/.pbsInit-sh" ] ; then
+        . "${HOME}/PBS/.pbsInit-sh"
     fi
 
     MALLOC_CHECK_=2; export MALLOC_CHECK_
@@ -462,8 +480,8 @@ fi
 ########################################
 ## Oracle environment setup
 ########################################
-if [ -f ~/.oracle.ksh ] ; then
-    . ~/.oracle.ksh
+if [ -f "${HOME}/.oracle.ksh" ] ; then
+    . "${HOME}/.oracle.ksh"
 
     oradirs="${ORACLE_HOME}/bin ${ORACLE_HOME}/oc4j/bin"
 
@@ -576,7 +594,7 @@ unset _manpath
 ###############################################################################
 # Set the prompt
 ###############################################################################
-if [ ${LOGNAME} != ${curuser} ] ; then
+if [ "${LOGNAME}" != "${curuser}" ] ; then
     hostprompt="${curuser}@${host}"
 else
     hostprompt="${host}"
@@ -591,7 +609,7 @@ PS1="$machprompt$hostprompt# "
 
 if [ "" != "${BASH}" ] ; then
     case ${TERM} in
-    dtterm | linux | rxvt | xterm | xterm-color | xterm-xfree86)
+    cygwin | dtterm | linux | rxvt | xterm | xterm-color | xterm-xfree86)
         PS1="\[\033[01;39m\]${PS1}\[\033[00m\]"
         ;;
     esac

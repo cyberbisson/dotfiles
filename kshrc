@@ -29,15 +29,11 @@ fi
 set +o ignoreeof                         # I want to log out with ^D
 
 # Use emacs keybindings
-case ${SHELL} in
-    */sh)
-        # Do nothing
-        ;;
-
-    *)
-        set -o emacs
-        ;;
-esac
+if   [ "" != "${KSH_VERSION}" ] ; then
+    set -o emacs
+elif [ "" != "${BASH}" ] ; then
+    set -o emacs
+fi
 
 ##############################################################################
 # Set limits for the environment

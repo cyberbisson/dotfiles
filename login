@@ -232,6 +232,24 @@ case "SINIX-N":
     breaksw
 
 ########################################
+## CygWin (for Win2k & XP)
+########################################
+case "CYGWIN_NT-5.1":
+    set machtype="cygwin-${hwclass}"
+
+
+    set machdirs=`cmd /c path`
+    set machdirs=`echo "${machdirs};"                         | \
+                  sed 's/^PATH\\=/;/'                         | \
+                  sed 's/\\([A-Za-z]\\):/\\/cygdrive\\/\\1/g' | \
+                  sed 's/\\\\/\\//g'                          | \
+                  sed 's/[^;]*cygwin[^;]*;//g'                | \
+                  sed 's/ /\\\\ /g'                           | \
+                  sed 's/;/ /g'`
+    set machman=( )
+    breaksw;
+
+########################################
 ## Undeterminable UNIX type
 ########################################
 default:
@@ -263,8 +281,8 @@ if (${?USE_HOLLY}) then
     setenv HOLLY_BASE       "${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
 
     # PBS crap
-    if (-f ${HOME}/PBS/.pbsInit-csh) then
-        source ${HOME}/PBS/.pbsInit-csh
+    if (-f "${HOME}/PBS/.pbsInit-csh") then
+        source "${HOME}/PBS/.pbsInit-csh"
     endif
 
     setenv MALLOC_CHECK_ 2
@@ -459,8 +477,8 @@ endif
 ########################################
 ## Oracle environment setup
 ########################################
-if (-f ~/.oracle.csh) then
-    source ~/.oracle.csh
+if (-f "${HOME}/.oracle.csh") then
+    source "${HOME}/.oracle.csh"
 
     set oradirs=( ${ORACLE_HOME}/bin ${ORACLE_HOME}/oc4j/bin )
 
@@ -572,7 +590,7 @@ unset _manpath
 ###############################################################################
 # Set the prompt
 ###############################################################################
-if (${LOGNAME} != ${curuser}) then
+if ("${LOGNAME}" != "${curuser}") then
     set hostprompt="${curuser}@${host}"
 else
     set hostprompt="${host}"
@@ -588,6 +606,7 @@ setenv PROMPT "${tmpPrompt} "
 
 if (${SHELL} =~ *tcsh) then
     switch (${TERM})
+        case "cygwin"
         case "dtterm"
         case "linux"
         case "rxvt"

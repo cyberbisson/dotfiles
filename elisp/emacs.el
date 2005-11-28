@@ -117,7 +117,7 @@
                     (cons 'background-color (frame-parameter (selected-frame)
                                              'background-color))
                     (cons 'font ;; Lucida Console 8 thinner
-                         "-*-Lucida Console-*-*-*-*-11-82-96-96-c-69-iso8859-1")
+                         "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
                     (cons 'height 70)
                     (cons 'width  81)
                 )
