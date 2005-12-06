@@ -26,6 +26,12 @@ alias gboy='xgnuboy --scale=2 --bind alt +a --bind ctrl +b'
 alias snes='snes9x -r 7'
 alias ls='ls -F'                        # Place chars after certain file types
 
+# A convenience macro for the Mickey Mouse Cicso VPN client
+VPNDIR="/etc/CiscoSystemsVPNClient/Profiles"
+if [ -d ${VPNDIR} ] ; then
+	alias vpnstart="'cp' -f ${VPNDIR}/palm.mod.pcf ${VPNDIR}/palm.pcf; /opt/cisco-vpnclient/bin/vpnclient connect palm"
+fi
+
 if [ -e /usr/local/bin/less ] || [ -e /usr/bin/less ]; then
     alias  more=less                    # Less IS more...
     export PAGER=less
