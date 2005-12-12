@@ -25,7 +25,7 @@
     "/opt/holly/sysroot/i386-linux/usr/lib:/opt/holly/sysroot/i386-linux/usr/lib"
 )
 (setenv "HM_IMAGEROOT"
-    "/home/mbisson/ws/mbisson/holly/device/MM/Platform/Holly/Resources/"
+    "/home/mbisson/ws/mbisson/holly/device/MM/Platform/Holly/Resources"
 )
 
 ;; Set some configuration variables
@@ -174,10 +174,10 @@
                 (setq next-line-add-newlines t)
 
                 ;; Yes, emacs will do it all...
-;                (if (< 21 emacs-major-version)
-;                    (display-battery-mode)
-;                    (display-battery)
-;                )
+                (if (< 21 emacs-major-version)
+                    (display-battery-mode)
+                    (display-battery)
+                )
             )
         )
     )

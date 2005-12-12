@@ -32,7 +32,7 @@ state style_mbisson
     BEGIN
     {
         call(default_faces);
-/*        verbose_highlighting = true;*/
+        verbose_highlighting = true;
 
         if (color)
         {
