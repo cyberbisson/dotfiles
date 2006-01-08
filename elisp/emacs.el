@@ -21,11 +21,13 @@
 (defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
 
 ;; We might need this for debugging...
+(setenv "HX_APP_PATH" (getenv "HOLLY_RESULT_ROOT"))
 (setenv "LD_LIBRARY_PATH"
-    "/opt/holly/sysroot/i386-linux/usr/lib:/opt/holly/sysroot/i386-linux/usr/lib"
-)
-(setenv "HM_IMAGEROOT"
-    "/home/mbisson/ws/mbisson/holly/device/MM/Platform/Holly/Resources"
+    (concat (getenv "LD_LIBRARY_PATH")                       ":"
+            (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
+            (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
+            (concat (getenv "HOLLY_RESULT_ROOT") "/lib")
+    )
 )
 
 ;; Set some configuration variables
