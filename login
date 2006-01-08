@@ -265,6 +265,8 @@ if (${?USE_HOLLY}) then
     # Hollywood tools crap
     #setenv HOLLY_ARCH        "arm-linux"
     setenv HOLLY_ARCH        "i386-linux"
+	setenv HOLLY_DEBREL      "debug"
+    setenv HOLLY_RESULT_ROOT "${HOME}/tmp/toilet/${HOLLY_ARCH}"
     setenv HOLLY_SYSTEM_ROOT "/opt/holly/sysroot/${HOLLY_ARCH}"
     setenv HOLLY_TOOL_ROOT   "/opt/holly/toolroot"
 
@@ -276,8 +278,8 @@ if (${?USE_HOLLY}) then
     setenv P4CLIENT 'mbisson'
 
     # Hollywood source crap
-    setenv HOLLY_DEV_BRANCH "1.5B"
-    setenv HOLLY_DIR        "${HOME}/ws/mbisson-holly.${HOLLY_DEV_BRANCH}"
+    setenv HOLLY_DEV_BRANCH "1.0/Dev"
+    setenv HOLLY_DIR        "${HOME}/ws/mbisson-holly"
     setenv HOLLY_BASE       "${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
 
     # PBS crap

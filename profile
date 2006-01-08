@@ -265,9 +265,12 @@ if [ ${USE_HOLLY} ] ; then
     # Hollywood tools crap
     #HOLLY_ARCH="arm-linux"
     HOLLY_ARCH="i386-linux"
+    HOLLY_DEBREL="debug"
+    HOLLY_RESULT_ROOT="${HOME}/tmp/toilet/${HOLLY_ARCH}"
     HOLLY_SYSTEM_ROOT="/opt/holly/sysroot/${HOLLY_ARCH}"
     HOLLY_TOOL_ROOT="/opt/holly/toolroot"
-    export HOLLY_ARCH HOLLY_SYSTEM_ROOT HOLLY_TOOL_ROOT
+    export HOLLY_ARCH HOLLY_DEBREL HOLLY_RESULT_ROOT HOLLY_SYSTEM_ROOT
+    export HOLLY_TOOL_ROOT
 
     # Perforce crap
     P4USER='MattBisson'
@@ -278,8 +281,8 @@ if [ ${USE_HOLLY} ] ; then
     export P4USER P4PASSWD P4EDITOR P4PORT P4CLIENT
 
     # Hollywood source crap
-    HOLLY_DEV_BRANCH="1.5B"
-    HOLLY_DIR="${HOME}/ws/mbisson-holly.${HOLLY_DEV_BRANCH}"
+    HOLLY_DEV_BRANCH="1.0/Dev"
+    HOLLY_DIR="${HOME}/ws/mbisson-holly"
     HOLLY_BASE="${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
     export HOLLY_DEV_BRANCH HOLLY_DIR HOLLY_BASE
 
