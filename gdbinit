@@ -4,17 +4,17 @@
 
 # Load up the HollyMail executable
 def HollyMail
-	file /home/mbisson/ws/mbisson/main/device/MM/HollyMail
+	file /home/mbisson/ws/mbisson/holly/device/MM/HollyMail
 end
 
 # Load up the TestHarness
 def TestHarness
-	file /home/mbisson/ws/mbisson/main/device/Octane/Examples/TestHarness/TestHarness
+	file /home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/TestHarness
 end
 
 # Load up the FieldTest
 def FieldTest
-	file /home/mbisson/ws/mbisson/main/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
+	file /home/mbisson/ws/mbisson/holly/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
 end
 
 # Connect to the device
@@ -121,7 +121,7 @@ set complaints              0
 set confirm                 off
 set cp-abi                  auto
 set demangle-style          auto
-set disassembly-flavor      intel
+#set disassembly-flavor     intel
 set download-write-size     0d512
 set editing                 on
 set endian                  auto
@@ -138,7 +138,7 @@ set output-radix            0d10
 set overload-resolution     on
 set pagination              on
 set prompt                  (dbx) 
-set struct-convention       default
+#set struct-convention      default
 set symbol-reloading        off
 set target-charset          ISO-8859-1
 set trust-readonly-sections off
@@ -162,7 +162,7 @@ set debug                event      0
 set debug                expression 0
 set debug                frame      0
 #set debug               infrun     0
-set debug                lin-lwp    0
+#set debug               lin-lwp    0
 set debug                observer   0
 set debug                overload   1
 set debug                remote     0
@@ -240,9 +240,5 @@ set tui active-border-mode bold-standout
 set tui border-kind        acs
 set tui border-mode        normal
 
-# The HollyMail sandbox
-#dir /home/mbisson/ws/mbisson/holly:/home/mbisson/ws/mbisson/holly/Common/SDK:/home/mbisson/ws/mbisson/holly/Common/SDK/Holly:/home/mbisson/ws/mbisson/holly/device/MMCommon:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness:/home/mbisson/ws/mbisson/holly/device/Octane/:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Model:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Controller:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/mbisson/holly/device/MM/Src:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMModel:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMView:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
 # The mainline...
-dir /home/mbisson/ws/mbisson/main:/home/mbisson/ws/mbisson/main/Common/SDK:/home/mbisson/ws/mbisson/main/Common/SDK/Holly:/home/mbisson/ws/mbisson/main/device/MMCommon:/home/mbisson/ws/mbisson/main/device/Octane/Examples/TestHarness:/home/mbisson/ws/mbisson/main/device/Octane/:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Util:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Environment:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/View:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/View/Util:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Model:/home/mbisson/ws/mbisson/main/device/Octane/FrameWork/Controller:/home/mbisson/ws/mbisson/main/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/mbisson/main/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/mbisson/main/device/MM/Src:/home/mbisson/ws/mbisson/main/device/MM/Src-OOP:/home/mbisson/ws/mbisson/main/device/MM/Src-OOP/VMModel:/home/mbisson/ws/mbisson/main/device/MM/Src-OOP/VMView:/home/mbisson/ws/mbisson/main/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
-# Darsono's sandbox...
-#dir /home/mbisson/ws/sandbox/MultiMail:/home/mbisson/ws/sandbox/MultiMail/Common/SDK:/home/mbisson/ws/sandbox/MultiMail/Common/SDK/Holly:/home/mbisson/ws/sandbox/MultiMail/device/MMCommon:/home/mbisson/ws/sandbox/MultiMail/device/Octane/Examples/TestHarness:/home/mbisson/ws/sandbox/MultiMail/device/Octane/:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Util:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Environment:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/View:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/View/Util:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Model:/home/mbisson/ws/sandbox/MultiMail/device/Octane/FrameWork/Controller:/home/mbisson/ws/sandbox/MultiMail/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/sandbox/MultiMail/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/opt/holly/sysroot/i386-linux/usr/include/directfb
+dir /home/mbisson/ws/mbisson/holly:/home/mbisson/ws/mbisson/holly/Common/SDK:/home/mbisson/ws/mbisson/holly/Common/SDK/Holly:/home/mbisson/ws/mbisson/holly/device/MMCommon:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness:/home/mbisson/ws/mbisson/holly/device/Octane/:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Model:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Controller:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/mbisson/holly/device/MM/Src:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMModel:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMView:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
