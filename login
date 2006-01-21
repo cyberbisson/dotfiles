@@ -274,8 +274,10 @@ if (${?USE_HOLLY}) then
     setenv P4USER   'MattBisson'
     setenv P4PASSWD 'p4sucks'
     setenv P4EDITOR '/usr/bin/emacs'
-    setenv P4PORT   'achilles:1667'     # achilles
+#   setenv P4PORT   'achilles:1667'
     setenv P4CLIENT 'mbisson'
+    setenv P4PORT   'grace.palmone.com:1667'
+    setenv P4CLIENT 'mbisson-isis'
 
     # Hollywood source crap
     setenv HOLLY_DEV_BRANCH "1.0/Dev"

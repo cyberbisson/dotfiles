@@ -276,8 +276,10 @@ if [ ${USE_HOLLY} ] ; then
     P4USER='MattBisson'
     P4PASSWD='p4sucks'
     P4EDITOR='/usr/bin/emacs'
-    P4PORT='achilles:1667'              # achilles
+#   P4PORT='achilles:1667'
     P4CLIENT='mbisson'
+    P4PORT='grace.palmone.com:1667'
+    P4CLIENT='mbisson-isis'
     export P4USER P4PASSWD P4EDITOR P4PORT P4CLIENT
 
     # Hollywood source crap
