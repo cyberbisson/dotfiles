@@ -4,17 +4,17 @@
 
 # Load up the HollyMail executable
 def HollyMail
-	file /home/mbisson/ws/mbisson/holly/device/MM/HollyMail
+	file /home/mbisson/ws/src/device/MM/HollyMail
 end
 
 # Load up the TestHarness
 def TestHarness
-	file /home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/TestHarness
+	file /home/mbisson/ws/src/device/Octane/Examples/TestHarness/TestHarness
 end
 
 # Load up the FieldTest
 def FieldTest
-	file /home/mbisson/ws/mbisson/holly/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
+	file /home/mbisson/ws/src/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
 end
 
 # Connect to the device
@@ -240,5 +240,5 @@ set tui active-border-mode bold-standout
 set tui border-kind        acs
 set tui border-mode        normal
 
-# The mainline...
-dir /home/mbisson/ws/mbisson/holly:/home/mbisson/ws/mbisson/holly/Common/SDK:/home/mbisson/ws/mbisson/holly/Common/SDK/Holly:/home/mbisson/ws/mbisson/holly/device/MMCommon:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness:/home/mbisson/ws/mbisson/holly/device/Octane/:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/View/Util:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Model:/home/mbisson/ws/mbisson/holly/device/Octane/FrameWork/Controller:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/mbisson/holly/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/mbisson/holly/device/MM/Src:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMModel:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMView:/home/mbisson/ws/mbisson/holly/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
+# The top of my source tree
+dir /home/mbisson/ws/src:/home/mbisson/ws/src/Common/SDK:/home/mbisson/ws/src/Common/SDK/Holly:/home/mbisson/ws/src/device/MMCommon:/home/mbisson/ws/src/device/Octane/Examples/TestHarness:/home/mbisson/ws/src/device/Octane/:/home/mbisson/ws/src/device/Octane/FrameWork:/home/mbisson/ws/src/device/Octane/FrameWork/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/Environment:/home/mbisson/ws/src/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View:/home/mbisson/ws/src/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Model:/home/mbisson/ws/src/device/Octane/FrameWork/Controller:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/src/device/MM/Src:/home/mbisson/ws/src/device/MM/Src-OOP:/home/mbisson/ws/src/device/MM/Src-OOP/VMModel:/home/mbisson/ws/src/device/MM/Src-OOP/VMView:/home/mbisson/ws/src/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
