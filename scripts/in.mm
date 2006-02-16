@@ -6,6 +6,8 @@
 ~/ws/src/device/MM/myCat/Src/StarterRsc.h
 ~/ws/src/device/MM/Platform/Holly/FPIStub.cpp
 ~/ws/src/device/MM/Platform/Holly/IIDataStub.cpp
+~/ws/src/device/MM/Platform/Holly/HollyToolbarButton.cpp
+~/ws/src/device/MM/Platform/Holly/HollyToolbarButton.hpp
 ~/ws/src/device/MM/Platform/Holly/Main.cpp
 ~/ws/src/device/MM/Platform/Holly/MIDataLibStub.cpp
 ~/ws/src/device/MM/Platform/Holly/MMCategoryEditStub.cpp
@@ -16,9 +18,9 @@
 ~/ws/src/device/MM/Platform/Holly/SplitPane.cpp
 ~/ws/src/device/MM/Platform/Holly/SplitPane.hpp
 ~/ws/src/device/MM/Platform/Holly/VMHollyMain.cpp
+~/ws/src/device/MM/Platform/Holly/VMHollyMain.h
 ~/ws/src/device/MM/Platform/Holly/VMHollyMainForm.cpp
 ~/ws/src/device/MM/Platform/Holly/VMHollyMainForm.hpp
-~/ws/src/device/MM/Platform/Holly/VMHollyMain.h
 ~/ws/src/device/MM/Platform/Holly/VMSAMUtilsStub.cpp
 ~/ws/src/device/MM/Rsc/MultiMail_res2.h
 ~/ws/src/device/MM/Rsc/MultiMail_res.h
@@ -79,13 +81,11 @@
 ~/ws/src/device/MM/Src/MMWireless.h
 ~/ws/src/device/MM/Src/MultiMail.c
 ~/ws/src/device/MM/Src/MultiMailSeg1.c
-~/ws/src/device/MM/Src/myCat.c
 ~/ws/src/device/MM/Src/myCat.h
 ~/ws/src/device/MM/Src/myCatSeg1.c
 ~/ws/src/device/MM/Src/Pop3Mail.c
 ~/ws/src/device/MM/Src/Socket.c
 ~/ws/src/device/MM/Src/Socket.h
-~/ws/src/device/MM/Src/sortRoutines.c
 ~/ws/src/device/MM/Src/sortRoutines.h
 ~/ws/src/device/MM/Src/util2.c
 ~/ws/src/device/MM/Src/UTIL.C
@@ -293,9 +293,11 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMSubjectField.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMSubjectField.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTable.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMTableHeaderRenderer.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMTableHeaderRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTable.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingBehavior.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingBehavior.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingRenderer.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.cpp
