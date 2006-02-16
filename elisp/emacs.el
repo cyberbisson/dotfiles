@@ -20,14 +20,21 @@
 ;; Are we running XEmacs or Emacs?
 (defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
 
-;; We might need this for debugging...
-(setenv "HX_APP_PATH" (getenv "HOLLY_RESULT_ROOT"))
-(setenv "LD_LIBRARY_PATH"
-    (concat (getenv "LD_LIBRARY_PATH")                       ":"
-            (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
-            (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
-            (concat (getenv "HOLLY_RESULT_ROOT") "/lib")
+(if (string= (getenv "HOLLY_ARCH") "i386-linux")
+    ;; We might need this for debugging (only on Intel simulator)...
+    (progn
+        (setenv "HX_APP_PATH" (getenv "HOLLY_RESULT_ROOT"))
+        (setenv "LD_LIBRARY_PATH"
+            (concat (getenv "LD_LIBRARY_PATH")                       ":"
+                    (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
+                    (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
+                    (concat (getenv "HOLLY_RESULT_ROOT") "/lib")
+            )
+        )
     )
+    ;; We're debugging on the device.
+    (setq gud-gdb-command-name
+          "/opt/holly/toolroot/arm-linux/bin/gdb --annotate=3")
 )
 
 ;; Set some configuration variables
