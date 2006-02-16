@@ -45,7 +45,21 @@ bindkey -e
 
 # Using stuff set in .login
 if (${?PROMPT}) then
-    set prompt="${PROMPT}"
+    set prompt="${PROMPT} "
+
+    if (${SHELL} =~ *tcsh) then
+        switch (${TERM})
+            case "cygwin"
+            case "dtterm"
+            case "linux"
+            case "rxvt"
+            case "xterm"
+            case "xterm-color"
+            case "xterm-xfree86"
+                set prompt="%{^[[01;39m%}${PROMPT}%{^[[00m%} "
+                breaksw
+        endsw
+    endif
 endif
 if (${?PROMPT2}) then
     set prompt2="${PROMPT2}"

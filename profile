@@ -315,7 +315,7 @@ unset userid
 ## Set up my 'simulator' environment
 ########################################
 if [ "${USE_HOLLY}" ] && [ -d /opt/holly ] ; then
-    hollydirs="${HOLLY_TOOL_ROOT}/${HOLLY_ARCH}/local/bin ${HOLLY_TOOL_ROOT}/bin"
+    hollydirs="${HOLLY_TOOL_ROOT}/i386-linux/local/bin ${HOLLY_TOOL_ROOT}/bin"
 
     for dir in ${hollydirs} ; do
         if [ -d ${dir} ] ; then

@@ -311,7 +311,7 @@ unset userid
 ## Set up my 'simulator' environment
 ########################################
 if ((${?USE_HOLLY}) && (-d /opt/holly)) then
-    set hollydirs=( ${HOLLY_TOOL_ROOT}/${HOLLY_ARCH}/local/bin ${HOLLY_TOOL_ROOT}/bin )
+    set hollydirs=( ${HOLLY_TOOL_ROOT}/i386-linux/local/bin ${HOLLY_TOOL_ROOT}/bin )
 
     foreach dir ( ${hollydirs} )
         if (-d ${dir}) then
@@ -605,27 +605,10 @@ else
     set machprompt=
 endif
 
-set tmpPrompt="$machprompt$hostprompt\%"
-setenv PROMPT "${tmpPrompt} "
-
-if (${SHELL} =~ *tcsh) then
-    switch (${TERM})
-        case "cygwin"
-        case "dtterm"
-        case "linux"
-        case "rxvt"
-        case "xterm"
-        case "xterm-color"
-        case "xterm-xfree86"
-            setenv PROMPT "%{^[[01;39m%}${tmpPrompt}%{^[[00m%} "
-            breaksw
-    endsw
-endif
-
+setenv PROMPT  "$machprompt$hostprompt\%"
 setenv PROMPT2 '%R>    '
 setenv PROMPT3 'Correct (%R)? [y|n|e|a]: '
 
-unset tmpPrompt
 unset machtype
 unset machprompt
 unset hostprompt
