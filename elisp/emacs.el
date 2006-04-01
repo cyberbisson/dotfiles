@@ -23,7 +23,9 @@
 (if (string= (getenv "HOLLY_ARCH") "i386-linux")
     ;; We might need this for debugging (only on Intel simulator)...
     (progn
-        (setenv "HX_APP_PATH" (getenv "HOLLY_RESULT_ROOT"))
+        (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
+;       (setenv "HM_DEBUG_LEVEL" 1)
+        (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT") "/sams"))
         (setenv "LD_LIBRARY_PATH"
             (concat (getenv "LD_LIBRARY_PATH")                       ":"
                     (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
