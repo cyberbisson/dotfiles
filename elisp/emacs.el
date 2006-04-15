@@ -78,6 +78,7 @@
     c-tab-always-indent          nil
     tab-width                    4
     compilation-scroll-output    t
+    compile-command              "make -k -j3 -C /home/mbisson/ws/mail/main"
 
     ;; Eehh... Why not?
     display-time-24hr-format     t
