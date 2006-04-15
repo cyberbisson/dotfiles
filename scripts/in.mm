@@ -15,8 +15,6 @@
 ~/ws/src/device/MM/Platform/Holly/MMSrc.cpp
 ~/ws/src/device/MM/Platform/Holly/MMUiUtilLegacy.cpp
 ~/ws/src/device/MM/Platform/Holly/PrefsStub.cpp
-~/ws/src/device/MM/Platform/Holly/SplitPane.cpp
-~/ws/src/device/MM/Platform/Holly/SplitPane.hpp
 ~/ws/src/device/MM/Platform/Holly/VMHollyMain.cpp
 ~/ws/src/device/MM/Platform/Holly/VMHollyMain.h
 ~/ws/src/device/MM/Platform/Holly/VMHollyMainForm.cpp

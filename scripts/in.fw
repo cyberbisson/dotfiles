@@ -238,6 +238,8 @@
 ~/ws/src/device/Octane/FrameWork/View/ScrollRendererIntf.hpp
 ~/ws/src/device/Octane/FrameWork/View/SimpleForm.cpp
 ~/ws/src/device/Octane/FrameWork/View/SimpleForm.hpp
+~/ws/src/device/Octane/FrameWork/View/SplitPane.cpp
+~/ws/src/device/Octane/FrameWork/View/SplitPane.hpp
 ~/ws/src/device/Octane/FrameWork/View/StackedPanes.cpp
 ~/ws/src/device/Octane/FrameWork/View/StackedPanes.hpp
 ~/ws/src/device/Octane/FrameWork/View/StaticControlFrame.cpp
