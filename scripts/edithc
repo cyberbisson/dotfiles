@@ -1,0 +1,2 @@
+#!/bin/tcsh
+emacs `cat ~/bin/in.fw ~/bin/in.hc`
