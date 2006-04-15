@@ -7,6 +7,10 @@ def HollyMail
 	file /home/mbisson/ws/src/device/MM/HollyMail
 end
 
+def HollyContact
+	file /home/mbisson/ws/src/device/HollyContact/Platform/Holly/HollyContact
+end
+
 # Load up the TestHarness
 def TestHarness
 	file /home/mbisson/ws/src/device/Octane/Examples/TestHarness/TestHarness
@@ -242,4 +246,4 @@ set tui border-kind        acs
 set tui border-mode        normal
 
 # The top of my source tree
-dir /home/mbisson/ws/src:/home/mbisson/ws/src/Common/SDK:/home/mbisson/ws/src/Common/SDK/Holly:/home/mbisson/ws/src/device/MMCommon:/home/mbisson/ws/src/device/Octane/Examples/TestHarness:/home/mbisson/ws/src/device/Octane/:/home/mbisson/ws/src/device/Octane/FrameWork:/home/mbisson/ws/src/device/Octane/FrameWork/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/Environment:/home/mbisson/ws/src/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View:/home/mbisson/ws/src/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Model:/home/mbisson/ws/src/device/Octane/FrameWork/Controller:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/src/device/MM/Src:/home/mbisson/ws/src/device/MM/Platform/Holly:/home/mbisson/ws/src/device/MM/Src-OOP:/home/mbisson/ws/src/device/MM/Src-OOP/VMModel:/home/mbisson/ws/src/device/MM/Src-OOP/VMView:/home/mbisson/ws/src/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
+dir /home/mbisson/ws/src:/home/mbisson/ws/src/Common/SDK:/home/mbisson/ws/src/device/MMCommon:/home/mbisson/ws/src/device/Octane/Examples/TestHarness:/home/mbisson/ws/src/device/Octane/:/home/mbisson/ws/src/device/Octane/FrameWork:/home/mbisson/ws/src/device/Octane/FrameWork/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/Environment:/home/mbisson/ws/src/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View:/home/mbisson/ws/src/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Model:/home/mbisson/ws/src/device/Octane/FrameWork/Controller:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/src/device/MM/Src:/home/mbisson/ws/src/device/MM/Platform/Holly:/home/mbisson/ws/src/device/MM/Src-OOP:/home/mbisson/ws/src/device/MM/Src-OOP/VMModel:/home/mbisson/ws/src/device/MM/Src-OOP/VMView:/home/mbisson/ws/src/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
