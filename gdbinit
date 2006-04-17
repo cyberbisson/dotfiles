@@ -117,7 +117,7 @@ handle SIG32 nostop
 # Misc. settings
 set annotate                1
 set architecture            auto
-set breakpoint              pending auto
+set breakpoint              pending on
 set can-use-hw-watchpoints  1
 set case-sensitive          auto
 set charset                 ISO-8859-1
@@ -142,9 +142,9 @@ set opaque-type-resolution  on
 set output-radix            0d10
 set overload-resolution     on
 set pagination              on
-set prompt                  (dbx) 
+set prompt                  [gdb] 
 #set struct-convention      default
-set symbol-reloading        off
+set symbol-reloading        on
 set target-charset          ISO-8859-1
 set trust-readonly-sections off
 set unwindonsignal          off
