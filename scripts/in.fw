@@ -161,6 +161,8 @@
 ~/ws/src/device/Octane/FrameWork/View/MiniArrowRenderer.hpp
 ~/ws/src/device/Octane/FrameWork/View/OffscreenImage.cpp
 ~/ws/src/device/Octane/FrameWork/View/OffscreenImage.hpp
+~/ws/src/device/Octane/FrameWork/View/PageScrollTimer.cpp
+~/ws/src/device/Octane/FrameWork/View/PageScrollTimer.hpp
 ~/ws/src/device/Octane/FrameWork/View/Pane.cpp
 ~/ws/src/device/Octane/FrameWork/View/Pane.hpp
 ~/ws/src/device/Octane/FrameWork/View/PassThroughAdornerCIntf.cpp
@@ -234,6 +236,8 @@
 ~/ws/src/device/Octane/FrameWork/View/ScrollBarRenderer.hpp
 ~/ws/src/device/Octane/FrameWork/View/ScrollBehavior.cpp
 ~/ws/src/device/Octane/FrameWork/View/ScrollBehavior.hpp
+~/ws/src/device/Octane/FrameWork/View/ScrollButtonRenderer.cpp
+~/ws/src/device/Octane/FrameWork/View/ScrollButtonRenderer.hpp
 ~/ws/src/device/Octane/FrameWork/View/ScrollRendererIntf.cpp
 ~/ws/src/device/Octane/FrameWork/View/ScrollRendererIntf.hpp
 ~/ws/src/device/Octane/FrameWork/View/SimpleForm.cpp
