@@ -1,0 +1,95 @@
+{
+   ioctl_fusion_object_create
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:fusion_object_create
+}
+
+{
+   ioctl_fusion_shm_pool_create
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:fusion_shm_pool_create
+}
+
+{
+   ioctl_fusion_object_pool_create
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:fusion_object_pool_create
+}
+
+{
+   ioctl_dfb_core_create
+   Memcheck:Param
+   ioctl(arg)
+   fun:ioctl
+   fun:dfb_core_create
+}
+
+{
+   ioctl_HxAppInstancePrvCreate
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:HxAppInstancePrvCreate
+}
+
+{
+   ioctl_HxArenaPrvAddCallField
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:HxArenaPrvAddCallField
+}
+
+{
+   ioctl_IPCCoreCreate
+   Memcheck:Param
+   ioctl(arg)
+   fun:ioctl
+   fun:IPCCoreCreate
+}
+
+{
+   ioctl_init_devices
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:init_devices
+}
+
+{
+   write__X11TransSocketWrite
+   Memcheck:Param
+   write(buf)
+   fun:write
+   fun:_X11TransSocketWrite
+}
+
+{
+   ioctl_system_initialize
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:system_initialize
+}
+
+{
+   ioctl_hx_core_arena_initialize
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:hx_core_arena_initialize
+}
+
+{
+   ioctl_HxCorePrvCreate
+   Memcheck:Param
+   ioctl(arg)
+   fun:ioctl
+   fun:HxCorePrvCreate
+}
