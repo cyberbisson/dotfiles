@@ -4,6 +4,37 @@
 ;; and greater.
 ;; Matt Bisson	8/16/2000
 
+;; Are we running XEmacs or Emacs?
+(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
+
+;; I've only got these files compiled for emacs 20+
+(if (< 19 emacs-major-version)
+    (progn
+        ;; Enable wheelmouse support by default
+        (load "mwheel" t)
+
+        ;; Load my MUD/MOO stuff
+        (if (file-exists-p "~/elisp/mud.elc")
+            (load-file "~/elisp/mud.elc")
+        )
+
+        ;; Load CSCOPE stuff
+        (if (file-exists-p "~/elisp/xcscope.elc")
+            (load-file "~/elisp/xcscope.elc")
+        )
+
+        ;; I customized SQL mode
+        (if (file-exists-p "~/elisp/sql.elc")
+            (load-file "~/elisp/sql.elc")
+        )
+
+        ;; Perforce is a horrible version control system -- it has an emacs mode
+        ;(if (file-exists-p "~/elisp/p4.elc")
+        ;    (load-file "~/elisp/p4.elc")
+        ;) ;; 2 slow
+    )
+)
+
 ;; All this ccs stuff happens if the dotfile exists...
 (if (file-exists-p "/ccs/etc/dotfiles/.emacs")
     (progn (load-file "/ccs/etc/dotfiles/.emacs")
@@ -17,26 +48,33 @@
     )
 )
 
-;; Are we running XEmacs or Emacs?
-(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
-
-(if (string= (getenv "HOLLY_ARCH") "i386-linux")
-    ;; We might need this for debugging (only on Intel simulator)...
+;; Set up my Palm development environment
+(if (getenv "USE_HOLLY")
     (progn
-        (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
-;       (setenv "HM_DEBUG_LEVEL" 1)
-        (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT") "/sams"))
-        (setenv "LD_LIBRARY_PATH"
-            (concat (getenv "LD_LIBRARY_PATH")                       ":"
-                    (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
-                    (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
-                    (concat (getenv "HOLLY_RESULT_ROOT") "/lib")
+        (setq cscope-database-file "/home/mbisson/ws/src/cscope.out")
+        (setq compile-command      "make -k -j3 -C /home/mbisson/ws/mail/main")
+
+        ;; Shell environment crap
+        (if (string= (getenv "HOLLY_ARCH") "i386-linux")
+            ;; We might need this for debugging (only on Intel simulator)...
+            (progn
+                (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
+;               (setenv "HM_DEBUG_LEVEL" "1")
+                (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT")
+                                                 "/sams"))
+                (setenv "LD_LIBRARY_PATH"
+                    (concat (getenv "LD_LIBRARY_PATH")                       ":"
+                            (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
+                            (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
+                            (concat (getenv "HOLLY_RESULT_ROOT") "/lib")
+                    )
+                )
             )
+            ;; We're debugging on the device.
+            (setq gud-gdb-command-name
+                  "/opt/holly/toolroot/arm-linux/bin/gdb --annotate=3")
         )
     )
-    ;; We're debugging on the device.
-    (setq gud-gdb-command-name
-          "/opt/holly/toolroot/arm-linux/bin/gdb --annotate=3")
 )
 
 ;; Set some configuration variables
@@ -68,7 +106,7 @@
                               ("\\.S$"       . sh-mode)
                               ("\\.sh$"      . sh-mode)
                               ("\\.txt$"     . text-mode)
-                             )
+                            )
                             auto-mode-alist)
 
     ;; Some C specific modes
@@ -78,7 +116,6 @@
     c-tab-always-indent          nil
     tab-width                    4
     compilation-scroll-output    t
-    compile-command              "make -k -j3 -C /home/mbisson/ws/mail/main"
 
     ;; Eehh... Why not?
     display-time-24hr-format     t
@@ -94,6 +131,11 @@
 
     ;; Print the name of the visited file in the title of the window...
     frame-title-format           "%b"
+)
+
+;; Org-mode only exists in version 22 and above.
+(if (< 21 emacs-major-version)
+    (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
 )
 
 ;; Syntax highlighting
@@ -145,36 +187,16 @@
 ;; If we are at emacs-20, then we can set some variables this way
 (if (< 19 emacs-major-version)
     (progn
-        ;; Enable wheelmouse support by default
-        (load "mwheel" t)
-
-        ;; Load my MUD/MOO stuff
-        (if (file-exists-p "~/elisp/mud.elc")
-            (load-file "~/elisp/mud.elc")
-        )
-
-        ;; Load CSCOPE stuff
-        (if (file-exists-p "~/elisp/xcscope.elc")
-            (load-file "~/elisp/xcscope.elc")
-        )
-
-        ;; I customized SQL mode
-        (if (file-exists-p "~/elisp/sql.elc")
-            (load-file "~/elisp/sql.elc")
-        )
-
-        ;; Perforce is a horrible version control system -- it has an emacs mode
-        ;(if (file-exists-p "~/elisp/p4.elc")
-        ;    (load-file "~/elisp/p4.elc")
-        ;) ;; 2 slow
-
         (show-paren-mode t)
 
         ;; Can't seem to do this any other way...
+        (if (getenv "USE_HOLLY")
+            (custom-set-variables '(tab-width        4))
+            (custom-set-variables '(indent-tabs-mode nil))
+        )
+
         (custom-set-variables
-            '(tab-width         4)
             '(blink-cursor-mode nil)
-;           '(indent-tabs-mode  nil)
         )
 
         (if (< 20 emacs-major-version)
@@ -211,11 +233,21 @@
     )
 )
 
+;; I want to map M-+ so that it enters a time into my file.
+(defun insert-date (&optional arg)
+    (interactive "P")
+    (insert (format-time-string "%A, %e %B %Y" (current-time)))
+)
+
+(global-set-key "\M-+" 'insert-date)
+
 ;; I can't believe this isn't mapped by default, but...
 (global-set-key "\M-p" 'goto-line)
 
 ;; Add color to the current GUD line
 (make-face 'gdb-selection) 
+
+;; Overlay variable for GUD highlighting
 (defvar gud-overlay
     (let* ((ov (make-overlay (point-min) (point-min))))
         (overlay-put ov 'face 'gdb-selection)
@@ -225,19 +257,22 @@
     "Overlay variable for GUD highlighting."
 )
 
+;; Highlight current line
 (defadvice gud-display-line (after my-gud-highlight act)
     "Highlight current line."
     (let* ((ov gud-overlay)
            (bf (gud-find-file true-file)))
-        (save-excursion (set-buffer bf)
-                        (move-overlay ov
-                                      (line-beginning-position)
-                                      (+ (line-end-position) 1)
-                                      (current-buffer))
+        (save-excursion
+            (set-buffer bf)
+            (move-overlay ov
+                (line-beginning-position)
+                (+ (line-end-position) 1)
+                (current-buffer))
         )
     )
 )
 
+;; Get rid of highlight when the buffer goes away
 (defun gud-kill-buffer ()
     (if (eq major-mode 'gud-mode) (delete-overlay gud-overlay))
 )
