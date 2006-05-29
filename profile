@@ -18,6 +18,11 @@ if [ -f '/ccs/etc/dotfiles/.profile' ] ; then
     . '/ccs/etc/dotfiles/.profile'
 fi
 
+# Read HollyOS profile
+if [ -f "${HOME}/.hollyrc.ksh" ] ; then
+    . "${HOME}/.hollyrc.ksh"
+fi
+
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
@@ -30,12 +35,6 @@ if [ ! "${TERM}" ] | [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | \
     unset noglob
 
 fi
-
-###############################################################################
-# Now read my real initialization file
-###############################################################################
-# Use simulator stuff
-USE_HOLLY=1; export USE_HOLLY
 
 ###############################################################################
 # Get computer information
@@ -257,44 +256,6 @@ CYGWIN_NT-5.1)
     machman=
     ;;
 esac
-
-##############################################################################
-# Set up my 'simulator's environment
-##############################################################################
-if [ ${USE_HOLLY} ] ; then
-    # Hollywood tools crap
-    #HOLLY_ARCH="arm-linux"
-    HOLLY_ARCH="i386-linux"
-    HOLLY_DEBREL="debug"
-    HOLLY_RESULT_ROOT="${HOME}/tmp/toilet/${HOLLY_ARCH}"
-    HOLLY_SYSTEM_ROOT="/opt/holly/sysroot/${HOLLY_ARCH}"
-    HOLLY_TOOL_ROOT="/opt/holly/toolroot"
-    export HOLLY_ARCH HOLLY_DEBREL HOLLY_RESULT_ROOT HOLLY_SYSTEM_ROOT
-    export HOLLY_TOOL_ROOT
-
-    # Perforce crap
-    P4USER='MattBisson'
-    P4PASSWD='p4sucks'
-    P4EDITOR='/usr/bin/emacs'
-#   P4PORT='achilles:1667'
-    P4CLIENT='mbisson'
-    P4PORT='grace.palmone.com:1667'
-    P4CLIENT='mbisson-isis'
-    export P4USER P4PASSWD P4EDITOR P4PORT P4CLIENT
-
-    # Hollywood source crap
-    HOLLY_DEV_BRANCH="1.0/Dev"
-    HOLLY_DIR="${HOME}/ws/mbisson-holly"
-    HOLLY_BASE="${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
-    export HOLLY_DEV_BRANCH HOLLY_DIR HOLLY_BASE
-
-    # PBS crap
-    if [ -f "${HOME}/PBS/.pbsInit-sh" ] ; then
-        . "${HOME}/PBS/.pbsInit-sh"
-    fi
-
-    MALLOC_CHECK_=2; export MALLOC_CHECK_
-fi
 
 ###############################################################################
 # Build paths and man pages paths (This is a lot of optimized crap so that I

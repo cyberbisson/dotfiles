@@ -18,6 +18,11 @@ if (-f '/ccs/etc/dotfiles/.login') then
     source '/ccs/etc/dotfiles/.login'
 endif
 
+# Read HollyOS profile
+if ( -f "${HOME}/.hollyrc.csh" ) then
+    source "${HOME}/.hollyrc.csh"
+endif
+
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
@@ -31,11 +36,6 @@ if ((0 == ${?TERM}) || ("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
 
 endif
 
-###############################################################################
-# Now read my real initialization file
-###############################################################################
-# Use simulator stuff
-setenv USE_HOLLY 1
 
 ###############################################################################
 # Get computer information
@@ -257,40 +257,6 @@ default:
     set machman=(  )
     breaksw
 endsw
-
-##############################################################################
-# Set up my 'simulator's environment
-##############################################################################
-if (${?USE_HOLLY}) then
-    # Hollywood tools crap
-    #setenv HOLLY_ARCH        "arm-linux"
-    setenv HOLLY_ARCH        "i386-linux"
-	setenv HOLLY_DEBREL      "debug"
-    setenv HOLLY_RESULT_ROOT "${HOME}/tmp/toilet/${HOLLY_ARCH}"
-    setenv HOLLY_SYSTEM_ROOT "/opt/holly/sysroot/${HOLLY_ARCH}"
-    setenv HOLLY_TOOL_ROOT   "/opt/holly/toolroot"
-
-    # Perforce crap
-    setenv P4USER   'MattBisson'
-    setenv P4PASSWD 'p4sucks'
-    setenv P4EDITOR '/usr/bin/emacs'
-#   setenv P4PORT   'achilles:1667'
-    setenv P4CLIENT 'mbisson'
-    setenv P4PORT   'grace.palmone.com:1667'
-    setenv P4CLIENT 'mbisson-isis'
-
-    # Hollywood source crap
-    setenv HOLLY_DEV_BRANCH "1.0/Dev"
-    setenv HOLLY_DIR        "${HOME}/ws/mbisson-holly"
-    setenv HOLLY_BASE       "${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
-
-    # PBS crap
-    if (-f "${HOME}/PBS/.pbsInit-csh") then
-        source "${HOME}/PBS/.pbsInit-csh"
-    endif
-
-    setenv MALLOC_CHECK_ 2
-endif
 
 ###############################################################################
 # Build paths and man pages paths (This is a lot of optimized crap so that I
