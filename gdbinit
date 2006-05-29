@@ -115,7 +115,7 @@ end
 handle SIG32 nostop
 
 # Misc. settings
-set annotate                1
+#set annotate               3
 set architecture            auto
 set breakpoint              pending on
 set can-use-hw-watchpoints  1
