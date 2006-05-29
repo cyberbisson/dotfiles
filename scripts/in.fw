@@ -159,6 +159,8 @@
 ~/ws/src/device/Octane/FrameWork/View/MenuItem.hpp
 ~/ws/src/device/Octane/FrameWork/View/MiniArrowRenderer.cpp
 ~/ws/src/device/Octane/FrameWork/View/MiniArrowRenderer.hpp
+~/ws/src/device/Octane/FrameWork/View/MouseCursor.cpp
+~/ws/src/device/Octane/FrameWork/View/MouseCursor.hpp
 ~/ws/src/device/Octane/FrameWork/View/OffscreenImage.cpp
 ~/ws/src/device/Octane/FrameWork/View/OffscreenImage.hpp
 ~/ws/src/device/Octane/FrameWork/View/PageScrollTimer.cpp
@@ -194,6 +196,8 @@
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MenuFrameImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MenuImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MenuImpl.hpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MouseCursorImpl.cpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MouseCursorImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/OffscreenImageImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/OffscreenImageImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/p_Holly.cpp
@@ -256,8 +260,10 @@
 ~/ws/src/device/Octane/FrameWork/View/TabControlFrame.hpp
 ~/ws/src/device/Octane/FrameWork/View/Table.cpp
 ~/ws/src/device/Octane/FrameWork/View/Table.hpp
-~/ws/src/device/Octane/FrameWork/View/TableHeadingRenderer.cpp
-~/ws/src/device/Octane/FrameWork/View/TableHeadingRenderer.hpp
+~/ws/src/device/Octane/FrameWork/View/TableHeadingBehavior.cpp
+~/ws/src/device/Octane/FrameWork/View/TableHeadingBehavior.hpp
+~/ws/src/device/Octane/FrameWork/View/TableHeadingAdorner.cpp
+~/ws/src/device/Octane/FrameWork/View/TableHeadingAdorner.hpp
 ~/ws/src/device/Octane/FrameWork/View/TableTypes.h
 ~/ws/src/device/Octane/FrameWork/View/TextViewer.cpp
 ~/ws/src/device/Octane/FrameWork/View/TextViewer.hpp

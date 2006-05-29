@@ -192,6 +192,8 @@
 ~/ws/src/device/MM/Src-OOP/VMModel/VMTextConverter.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMTrashAgingIdler.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMTrashAgingIdler.hpp
+~/ws/src/device/MM/Src-OOP/VMView/DashedLineAdorner.cpp
+~/ws/src/device/MM/Src-OOP/VMView/DashedLineAdorner.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/DrawingWidget.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/DrawingWidget.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/OneLineHollyRenderer.cpp
