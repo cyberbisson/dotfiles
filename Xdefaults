@@ -45,10 +45,15 @@ aixterm*title:       AIX Terminal
 !! Set up some emacs stuff
 Emacs*geometry:      81x70
 Emacs*Font:          koi8x13
+!! Black on gray
 Emacs*Background:    #C0C0C0
 Emacs*Foreground:    #000000
-!macs*Background:    #000000
-!macs*Foreground:    #C0C0C0
+!! White on green
+!Emacs*Background:    #374D4E
+!Emacs*Foreground:    #FFFFFF
+!! Grey on white
+!Emacs*Background:    #000000
+!Emacs*Foreground:    #C0C0C0
 
 !! Set up the terminal that I actually use...
 Dtterm*geometry:     128x60
