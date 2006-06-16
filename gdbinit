@@ -4,27 +4,27 @@
 
 # Load up the HollyMail executable
 def HollyMail
-	file /home/mbisson/ws/src/device/MM/HollyMail
+	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/MM/HollyMail
 end
 
 def HollyContact
-	file /home/mbisson/ws/src/device/HollyContact/Platform/Holly/HollyContact
+	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/HollyContact/Platform/Holly/HollyContact
 end
 
 # Load up the TestHarness
 def TestHarness
-	file /home/mbisson/ws/src/device/Octane/Examples/TestHarness/TestHarness
+	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/Octane/Examples/TestHarness/TestHarness
 end
 
 # Load up the FieldTest
 def FieldTest
-	file /home/mbisson/ws/src/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
+	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
 end
 
 # Connect to the device
 def tarr
     target remote holly:7777
-	symbol-file /home/mbisson/ws/src/device/MM/HollyMail
+	symbol-file /home/mbisson/ws/BuildResults/arm-linux-debug/device/MM/HollyMail
 end
 
 # Show me everything
