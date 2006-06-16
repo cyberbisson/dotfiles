@@ -23,6 +23,14 @@
             (load-file "~/elisp/xcscope.elc")
         )
 
+        ;; Load GTAGS stuff
+        (if (file-exists-p "~/elisp/gtags.elc")
+            (load-file "~/elisp/gtags.elc")
+        )
+        (if (file-exists-p "~/elisp/xgtags.elc")
+            (load-file "~/elisp/xgtags.elc")
+        )
+
         ;; I customized SQL mode
         (if (file-exists-p "~/elisp/sql.elc")
             (load-file "~/elisp/sql.elc")
@@ -135,7 +143,10 @@
 
 ;; Org-mode only exists in version 22 and above.
 (if (< 21 emacs-major-version)
-    (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
+    (progn
+        (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
+        (setq org-startup-truncated nil)
+    )
 )
 
 ;; Syntax highlighting
