@@ -143,6 +143,10 @@
 ~/ws/src/device/Octane/FrameWork/View/GraphicButton.hpp
 ~/ws/src/device/Octane/FrameWork/View/GutterAdorner.cpp
 ~/ws/src/device/Octane/FrameWork/View/GutterAdorner.hpp
+~/ws/src/device/Octane/FrameWork/View/HTMLContentViewer.cpp
+~/ws/src/device/Octane/FrameWork/View/HTMLContentViewer.hpp
+~/ws/src/device/Octane/FrameWork/View/HTMLWidget.cpp
+~/ws/src/device/Octane/FrameWork/View/HTMLWidget.hpp
 ~/ws/src/device/Octane/FrameWork/View/ItemRenderer.cpp
 ~/ws/src/device/Octane/FrameWork/View/ItemRenderer.hpp
 ~/ws/src/device/Octane/FrameWork/View/Label.cpp
@@ -190,6 +194,8 @@
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/HollyScrollBehavior.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/HollyScrollRenderer.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/HollyScrollRenderer.hpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/HTMLWidgetImpl.cpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/HTMLWidgetImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ListImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ListImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/MenuFrameImpl.cpp

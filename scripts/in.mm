@@ -236,8 +236,6 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMDisplayPrefForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMDoneButtonBehavior.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMDoneButtonBehavior.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMFiltersPrefForm.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMFiltersPrefForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMFolderCountLabel.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMFolderCountLabel.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMFolderList.cpp
@@ -254,6 +252,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMHTMLViewer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMListViewBaseRendererIntf.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMListViewBaseRendererIntf.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMMailInfoRenderer.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMMailInfoRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMainContextList.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMainContextList.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMainForm.cpp
@@ -294,10 +294,10 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMSubjectField.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTable.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTable.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingAdorner.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingAdorner.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingBehavior.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingBehavior.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingRenderer.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.cpp
