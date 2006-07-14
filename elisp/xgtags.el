@@ -20,7 +20,7 @@
 ;; GNU Emacs; see the file COPYING.  If not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-;; $Id: xgtags.el,v 1.1 2006/06/16 20:13:04 mbisson Exp $
+;; $Id: xgtags.el,v 1.2 2006/07/14 23:57:57 mbisson Exp $
 
 ;;; Commentary:
 ;;
@@ -72,8 +72,8 @@
 
 (eval-when-compile
   (require 'cl))
-
 (require 'easymenu)
+
 
 (defconst xgtags-running-xemacs (featurep 'xemacs)
   "Whether we are running XEmacs/Lucid Emacs")
@@ -566,7 +566,7 @@ find one."
   "Jump to the place that TAG points to."
   (interactive)
   (find-file (xgtags--tag-abs-file tag))
-  (setq buffer-read-only xgtags-read-only)
+  (setq buffer-read-only (or buffer-read-only xgtags-read-only))
   (xgtags-mode 1)
   (goto-line (xgtags--tag-line tag))
   (let ((match (xgtags--tag-query tag))
@@ -1054,25 +1054,25 @@ for each tag."
 ;;; definition and support for the minor mode
 
 (easy-menu-define xgtags-menu
-		  xgtags-mode-map
-		  "gtags menu"
-		  '("Gtags"
-			[ "Find Tag" xgtags-find-tag t ]
-			[ "Find Tag Reference" xgtags-find-rtag t ]
-			[ "Find Symbol" xgtags-find-symbol t ]
-			[ "Find Pattern With grep" xgtags-find-with-grep t ]
-			[ "Find Pattern With idutils" xgtags-find-with-idutils t ]
-		    "-----------"
-			[ "Find Previous Tag" xgtags-select-prev-tag t ]
-			[ "Find Next Tag" xgtags-select-next-tag t ]
-		    "-----------"
-			[ "Make Completion List" xgtags-make-complete-list t ]
-			[ "Find File" xgtags-find-file t ]
-			[ "Display in Browser" xgtags-display-browser t ]
-		    "-----------"
-			[ "Parse File" xgtags-parse-file t ]
-			[ "Visit Tags Directory" xgtags-visit-rootdir t ]
-		    ))
+  xgtags-mode-map
+  "xgtags menu"
+  '("XGtags"
+    [ "Find Tag" xgtags-find-tag t ]
+    [ "Find Tag Reference" xgtags-find-rtag t ]
+    [ "Find Symbol" xgtags-find-symbol t ]
+    [ "Find Pattern With grep" xgtags-find-with-grep t ]
+    [ "Find Pattern With idutils" xgtags-find-with-idutils t ]
+    "-----------"
+    [ "Find Previous Tag" xgtags-select-prev-tag t ]
+    [ "Find Next Tag" xgtags-select-next-tag t ]
+    [ "Query-replace Tag" xgtags-query-replace-regexp t ]
+    "-----------"
+    [ "Make Completion List" xgtags-make-complete-list t ]
+    [ "Find File" xgtags-find-file t ]
+    [ "Display in Browser" xgtags-display-browser t ]
+    "-----------"
+    [ "Parse File" xgtags-parse-file t ]
+    [ "Visit Tags Directory" xgtags-visit-rootdir t ]))
 
 (define-minor-mode xgtags-mode
   "Toggle xgtags-mode, a minor mode for browsing source code using GLOBAL.
@@ -1111,15 +1111,6 @@ with no args, if that value is non-nil."
   ;; The minor mode bindings.
   'xgtags-mode-map)
 
-(defun xgtags-default-hook ()
-  ""
-  (progn
-	(xgtags-mode)
-	(easy-menu-add xgtags-menu xgtags-mode-map))
-)
-
-(add-hook 'c-mode-hook (function xgtags-default-hook))
-(add-hook 'c++-mode-hook (function xgtags-default-hook))
 
 ;;; definition and support for the selection mode
 
