@@ -15,6 +15,7 @@ USE_HOLLY=1; export USE_HOLLY
 # Hollywood tools crap
 #HOLLY_ARCH="arm-linux"
 HOLLY_ARCH="i386-linux"
+#HOLLY_DEBREL="release"
 HOLLY_DEBREL="debug"
 HOLLY_RESULT_ROOT="${HOME}/tmp/toilet/${HOLLY_ARCH}"
 HOLLY_SYSTEM_ROOT="/opt/holly/sysroot/${HOLLY_ARCH}"

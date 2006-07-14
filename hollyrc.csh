@@ -15,6 +15,7 @@ setenv USE_HOLLY 1
 # Hollywood tools crap
 #setenv HOLLY_ARCH       "arm-linux"
 setenv HOLLY_ARCH        "i386-linux"
+#setenv HOLLY_DEBREL      "release"
 setenv HOLLY_DEBREL      "debug"
 setenv HOLLY_RESULT_ROOT "${HOME}/tmp/toilet/${HOLLY_ARCH}"
 setenv HOLLY_SYSTEM_ROOT "/opt/holly/sysroot/${HOLLY_ARCH}"
