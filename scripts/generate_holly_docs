@@ -1,0 +1,67 @@
+#!/bin/sh
+
+echo "Building API Guide..."
+
+TOPDIR="/home/mbisson/ws/holly/Source/Platform/Holly/1.0/Build"
+
+DOCS_BUILD_DIR="/opt/holly/doc"
+
+pushd "${TOPDIR}/sdk/docs/Doxygen" > /dev/null
+
+DOX_CONFIG_DIR="./ConfigFiles"
+DOX_CONFIG_FILE="${DOX_CONFIG_DIR}/DoxConfig.cfg"
+TEMP_DOX_CONFIG_FILE="${DOX_CONFIG_DIR}/TempDoxConfig.cfg"
+
+cp -f "${DOX_CONFIG_FILE}" "${TEMP_DOX_CONFIG_FILE}"
+
+# DOX_CONFIG_FILE checked out read-only,
+# so enable for mods below.
+sudo chmod a+w "${TEMP_DOX_CONFIG_FILE}"
+
+echo >> "${TEMP_DOX_CONFIG_FILE}"
+
+# Directories where Doxgyen is looking for headers to document.
+HEADER_DIR="${HOLLY_SYSTEM_ROOT}/usr/include"
+
+HEADER_SUBDIRS="${HEADER_DIR}/hx ${HEADER_DIR}/lite"
+
+echo "INPUT = ./ConfigFiles \\" >> "${TEMP_DOX_CONFIG_FILE}"
+for d in ${HEADER_SUBDIRS}; do
+    echo " $d \\" >> "${TEMP_DOX_CONFIG_FILE}"
+    sudo mkdir -p "$d"  # Just in case there are no headers
+done
+echo " " >> "${TEMP_DOX_CONFIG_FILE}" # Blank line to terminate INPUT list
+
+echo "PROJECT_NUMBER = ${PROJ_NUM}" >> "${TEMP_DOX_CONFIG_FILE}"
+# HTML Helper Compiler location (undefined for now)
+echo "HHC_LOCATION = ${DOXYGEN_HHC_PATH}" >> "${TEMP_DOX_CONFIG_FILE}"
+
+# dot tool location; (undefined for now)
+# Change HAVE_DOT to YES if we add dot tool.
+echo "HAVE_DOT = NO" >> "${TEMP_DOX_CONFIG_FILE}"
+echo "DOT_PATH = ${DOXYGEN_DOT_PATH}" >> "${TEMP_DOX_CONFIG_FILE}"
+
+# Put into docs folder.
+echo "OUTPUT_DIRECTORY = ${DOCS_BUILD_DIR}" >> "${TEMP_DOX_CONFIG_FILE}"
+
+# HTML will be in "Maguffin API Guide" directory.
+HTML_DIR=Maguffin_API_Guide
+echo "HTML_OUTPUT = ./${HTML_DIR}" >> "${TEMP_DOX_CONFIG_FILE}"
+
+# Warning log file doesn't go with shipable docs.
+echo "WARN_LOGFILE = ${HOLLY_RESULT_ROOT}/DoxygenWarning.log" >> "${TEMP_DOX_CONFIG_FILE}"
+
+sudo doxygen "${TEMP_DOX_CONFIG_FILE}" || abort "Doxygen Failed."
+
+# Doxygen copied over devices.gif, but not logo.gif.
+# So copy them all over just to make sure.
+sudo cp -rf ${DOX_CONFIG_DIR}/*.gif "${DOCS_BUILD_DIR}/${HTML_DIR}"
+# Nor does it copy over the new html pages about external libraries.
+sudo cp -rf "${DOX_CONFIG_DIR}/exlibs.html" "${DOCS_BUILD_DIR}/${HTML_DIR}"
+sudo chown 500 -R "${DOCS_BUILD_DIR}"
+sudo chmod 777 -R "${DOCS_BUILD_DIR}"
+
+# Cleanup.
+rm -rf "${TEMP_DOX_CONFIG}"
+
+popd > /dev/null
