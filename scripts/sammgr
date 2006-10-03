@@ -1,0 +1,4 @@
+#!/bin/sh
+killall SAMMgr
+killall SSFWM
+hm_exec ~/tmp/toilet/i386-linux/SAMMgr

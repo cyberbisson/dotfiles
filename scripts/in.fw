@@ -1,7 +1,6 @@
 ~/ws/src/device/Octane/FrameWork/Controller/DataEntryControl.cpp
 ~/ws/src/device/Octane/FrameWork/Controller/DataEntryControl.hpp
 ~/ws/src/device/Octane/FrameWork/Controller/TableControllerIntf.cpp
-~/ws/src/device/Octane/FrameWork/Controller/TableControllerIntf.h
 ~/ws/src/device/Octane/FrameWork/Controller/WidgetController.cpp
 ~/ws/src/device/Octane/FrameWork/Controller/WidgetController.hpp
 ~/ws/src/device/Octane/FrameWork/Controller/p_Controller.cpp
@@ -116,6 +115,8 @@
 ~/ws/src/device/Octane/FrameWork/View/DataWidget.hpp
 ~/ws/src/device/Octane/FrameWork/View/DebugAdorner.cpp
 ~/ws/src/device/Octane/FrameWork/View/DebugAdorner.hpp
+~/ws/src/device/Octane/FrameWork/View/Dialog.cpp
+~/ws/src/device/Octane/FrameWork/View/Dialog.hpp
 ~/ws/src/device/Octane/FrameWork/View/DrawingMgr.cpp
 ~/ws/src/device/Octane/FrameWork/View/DrawingMgr.hpp
 ~/ws/src/device/Octane/FrameWork/View/FPIContentViewer.cpp
@@ -158,6 +159,8 @@
 ~/ws/src/device/Octane/FrameWork/View/MenuItem.hpp
 ~/ws/src/device/Octane/FrameWork/View/MiniArrowRenderer.cpp
 ~/ws/src/device/Octane/FrameWork/View/MiniArrowRenderer.hpp
+~/ws/src/device/Octane/FrameWork/View/ModelMenu.cpp
+~/ws/src/device/Octane/FrameWork/View/ModelMenu.hpp
 ~/ws/src/device/Octane/FrameWork/View/MouseCursor.cpp
 ~/ws/src/device/Octane/FrameWork/View/MouseCursor.hpp
 ~/ws/src/device/Octane/FrameWork/View/OffscreenImage.cpp
@@ -174,7 +177,6 @@
 ~/ws/src/device/Octane/FrameWork/View/PictureAdorner.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ApplicationWindowImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ApplicationWindowImpl.hpp
-~/ws/src/device/Octane/FrameWork/View/Platform/Holly/CharMapping.h
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/DrawingMgrImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/DrawingMgrImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/FieldControlImpl.cpp
@@ -207,6 +209,8 @@
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/StaticControlFrameImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/TableImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/TableImpl.hpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ToolbarImpl.cpp
+~/ws/src/device/Octane/FrameWork/View/Platform/Holly/ToolbarImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/WidgetImpl.cpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/WidgetImpl.hpp
 ~/ws/src/device/Octane/FrameWork/View/Platform/Holly/p_Holly.cpp
@@ -263,11 +267,12 @@
 ~/ws/src/device/Octane/FrameWork/View/TableHeadingAdorner.hpp
 ~/ws/src/device/Octane/FrameWork/View/TableHeadingBehavior.cpp
 ~/ws/src/device/Octane/FrameWork/View/TableHeadingBehavior.hpp
-~/ws/src/device/Octane/FrameWork/View/TableTypes.h
 ~/ws/src/device/Octane/FrameWork/View/TextViewer.cpp
 ~/ws/src/device/Octane/FrameWork/View/TextViewer.hpp
 ~/ws/src/device/Octane/FrameWork/View/TitledAdorner.cpp
 ~/ws/src/device/Octane/FrameWork/View/TitledAdorner.hpp
+~/ws/src/device/Octane/FrameWork/View/Toolbar.cpp
+~/ws/src/device/Octane/FrameWork/View/Toolbar.hpp
 ~/ws/src/device/Octane/FrameWork/View/Util/StFormActive.cpp
 ~/ws/src/device/Octane/FrameWork/View/Util/StFormActive.hpp
 ~/ws/src/device/Octane/FrameWork/View/Util/StProfiler.cpp
@@ -275,7 +280,6 @@
 ~/ws/src/device/Octane/FrameWork/View/Util/StRsrcString.cpp
 ~/ws/src/device/Octane/FrameWork/View/Util/StRsrcString.hpp
 ~/ws/src/device/Octane/FrameWork/View/Util/StWinClipper.cpp
-~/ws/src/device/Octane/FrameWork/View/Util/StWinClipper.h
 ~/ws/src/device/Octane/FrameWork/View/Widget.cpp
 ~/ws/src/device/Octane/FrameWork/View/Widget.hpp
 ~/ws/src/device/Octane/FrameWork/View/WidgetBorder.cpp

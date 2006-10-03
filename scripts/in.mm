@@ -203,6 +203,12 @@
 ~/ws/src/device/MM/Src-OOP/VMView/OneLineViewRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMComposeMsgForm.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMComposeMsgForm.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreferencesForm.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreferencesForm.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMViewMsgForm.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMViewMsgForm.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMWavyAdorner.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMWavyAdorner.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/TwoLineViewRenderer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/TwoLineViewRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountRenderer.cpp
@@ -275,8 +281,6 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMMsgPreviewFrame.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMNotificationPrefForm.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMNotificationPrefForm.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMPreferencesForm.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMPreferencesForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMReadMessageTimer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMReadMessageTimer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMReplyPrefForm.cpp
@@ -313,8 +317,6 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMViewMsgForm.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMViewMsgForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/p_VMView.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/p_VMView.hpp
 ~/ws/src/device/MM/Src-OOP/p_VMSpecificDataTypes.hpp

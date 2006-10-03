@@ -4,6 +4,7 @@
 
 # Load up the HollyMail executable
 def HollyMail
+#	set env LC_ALL it_IT
 	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/MM/HollyMail
 end
 
@@ -25,6 +26,7 @@ end
 def tarr
     target remote holly:7777
 	symbol-file /home/mbisson/ws/BuildResults/arm-linux-debug/device/MM/HollyMail
+#	add-symbol-file /home/mbisson/tmp/toilet/arm-linux/lib/libIData.so
 end
 
 # Show me everything
@@ -235,8 +237,8 @@ set remotetimeout     0d2
 # Shared Library stuff
 set auto-solib-add         on
 #set solib-absolute-prefix  /opt/holly/sysroot/arm-linux
-#set solib-search-path      /opt/holly/sysroot/arm-linux/lib:/opt/holly/sysroot/arm-linux/usr/lib
-set solib-search-path      /opt/holly/sysroot/i386-linux/lib:/opt/holly/sysroot/i386-linux/usr/lib
+#set solib-search-path      /opt/holly/sysroot/arm-linux/lib:/opt/holly/sysroot/arm-linux/usr/lib:/home/mbisson/tmp/toilet/arm-linux/lib
+set solib-search-path      /opt/holly/sysroot/i386-linux/lib:/opt/holly/sysroot/i386-linux/usr/lib:/home/mbisson/tmp/toilet/i386-linux/lib
 set step-mode              off
 set stop-on-solib-events   0
 

@@ -61,13 +61,13 @@
     (progn
         (setq cscope-database-file "/home/mbisson/ws/src/cscope.out")
         (setq compile-command      "make -k -j3 -C /home/mbisson/ws/mail/main")
+        (setenv "HM_DEBUG_LEVEL" "0")
 
         ;; Shell environment crap
         (if (string= (getenv "HOLLY_ARCH") "i386-linux")
             ;; We might need this for debugging (only on Intel simulator)...
             (progn
                 (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
-;               (setenv "HM_DEBUG_LEVEL" "1")
                 (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT")
                                                  "/sams"))
                 (setenv "LD_LIBRARY_PATH"
@@ -100,6 +100,7 @@
                               ("\\.hpp$"     . c++-mode)
                               ("\\.i$"       . c++-mode)
                               ("\\.rc$"      . c++-mode)
+                              ("\\.r$"       . c-mode)
                               ("[Mm]akefile" . makefile-mode)
                               ("\\.M$"       . nroff-mode)
                               ("\\.ms$"      . nroff-mode)

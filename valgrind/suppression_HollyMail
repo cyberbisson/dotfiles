@@ -93,3 +93,45 @@
    fun:ioctl
    fun:HxCorePrvCreate
 }
+
+{
+   ioctl_SCapSupports
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:SCapSupports
+}
+
+{
+   ioctl_SAMgrProgCancelled
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:SAMgrProgCancelled
+}
+
+{
+   ioctl_prvReInitRPC
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:prvReInitRPC
+   fun:prvCheckRPCContext
+   fun:SAMgrProgCancelled
+}
+
+{
+   ioctl_prvReInitRPC_Cond
+   Memcheck:Cond
+   fun:prvReInitRPC
+   fun:prvCheckRPCContext
+   fun:SAMgrProgCancelled
+}
+
+{
+   ioctl_SAMgrQueryByTypeCreator
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   fun:SAMgrQueryByTypeCreator
+}
