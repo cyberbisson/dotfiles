@@ -129,7 +129,7 @@ set confirm                 off
 set cp-abi                  auto
 set demangle-style          auto
 #set disassembly-flavor     intel
-set download-write-size     0d512
+#set download-write-size     0d512
 set editing                 on
 set endian                  auto
 set exec-done-display       off

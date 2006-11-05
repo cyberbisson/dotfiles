@@ -5,7 +5,7 @@
 ###############################################################################
 # Matt Bisson
 
-P4CLIENT='mbisson-isis'
+P4CLIENT='mbisson-jupiter'
 P4EDITOR='/usr/bin/emacs'
 P4PASSWD='p4sucks'
 P4PORT='achilles:1667'
