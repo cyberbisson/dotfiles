@@ -2,124 +2,91 @@
 # shortcut for the target remote command. Type 'tarr' at the gdb
 # command line to issue the 'target remote ...' command.
 
+##############################################################################
+## Path Setup Macros:
+##############################################################################
+
+def OctanePath
+	dir /home/mbisson/ws/src/device/Octane/FrameWork/Controller:/home/mbisson/ws/src/device/Octane/FrameWork/Environment:/home/mbisson/ws/src/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/Model:/home/mbisson/ws/src/device/Octane/FrameWork/View:/home/mbisson/ws/src/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Platform/Holly
+end
+
+def EmailPath
+	dir /home/mbisson/ws/src/device/MM/Platform/Holly:/home/mbisson/ws/src/device/MM/Src-OOP/VMModel:/home/mbisson/ws/src/device/MM/Src-OOP/VMView/Platform/Holly:/home/mbisson/ws/src/device/MM/Src-OOP/VMController
+end
+
+def ArmHollyPath
+	set solib-absolute-prefix  /opt/holly/sysroot/arm-linux
+	set solib-search-path      /opt/holly/sysroot/arm-linux/lib:/opt/holly/sysroot/arm-linux/usr/lib:/home/mbisson/tmp/toilet/arm-linux/lib
+	dir /opt/holly/sysroot/arm-linux/usr/include:/opt/holly/sysroot/arm-linux/usr/include/directfb
+end
+
+def IntelHollyPath
+# This doesn't work:	set solib-absolute-prefix 
+	set solib-search-path     /opt/holly/sysroot/i386-linux/lib:/opt/holly/sysroot/i386-linux/usr/lib:/home/mbisson/tmp/toilet/i386-linux/lib
+	dir /opt/holly/sysroot/i386-linux/usr/include:/opt/holly/sysroot/i386-linux/usr/include/directfb
+end
+
+##############################################################################
+## Exec Setup Macros:
+##############################################################################
+
 # Load up the HollyMail executable
 def HollyMail
+	IntelHollyPath
+	OctanePath
+	EmailPath
+
 #	set env LC_ALL it_IT
-	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/MM/HollyMail
+
+	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/MM/Email
 end
 
 def HollyContact
+	IntelHollyPath
+	OctanePath
+
 	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/HollyContact/Platform/Holly/HollyContact
 end
 
 # Load up the TestHarness
 def TestHarness
+	IntelHollyPath
+	OctanePath
+	dir /home/mbisson/ws/src/device/Octane/Examples/TestHarness:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source/TableSubclasses
+
 	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/Octane/Examples/TestHarness/TestHarness
 end
 
 # Load up the FieldTest
 def FieldTest
+	IntelHollyPath
+	OctanePath
+
 	file /home/mbisson/ws/BuildResults/i386-linux-debug/device/Octane/Examples/FieldTest/Platform/Holly/FieldTest
 end
 
 # Connect to the device
 def tarr
+	ArmHollyPath
+	OctanePath
+	EmailPath
+
     target remote holly:7777
-	symbol-file /home/mbisson/ws/BuildResults/arm-linux-debug/device/MM/HollyMail
-#	add-symbol-file /home/mbisson/tmp/toilet/arm-linux/lib/libIData.so
+	symbol-file /home/mbisson/ws/BuildResults/arm-linux-debug/device/MM/Email
+#	add-shared-symbol-file /home/mbisson/tmp/toilet/arm-linux/lib/libIData.so
 end
 
-# Show me everything
-def dumpenv
-	show annotate
-	show architecture
-	show args
-	show auto-solib-add
-	show backtrace
-	show breakpoint
-	show can-use-hw-watchpoints
-	show case-sensitive
-	show charset
-	show check
-	show coerce-float-to-double
-	show commands
-	show complaints
-	show confirm
-	show convenience
-	show copying
-	show cp-abi
-	show debug
-	show debug-file-directory
-	show debugvarobj
-	show demangle-style
-	show directories
-	show disassembly-flavor
-	show download-write-size
-	show editing
-	show endian
-	show environment
-	show exec-done-display
-	show extension-language
-	show follow-fork-mode
-	show gnutarget
-	show height
-	show history
-	show host-charset
-	show inferior-tty
-	show input-radix
-	show language
-	show listsize
-	show logging
-	show max-user-call-depth
-	show opaque-type-resolution
-	show os
-	show osabi
-	show output-radix
-	show overload-resolution
-	show pagination
-	show paths
-	show print
-	show prompt
-	show radix
-	show remote
-	show remoteaddresssize
-	show remotebaud
-	show remotebreak
-	show remotecache
-	show remotedevice
-	show remotelogbase
-	show remotelogfile
-	show remotetimeout
-	show remotewritesize
-	show scheduler-locking
-	show serial
-	show solib-absolute-prefix
-	show solib-search-path
-	show step-mode
-	show stop-on-solib-events
-	show struct-convention
-	show symbol-reloading
-	show target-charset
-	show trust-readonly-sections
-	show tui
-	show unwindonsignal
-	show user
-	show values
-	show verbose
-	show version
-	show warranty
-	show watchdog
-	show width
-	show write
-end
+##############################################################################
+## Debugger Settings:
+##############################################################################
 
 # Signals
 handle SIG32 nostop
 
 # Misc. settings
-#set annotate               3
+set annotate                1
 set architecture            auto
-set breakpoint              pending on
+set breakpoint pending      on
 set can-use-hw-watchpoints  1
 set case-sensitive          auto
 set charset                 ISO-8859-1
@@ -144,11 +111,11 @@ set opaque-type-resolution  on
 set output-radix            0d10
 set overload-resolution     on
 set pagination              on
-set prompt                  [gdb] 
+#set prompt                  [gdb] # THIS BREAKS AUTO-COMPLETE
 #set struct-convention      default
 set symbol-reloading        on
 set target-charset          ISO-8859-1
-set trust-readonly-sections off
+set trust-readonly-sections on
 set unwindonsignal          off
 set verbose                 off
 set watchdog                0
@@ -171,7 +138,7 @@ set debug                frame      0
 #set debug               infrun     0
 #set debug               lin-lwp    0
 set debug                observer   0
-set debug                overload   1
+set debug                overload   0
 set debug                remote     0
 set debug                serial     0
 set debug                target     0
@@ -179,7 +146,7 @@ set debug-file-directory /opt/holly/toolroot/lib/debug
 set debugvarobj          0
 
 # History
-set history expansion off
+set history expansion on
 set history filename  /home/mbisson/ws/mbisson/.gdb_history
 set history save      on
 set history size      0d256
@@ -191,7 +158,6 @@ set logging redirect  off
 
 # Display crap
 set print address               on
-set print array                 on
 set print array                 on
 set print asm-demangle          on
 set print demangle              on
@@ -236,16 +202,10 @@ set remotetimeout     0d2
 
 # Shared Library stuff
 set auto-solib-add         on
-#set solib-absolute-prefix  /opt/holly/sysroot/arm-linux
-#set solib-search-path      /opt/holly/sysroot/arm-linux/lib:/opt/holly/sysroot/arm-linux/usr/lib:/home/mbisson/tmp/toilet/arm-linux/lib
-set solib-search-path      /opt/holly/sysroot/i386-linux/lib:/opt/holly/sysroot/i386-linux/usr/lib:/home/mbisson/tmp/toilet/i386-linux/lib
-set step-mode              off
+set step-mode              on
 set stop-on-solib-events   0
 
 # TUI
 set tui active-border-mode bold-standout
 set tui border-kind        acs
 set tui border-mode        normal
-
-# The top of my source tree
-dir /home/mbisson/ws/src:/home/mbisson/ws/src/Common/SDK:/home/mbisson/ws/src/device/MMCommon:/home/mbisson/ws/src/device/Octane/Examples/TestHarness:/home/mbisson/ws/src/device/Octane/:/home/mbisson/ws/src/device/Octane/FrameWork:/home/mbisson/ws/src/device/Octane/FrameWork/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Objecteering:/home/mbisson/ws/src/device/Octane/FrameWork/Util/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/Environment:/home/mbisson/ws/src/device/Octane/FrameWork/Environment/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View:/home/mbisson/ws/src/device/Octane/FrameWork/View/Platform/Holly:/home/mbisson/ws/src/device/Octane/FrameWork/View/Util:/home/mbisson/ws/src/device/Octane/FrameWork/Model:/home/mbisson/ws/src/device/Octane/FrameWork/Controller:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source:/home/mbisson/ws/src/device/Octane/Examples/TestHarness/Source/TableSubclasses:/opt/holly/sysroot/i386-linux/usr/include:/home/mbisson/ws/src/device/MM/Src:/home/mbisson/ws/src/device/MM/Platform/Holly:/home/mbisson/ws/src/device/MM/Src-OOP:/home/mbisson/ws/src/device/MM/Src-OOP/VMModel:/home/mbisson/ws/src/device/MM/Src-OOP/VMView:/home/mbisson/ws/src/device/MM/Src-OOP/VMController:/opt/holly/sysroot/i386-linux/usr/include/directfb
