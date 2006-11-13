@@ -1,5 +1,3 @@
-~/ws/src/device/MM/Platform/Holly/ContactPreference.cpp
-~/ws/src/device/MM/Platform/Holly/ContactPreference.hpp
 ~/ws/src/device/MM/Platform/Holly/MMCategoryEditStub.cpp
 ~/ws/src/device/MM/Platform/Holly/MMPluginsStub.cpp
 ~/ws/src/device/MM/Platform/Holly/MMSrc.cpp
@@ -153,6 +151,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMViewMsgForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMWavyAdorner.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMWavyAdorner.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMAboutDialog.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMAboutDialog.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountRenderer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountTable.cpp
