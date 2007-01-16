@@ -15,44 +15,81 @@
 NoGrabServer
 RestartPreviousState
 DecorateTransients
-TitleFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
-ResizeFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
-MenuFont "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
-IconFont "-adobe-helvetica-bold-r-normal--*-100-*-*-*-*-*-*"
-IconManagerFont "-adobe-helvetica-bold-r-normal--*-100-*-*-*"
+OpaqueMove
+
+TitleFont          "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+ResizeFont         "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+MenuFont           "-adobe-helvetica-bold-r-normal--*-120-*-*-*-*-*-*"
+IconFont           "-adobe-helvetica-bold-r-normal--*-100-*-*-*-*-*-*"
+IconManagerFont    "-adobe-helvetica-bold-r-normal--*-100-*-*-*"
+
+# This is how I want Icons to work: don't make those crummy little icons
+# scattered all over the screen (use IconifyByUnmapping), and manage everything
+# via the TWM Icon Manager.
+IconifyByUnmapping
 ShowIconManager
 SortIconManager
 
+# I might not want this after all...
+AutoRaise
+{
+    "TWM Icon Manager"
+}
+
 Color
 {
-    BorderColor "slategrey"
-    DefaultBackground "rgb:B2/22/22"
-    DefaultForeground "gray85"
-    TitleBackground "rgb:B2/22/22"
-    TitleForeground "gray85"
-    MenuBackground "rgb:B2/22/22"
-    MenuForeground "gray85"
-    MenuTitleBackground "gray70"
-    MenuTitleForeground "rgb:B2/22/22"
-    IconBackground "rgb:B2/22/22"
-    IconForeground "gray85"
-    IconBorderColor "gray85"
+    BorderColor           "slategrey"
+    DefaultBackground     "rgb:B2/22/22"
+    DefaultForeground     "gray85"
+    TitleBackground       "rgb:B2/22/22"
+    TitleForeground       "gray85"
+    MenuBackground        "rgb:B2/22/22"
+    MenuForeground        "gray85"
+    MenuTitleBackground   "gray70"
+    MenuTitleForeground   "rgb:B2/22/22"
+    IconBackground        "rgb:B2/22/22"
+    IconForeground        "gray85"
+    IconBorderColor       "gray85"
     IconManagerBackground "rgb:B2/22/22"
     IconManagerForeground "gray85"
 }
+
+#Function "raise-and-focus"
+#{
+#    f.downiconmgr
+#    f.deiconify
+#    f.raise
+#}
 
 #
 # Define some useful functions for motion-based actions.
 #
 MoveDelta 3
-Function "move-or-lower" { f.move f.deltastop f.lower }
-Function "move-or-raise" { f.move f.deltastop f.raise }
-Function "move-or-iconify" { f.move f.deltastop f.iconify }
+Function "move-or-lower"
+{
+    f.move
+    f.deltastop
+    f.lower
+}
+Function "move-or-raise"
+{
+    f.move
+    f.deltastop
+    f.raise
+}
+Function "move-or-iconify"
+{
+    f.move
+    f.deltastop
+    f.iconify
+}
 
 #
 # Set some useful bindings.  Sort of uwm-ish, sort of simple-button-ish
 #
 Button1 = : root : f.menu "defops"
+Button2 = : root : f.menu "weirdops"
+Button3 = : root : f.menu "commonapps"
 
 Button1 = m : window|icon : f.function "move-or-lower"
 Button2 = m : window|icon : f.iconify
@@ -67,28 +104,58 @@ Button2 = : icon : f.iconify
 Button1 = : iconmgr : f.iconify
 Button2 = : iconmgr : f.iconify
 
+#"F1" = : all : f.function "raise-and-focus"
+
 #
 # And a menus with the usual things
 #
 menu "defops"
 {
-"Twm"	f.title
-"Iconify"	f.iconify
-"Resize"	f.resize
-"Move"		f.move
-"Raise"		f.raise
-"Lower"		f.lower
-""		f.nop
-"Focus"		f.focus
-"Unfocus"	f.unfocus
-"Show Iconmgr"	f.showiconmgr
-"Hide Iconmgr"	f.hideiconmgr
-""		f.nop
-"Xterm"		f.exec "exec xterm -ls &"
-""		f.nop
-"Kill"		f.destroy
-"Delete"	f.delete
-""		f.nop
-"Restart"	f.restart
-"Exit"		f.quit
+    "Twm"             f.title
+    "Iconify"         f.iconify
+    "Resize"          f.resize
+    "Move"            f.move
+    "Raise"           f.raise
+    "Lower"           f.lower
+    ""                f.nop
+    "Focus"           f.focus
+    "Unfocus"         f.unfocus
+    "Show Iconmgr"    f.showiconmgr
+    "Hide Iconmgr"    f.hideiconmgr
+    ""                f.nop
+    "AIXterm"         f.exec "xterm -name aixterm -ls &"
+    "XConsole"        f.exec "xconsole &"
+    "Xterm"           f.exec "xterm -ls &"
+    ""                f.nop
+    "Kill"            f.destroy
+    "Delete"          f.delete
+    ""                f.nop
+    "Restart"         f.restart
+    "Exit"            f.quit
+}
+
+menu "weirdops"
+{
+    "Options"             f.title
+    "Identify"            f.identify
+	"Toggle AutoRaise"    f.autoraise
+    ""                    f.nop
+    "Refresh"             f.winrefresh
+    "Refresh All"         f.refresh
+    "Save State"          f.saveyourself
+}
+
+menu "commonapps"
+{
+    "Applications"        f.title
+    "Amarok"              ! "amarok -m &"
+    "Emacs"               ! "emacs &"
+    "Calculator"          ! "gcalctool &"
+    "Volume Control"      ! "gnome-volume-control &"
+	"VMWare"              ! "vmwareesd &"
+    ""                    f.nop
+    "Firefox"             ! "firefox &"
+    "Gaim"                ! "gaim &"
+    ""                    f.nop
+    "Lock Screen"         ! "xscreensaver-command -lock &"
 }

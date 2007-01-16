@@ -54,6 +54,10 @@
         ;; Set up my mail preferences
         (setq rmail-file-name       "~/mail/mbisson.ccs.neu.edu")
     )
+    (progn
+        (defalias 'run-lisp 'inferior-lisp)
+        (setq inferior-lisp-program "sbcl --noinform")
+    )
 )
 
 ;; Set up my Palm development environment

@@ -31,11 +31,13 @@ rxvt.term:        xterm
 
 !! Set up a cool AIX term
 aixterm*background:  purple4
-aixterm*font:        -*-Lucida Console-normal-r-*-*-11-82-96-96-c-69-iso8859-1
+!!aixterm*font:        -*-Lucida Console-normal-r-*-*-11-82-96-96-c-69-iso8859-1
+aixterm*font:        7x13
 aixterm*borderColor: white
 aixterm*fullCursor:  true
 aixterm*cursorColor: white
-aixterm*foreground:  white
+aixterm*foreground:  lightgray
+!!aixterm*foreground:  white
 aixterm*geometry:    128x60
 aixterm*saveLines:   2048
 aixterm*scrollBar:   true

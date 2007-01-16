@@ -6,6 +6,7 @@
 # Matt Bisson
 
 setenv P4CLIENT "`whoami`-`hostname`"
+setenv P4DIFF   'p4vdiff'
 setenv P4EDITOR '/usr/bin/emacs'
 setenv P4PASSWD 'p4sucks'
 setenv P4PORT   'achilles.palm1.palmone.com:1667'

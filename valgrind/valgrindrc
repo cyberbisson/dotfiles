@@ -1,6 +1,6 @@
 --suppressions=/home/mbisson/.suppression_HollyMail
 --leak-check=full
 --leak-resolution=high
---num-callers=15
+--num-callers=25
 --show-reachable=yes
 --track-fds=yes
