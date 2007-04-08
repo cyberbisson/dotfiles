@@ -46,7 +46,7 @@ aixterm*title:       AIX Terminal
 
 !! Set up some emacs stuff
 Emacs*geometry:      81x70
-Emacs*Font:          koi8x13
+Emacs*Font:          8x13
 !! Black on gray
 Emacs*Background:    #C0C0C0
 Emacs*Foreground:    #000000
