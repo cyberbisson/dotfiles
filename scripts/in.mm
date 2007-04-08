@@ -8,11 +8,15 @@
 ~/ws/src/device/MM/Platform/Holly/VMHollyMain.h
 ~/ws/src/device/MM/Platform/Holly/VMHollyMainForm.cpp
 ~/ws/src/device/MM/Platform/Holly/VMHollyMainForm.hpp
+~/ws/src/device/MM/Platform/Holly/VMOptions.cpp
+~/ws/src/device/MM/Platform/Holly/VMOptions.hpp
 ~/ws/src/device/MM/Platform/Holly/VMSAMUtilsStub.cpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMAutoGetMailTimer.cpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMAutoGetMailTimer.hpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMComposeMsgController.cpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMComposeMsgController.hpp
+~/ws/src/device/MM/Src-OOP/VMController/VMFolderTableController.cpp
+~/ws/src/device/MM/Src-OOP/VMController/VMFolderTableController.hpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMHollyTableController.cpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMHollyTableController.hpp
 ~/ws/src/device/MM/Src-OOP/VMController/VMMainViewController.cpp
@@ -29,6 +33,8 @@
 ~/ws/src/device/MM/Src-OOP/VMController/p_VMController.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMAccountPreferenceImpl.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMAccountPreferenceImpl.hpp
+~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMDateTime.cpp
+~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMDateTime.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMLogViewerDataPipe.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMLogViewerDataPipe.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/Platform/Holly/VMSyncMgrImpl.cpp
@@ -69,8 +75,6 @@
 ~/ws/src/device/MM/Src-OOP/VMModel/VMIDataGlue.h
 ~/ws/src/device/MM/Src-OOP/VMModel/VMIDataInterface.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMIDataInterface.hpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMIDataPipe.cpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMIDataPipe.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMIMeetingInterface.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMIMeetingInterface.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMISamInterface.cpp
@@ -92,12 +96,8 @@
 ~/ws/src/device/MM/Src-OOP/VMModel/VMOutgoingServerSettings.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMOutgoingServerSettings.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSignatureIDataPipe.cpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMSignatureIDataPipe.cpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMSignatureIDataPipe.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSignatureIDataPipe.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressDataSource.cpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressDataSource.cpp
-~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressDataSource.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressDataSource.hpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressPrimaryItem.cpp
 ~/ws/src/device/MM/Src-OOP/VMModel/VMSmartAddressPrimaryItem.hpp
@@ -121,6 +121,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/DrawingWidget.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/OneLineHollyRenderer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/OneLineHollyRenderer.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMActivityButton.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMActivityButton.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMAttachmentButton.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMAttachmentButton.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMComposeHeaderFrame.cpp
@@ -133,6 +135,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMContactDialog.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMFolderDialog.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMFolderDialog.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMFramedSplitPane.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMFramedSplitPane.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMGeneralPrefForm.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMGeneralPrefForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMHTMLActionHandler.cpp
@@ -147,6 +151,10 @@
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMLogViewerContentFrame.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMLogViewerForm.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMLogViewerForm.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingMenus.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingMenus.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingPopup.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingPopup.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingViewer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMeetingViewer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMMenus.cpp
@@ -159,6 +167,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPIMPrefForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreferencesDialog.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreferencesDialog.hpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreviewPane.cpp
+~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMPreviewPane.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMSyncPrefsForm.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMSyncPrefsForm.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/Platform/Holly/VMViewMsgForm.cpp
@@ -171,8 +181,6 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountTable.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAccountTable.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMActivityButton.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMActivityButton.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAttachmentIconRenderer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAttachmentIconRenderer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMAttachmentRenderer.cpp
@@ -181,6 +189,8 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMComposeBodyFrame.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMContainerMenu.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMContainerMenu.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMDialog.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMDialog.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMDoneButtonBehavior.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMDoneButtonBehavior.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMFolderCountLabel.cpp
@@ -205,12 +215,12 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMMainContextList.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMsgBodyFrame.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMsgBodyFrame.hpp
+~/ws/src/device/MM/Src-OOP/VMView/VMMsgMarkReadTimer.cpp
+~/ws/src/device/MM/Src-OOP/VMView/VMMsgMarkReadTimer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMsgPreviewFrame.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMMsgPreviewFrame.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMPriorityButton.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMPriorityButton.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMReadMessageTimer.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMReadMessageTimer.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMShadowAdorner.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMShadowAdorner.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMSmartAddressDetailsForm.cpp
@@ -233,7 +243,5 @@
 ~/ws/src/device/MM/Src-OOP/VMView/VMTableHeadingBehavior.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/VMTextViewer.hpp
-~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.cpp
-~/ws/src/device/MM/Src-OOP/VMView/VMViewMenus.hpp
 ~/ws/src/device/MM/Src-OOP/VMView/p_VMView.cpp
 ~/ws/src/device/MM/Src-OOP/VMView/p_VMView.hpp
