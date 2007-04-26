@@ -71,8 +71,17 @@ switch (${OSname})
 ## Linux
 ########################################
 case "Linux"
+
+    set machdirs=(  )
+    set machman=(  )
+    setenv XENVIRONMENT "${HOME}/.Xdefaults"
+
     if      (-f '/etc/gentoo-release') then
         set distro="gentoo"
+
+		set machdirs=( /opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin )
+		set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man )
+
     else if (-f '/etc/redhat-release') then
         set tmp=`grep -q Enterprise /etc/redhat-release`
         if (0 == ${status}) then
@@ -105,10 +114,6 @@ case "Linux"
 
     set machtype=${distro}-${hwclass}
     unset distro
-
-    set machdirs=(  )
-    set machman=(  )
-    setenv XENVIRONMENT "${HOME}/.Xdefaults"
     breaksw
 
 ########################################
@@ -305,6 +310,28 @@ unset basedirs
 unset baseman
 
 ########################################
+## Search the /usr/local area
+########################################
+if (-d /usr/local) then
+    set localdirs=( /usr/local/bin /usr/local/sbin )
+    set localman=( /usr/local/man )
+
+    foreach dir ( ${localdirs} )
+        if (-d ${dir}) then
+            set _path="${_path}:${dir}"
+        endif
+    end
+    foreach dir ( ${localman} )
+        if (-d ${dir}) then
+            set _manpath="${_manpath}:${dir}"
+        endif
+    end
+
+    unset localdirs
+    unset localman
+endif
+
+########################################
 ## Machine-specific paths gathered above
 ########################################
 foreach dir ( ${machdirs} )
@@ -340,28 +367,6 @@ end
 
 unset commondirs
 unset commonman
-
-########################################
-## Search the /usr/local area
-########################################
-if (-d /usr/local) then
-    set localdirs=( /usr/local/bin /usr/local/sbin )
-    set localman=( /usr/local/man )
-
-    foreach dir ( ${localdirs} )
-        if (-d ${dir}) then
-            set _path="${_path}:${dir}"
-        endif
-    end
-    foreach dir ( ${localman} )
-        if (-d ${dir}) then
-            set _manpath="${_manpath}:${dir}"
-        endif
-    end
-
-    unset localdirs
-    unset localman
-endif
 
 ########################################
 ## If a root-local dir exists

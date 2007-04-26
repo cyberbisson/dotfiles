@@ -70,8 +70,17 @@ case ${OSname} in
 ## Linux
 ########################################
 Linux)
+
+    machdirs=
+    machman=
+    XENVIRONMENT="${HOME}/.Xdefaults"; export XENVIRONMENT
+
     if   [ -f '/etc/gentoo-release' ] ; then
+
         distro="gentoo"
+		machdirs="/opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin"
+		machman="/usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man"
+
     elif [ -f '/etc/redhat-release' ] ; then
         tmp=`grep -q Enterprise /etc/redhat-release`
         if [ 0 = $? ] ; then
@@ -104,10 +113,6 @@ Linux)
 
     machtype="${distro}-${hwclass}"
     unset distro
-
-    machdirs=
-    machman=
-    XENVIRONMENT="${HOME}/.Xdefaults"; export XENVIRONMENT
     ;;
 
 ########################################
@@ -304,6 +309,28 @@ unset basedirs
 unset baseman
 
 ########################################
+## Search the /usr/local area
+########################################
+if [ -d /usr/local ] ; then
+    localdirs="/usr/local/bin /usr/local/sbin"
+    localman="/usr/local/man"
+
+    for dir in ${localdirs} ; do
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    done
+    for dir in ${localman} ; do
+        if [ -d ${dir} ] ; then
+            _manpath="${_manpath}:${dir}"
+        fi
+    done
+
+    unset localdirs
+    unset localman
+fi
+
+########################################
 ## Machine-specific paths gathered above
 ########################################
 for dir in ${machdirs} ; do
@@ -339,28 +366,6 @@ done
 
 unset commondirs
 unset commonman
-
-########################################
-## Search the /usr/local area
-########################################
-if [ -d /usr/local ] ; then
-    localdirs="/usr/local/bin /usr/local/sbin"
-    localman="/usr/local/man"
-
-    for dir in ${localdirs} ; do
-        if [ -d ${dir} ] ; then
-            _path="${_path}:${dir}"
-        fi
-    done
-    for dir in ${localman} ; do
-        if [ -d ${dir} ] ; then
-            _manpath="${_manpath}:${dir}"
-        fi
-    done
-
-    unset localdirs
-    unset localman
-fi
 
 ########################################
 ## If a root-local dir exists
