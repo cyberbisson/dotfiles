@@ -1,6 +1,11 @@
 #!/bin/sh
 
 echo '--------'Session started: `date`'--------' >> /home/mbisson/tmp/Xsession_log
+#if [ -x /usr/bin/beryl-xgl ] ; then
+#	WINDOW_MANAGER="beryl-manager" exec gnome-session
+#	/usr/bin/beryl-xgl --replace &
+#	exec /usr/bin/beryl-manager
+#elif [ -x /usr/openwin/bin/twm ] ; then
 if [ -x /usr/openwin/bin/twm ] ; then
     /bin/echo '--------OPENWIN--------' >> /home/mbisson/tmp/Xsession_log
     /usr/openwin/bin/xclock -geometry 100x100-0+0 &

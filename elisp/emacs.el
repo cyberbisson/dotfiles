@@ -109,6 +109,7 @@
                               ("\\.M$"       . nroff-mode)
                               ("\\.ms$"      . nroff-mode)
                               ("sendmail.cf" . sh-mode) ;; Don't ask...
+                              ("Doxyfile"    . sh-mode) ;; Don't ask...
                               ("\\.bas$"     . basic-mode)
                               ("\\.vb$"      . basic-mode)
                               ("\\.vbs$"     . basic-mode)

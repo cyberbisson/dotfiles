@@ -79,8 +79,8 @@ case "Linux"
     if      (-f '/etc/gentoo-release') then
         set distro="gentoo"
 
-		set machdirs=( /opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin )
-		set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man )
+        set machdirs=( /opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin )
+        set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man )
 
     else if (-f '/etc/redhat-release') then
         set tmp=`grep -q Enterprise /etc/redhat-release`
@@ -210,6 +210,15 @@ case "OSF1":
 ########################################
 case "UnixWare":
     set machtype=uw2_x86
+    set machdirs=(  )
+    set machman=(  )
+    breaksw
+
+########################################
+##  Mac OS X
+########################################
+case "Darwin":
+    set machtype="osx_${CPU}"
     set machdirs=(  )
     set machman=(  )
     breaksw
@@ -576,7 +585,7 @@ else
     set machprompt=
 endif
 
-setenv PROMPT  "$machprompt$hostprompt\%"
+setenv PROMPT  "$machprompt$hostprompt"
 setenv PROMPT2 '%R>    '
 setenv PROMPT3 'Correct (%R)? [y|n|e|a]: '
 
@@ -674,8 +683,11 @@ unsetenv LS_COLORS
 ###############################################################################
 # Now read my real initialization file
 ###############################################################################
-if (${SHELL} =~ *tcsh) then
-    source $HOME/.tcshrc
+#if (${SHELL} =~ *tcsh) then            # This seems to persist in nested shells.
+if (${?version}) then
+    setenv USING_TCSH 1
+    source ${HOME}/.tcshrc
 else
-    source $HOME/.cshrc
+    setenv USING_TCSH 0
+    source ${HOME}/.cshrc
 endif

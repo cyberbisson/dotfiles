@@ -6,7 +6,7 @@
 # Matt Bisson
 
 P4CLIENT="`whoami`-`hostname`"
-P4DIFF='p4vdiff'
+P4DIFF='p4diff'
 P4EDITOR='/usr/bin/emacs'
 P4PASSWD='p4sucks'
 P4PORT='achilles.palm1.palmone.com:1667'

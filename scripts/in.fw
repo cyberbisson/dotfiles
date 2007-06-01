@@ -60,6 +60,8 @@
 ~/ws/src/device/Octane/FrameWork/Util/IdleProcessor.hpp
 ~/ws/src/device/Octane/FrameWork/Util/InvalidArgumentException.cpp
 ~/ws/src/device/Octane/FrameWork/Util/InvalidArgumentException.hpp
+~/ws/src/device/Octane/FrameWork/Util/IoException.cpp
+~/ws/src/device/Octane/FrameWork/Util/IoException.hpp
 ~/ws/src/device/Octane/FrameWork/Util/Listener.cpp
 ~/ws/src/device/Octane/FrameWork/Util/Listener.hpp
 ~/ws/src/device/Octane/FrameWork/Util/MemoryException.cpp
@@ -114,6 +116,8 @@
 ~/ws/src/device/Octane/FrameWork/View/ContentSplitFocusBehavior.hpp
 ~/ws/src/device/Octane/FrameWork/View/ContentViewer.cpp
 ~/ws/src/device/Octane/FrameWork/View/ContentViewer.hpp
+~/ws/src/device/Octane/FrameWork/View/ContextMenu.cpp
+~/ws/src/device/Octane/FrameWork/View/ContextMenu.hpp
 ~/ws/src/device/Octane/FrameWork/View/Control.cpp
 ~/ws/src/device/Octane/FrameWork/View/Control.hpp
 ~/ws/src/device/Octane/FrameWork/View/ControlFrame.cpp

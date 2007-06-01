@@ -78,8 +78,8 @@ Linux)
     if   [ -f '/etc/gentoo-release' ] ; then
 
         distro="gentoo"
-		machdirs="/opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin"
-		machman="/usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man"
+        machdirs="/opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin"
+        machman="/usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man"
 
     elif [ -f '/etc/redhat-release' ] ; then
         tmp=`grep -q Enterprise /etc/redhat-release`
@@ -124,7 +124,7 @@ SunOS)
     shortrel=`echo $OSrelease | awk -F. '{print $1}'`
     machtype="sun${shortrel}"
 
-    if [ 5 <= ${shortrel} ] ; then
+    if [ ${shortrel} -gt 4 ] ; then
         machdirs="/usr/ccs/bin /opt/SUNWspro/bin ${OPENWINHOME}/bin"
         LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"; export LD_LIBRARY_PATH
 
@@ -209,6 +209,15 @@ OSF1)
 ########################################
 UnixWare)
     machtype=uw2_x86
+    machdirs=
+    machman=
+    ;;
+
+########################################
+## Mac OS X
+########################################
+Darwin)
+    machtype="osx_${CPU}"
     machdirs=
     machman=
     ;;
@@ -693,9 +702,12 @@ unset LS_COLORS
 # Now read my real initialization file
 ###############################################################################
 if   [ "" != "${KSH_VERSION}" ] ; then
+    USING_BASH=0; export USING_BASH
     . "${HOME}/.kshrc"
 elif [ "" != "${BASH}" ] ; then
+    USING_BASH=1; export USING_BASH
     . "${HOME}/.bashrc"
 else
+    USING_BASH=0; export USING_BASH
     . "${HOME}/.shrc"
 fi

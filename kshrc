@@ -10,6 +10,29 @@
 ###############################################################################
 # Matt Bisson
 
+# If we've not seen the login script, we need to load it.  Also, if we have
+# seen the thing, but were configured for a different shell, we need to
+# reload it.
+if [ "" != "${USING_BASH}" ] ; then
+    if [ "1" != "${USING_BASH}" ] ; then
+        if [ "" != "${BASH}" ] ; then
+           # Was set for bash, now using sh
+           . "${HOME}/.profile"
+           return
+        fi
+    else
+        if [ "" = "${BASH}" ] ; then
+           # Was set for sh, now using bash
+           . "${HOME}/.profile"
+           return
+        fi
+    fi
+else
+    # We've never seen the LOGIN script
+    . "${HOME}/.profile"
+    return
+fi
+
 # This is the only way I know of to determine if I am on a CCS computer
 # Place CCS only commands here...
 if [ -f "/ccs/etc/dotfiles/.kshrc" ] ; then
@@ -26,14 +49,14 @@ fi
 # Miscellaneous settings
 ###############################################################################
 
-set +o ignoreeof                         # I want to log out with ^D
-
 # Use emacs keybindings
 if   [ "" != "${KSH_VERSION}" ] ; then
     set -o emacs
 elif [ "" != "${BASH}" ] ; then
     set -o emacs
 fi
+
+set +o ignoreeof                         # I want to log out with ^D
 
 ##############################################################################
 # Set limits for the environment

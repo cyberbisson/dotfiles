@@ -26,6 +26,9 @@ setenv HOLLY_DEV_BRANCH  "1.0/Dev"
 setenv HOLLY_DIR         "${HOME}/ws/mbisson-holly"
 setenv HOLLY_BASE        "${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
 
+# Skip all the fucking shit.
+setenv HOLLY_MAIL_ONLY   1
+
 # Perforce crap
 if ( -f "${HOME}/.p4rc.csh" ) then
     source "${HOME}/.p4rc.csh"

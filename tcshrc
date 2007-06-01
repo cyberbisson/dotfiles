@@ -10,6 +10,29 @@
 ###############################################################################
 # Matt Bisson
 
+# If we've not seen the login script, we need to load it.  Also, if we have
+# seen the thing, but were configured for a different shell, we need to
+# reload it.
+if (${?USING_TCSH}) then
+    if (${USING_TCSH}) then
+        if (! {$?version}) then
+           # Was set for tcsh, now using csh
+           source ${HOME}/.login
+           exit
+        endif
+    else
+        if ({$?version}) then
+           # Was set for csh, now using tcsh
+           source ${HOME}/.login
+           exit
+        endif
+    endif
+else
+    # We've never seen the LOGIN script
+    source ${HOME}/.login
+    exit
+endif
+
 # This is the only way I know of to determine if I am on a CCS computer
 # Place CCS only commands here...
 if (-f "/ccs/etc/dotfiles/.tcshrc") then
@@ -25,29 +48,34 @@ endif
 ###############################################################################
 # Miscellaneous settings
 ###############################################################################
-set history=100
 
-unset ignoreeof                         # I want to log out with ^D
-set   autocomplete                      # TAB does this (not just ^D)
-unset autocorrect                       # Don't fix spelling mistakes?
-set   autolist='ambiguous'
-unset autologout
-unset correct
-unset complete                          # Case SENSITIVE autocomplete
+if (${USING_TCSH}) then
+    set   autocomplete                  # TAB does this (not just ^D)
+    unset autocorrect                   # Don't fix spelling mistakes?
+    set   autolist    = 'ambiguous'
+    unset autologout
+    unset correct
+    unset complete                      # Case SENSITIVE autocomplete
+    set   listflags   = 'a'
+    set   listjobs    = 'long'
+    set   listmaxrows = 50
+    set   matchbeep   = 'nomatch'
+    set   savehistory = 'merge'
+
+    # Use emacs keybindings
+    bindkey -e
+    bindkey "^[[1;5D" backward-word     # Ctrl + [left]
+    bindkey "^[[1;5C" forward-word      # Ctrl + [right]
+    bindkey "^[[3~"   delete-char       # [delete]
+endif
+
 unset fignore                           # Don't ignore anything in completion
-set   listflags='a'
-set   listjobs='long'
-set   listmaxrows=50
-set   matchbeep='nomatch'
-set   savehistory='merge'
-# Use emacs keybindings
-bindkey -e
+set   history = 128
+unset ignoreeof                         # I want to log out with ^D
 
-# Using stuff set in .login
+# Using stuff set in .login to get the prompt
 if (${?PROMPT}) then
-    set prompt="${PROMPT} "
-
-    if (${SHELL} =~ *tcsh) then
+    if (${USING_TCSH}) then
         switch (${TERM})
             case "cygwin"
             case "dtterm"
@@ -56,9 +84,14 @@ if (${?PROMPT}) then
             case "xterm"
             case "xterm-color"
             case "xterm-xfree86"
-                set prompt="%{^[[01;39m%}${PROMPT}%{^[[00m%} "
+                set prompt="%{^[[01;39m%}${PROMPT}\%%{^[[00m%} "
+                breaksw
+            default
+                set prompt="${PROMPT}\% "
                 breaksw
         endsw
+    else
+        set prompt="${PROMPT}% "
     endif
 endif
 if (${?PROMPT2}) then

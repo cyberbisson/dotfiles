@@ -29,6 +29,10 @@ HOLLY_DIR="${HOME}/ws/mbisson-holly"
 HOLLY_BASE="${HOLLY_DIR}/Source/Platform/Holly/${HOLLY_DEV_BRANCH}"
 export HOLLY_DEV_BRANCH HOLLY_DIR HOLLY_BASE
 
+# Skip all the fucking shit.
+HOLLY_MAIL_ONLY=1
+export HOLLY_MAIL_ONLY
+
 # Perforce crap
 if [ -f "${HOME}/.p4rc.ksh" ] ; then
     . "${HOME}/.p4rc.ksh"

@@ -23,10 +23,16 @@ alias gboy 'xgnuboy --scale=2 --bind alt +a --bind ctrl +b'
 alias snes 'snes9x -r 7'
 alias ls   'ls -F'                      # Place chars after certain file types
 
+# This is where emacs lives if compiled natively on MacOS
+set CARBON_EMACS_DIR="/Applications/Emacs.app/Contents/MacOS"
+if (-d ${CARBON_EMACS_DIR}) then
+    alias emacs "${CARBON_EMACS_DIR}/Emacs"
+endif
+
 # A convenience macro for the Mickey Mouse Cicso VPN client
 set VPNDIR="/etc/CiscoSystemsVPNClient/Profiles"
 if (-d ${VPNDIR}) then
-	alias vpnstart "'cp' -f ${VPNDIR}/palm.mod.pcf ${VPNDIR}/palm.pcf; /opt/cisco-vpnclient/bin/vpnclient connect palm"
+    alias vpnstart "'cp' -f ${VPNDIR}/palm.mod.pcf ${VPNDIR}/palm.pcf; /opt/cisco-vpnclient/bin/vpnclient connect palm"
 endif
 
 if ((-x /usr/local/bin/less) || (-x /usr/bin/less)) then
@@ -56,7 +62,7 @@ if (${?USE_HOLLY}) then
     alias simdbg  "${HOLLY_BASE}/build/scripts/setup-holly i386-linux debug"
     # Dumb
     alias sqlite  "${HOLLY_SYSTEM_ROOT}/usr/bin/sqlite3"
-	alias hoseenv "setenv LD_LIBRARY_PATH ${HOLLY_SYSTEM_ROOT}/usr/lib"
+    alias hoseenv "setenv LD_LIBRARY_PATH ${HOLLY_SYSTEM_ROOT}/usr/lib"
 endif
 
 # Unset frivolous aliases
