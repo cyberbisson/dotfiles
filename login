@@ -23,6 +23,11 @@ if ( -f "${HOME}/.hollyrc.csh" ) then
     source "${HOME}/.hollyrc.csh"
 endif
 
+# Read CVS environment
+if ( -f "${HOME}/.cvsrc.csh" ) then
+    source "${HOME}/.cvsrc.csh"
+endif
+
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
@@ -92,8 +97,6 @@ case "Linux"
         unset tmp
     else if (-f '/etc/fedora-release') then
         set distro="fedora"
-    else if (-f '/etc/lsb-release') then
-        set distro="ubuntu"
     else if (-f '/etc/redhat_version') then
         set distro="rhat"
     else if ((-f '/etc/debian_release') || (-f '/etc/debian_version')) then
@@ -104,10 +107,16 @@ case "Linux"
         set distro="mndrk"
     else if (-f '/etc/SuSE-release') then
         set distro="suse"
+
+        set machdirs=( /opt/gnome/sbin /opt/gnome/bin /opt/kde3/sbin /opt/kde3/bin )
+        set machman=( /opt/gnome/share/man )
+
     else if (-f '/etc/yellowdog-release') then
         set distro="yellow"
     else if (-f '/etc/UnitedLinux-release') then
         set distro="united"
+    else if (-f '/etc/lsb-release') then
+        set distro="ubuntu"
     else
         set distro="lnux"
     endif
@@ -250,16 +259,14 @@ case "SINIX-N":
 ########################################
 case "CYGWIN_NT-5.1":
     set machtype="cygwin-${hwclass}"
-
-
-    set machdirs=`cmd /c path`
-    set machdirs=`echo "${machdirs};"                         | \
-                  sed 's/^PATH\\=/;/'                         | \
-                  sed 's/\\([A-Za-z]\\):/\\/cygdrive\\/\\1/g' | \
-                  sed 's/\\\\/\\//g'                          | \
-                  sed 's/[^;]*cygwin[^;]*;//g'                | \
-                  sed 's/ /\\\\ /g'                           | \
-                  sed 's/;/ /g'`
+    set winpath=`cygpath -u -S`
+    set machdirs=( `${winpath}/cmd /c path               | \
+                  sed 's/^PATH\=/;/'                     | \
+                  sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
+                  sed 's/\\/\//g'                        | \
+                  sed 's/[^;]*cygwin[^;]*;//g'           | \
+                  sed 's/ /\\ /g'                        | \
+                  sed 's/;/ /g'`)
     set machman=( )
     breaksw;
 
@@ -305,8 +312,8 @@ endif
 ########################################
 ## I want these dirs in the path even if they don't exist
 ########################################
-set basedirs=( ~/bin ~/bin/Linux ~/bin/scripts /bin /sbin /usr/bin )
-set baseman=( ~/man /usr/man )
+set basedirs=( ~/bin ~/bin/Linux ~/bin/scripts )
+set baseman=( ~/man )
 
 foreach dir ( ${basedirs} )
     set _path="${_path}:${dir}"
@@ -324,6 +331,28 @@ unset baseman
 if (-d /usr/local) then
     set localdirs=( /usr/local/bin /usr/local/sbin )
     set localman=( /usr/local/man )
+
+    foreach dir ( ${localdirs} )
+        if (-d ${dir}) then
+            set _path="${_path}:${dir}"
+        endif
+    end
+    foreach dir ( ${localman} )
+        if (-d ${dir}) then
+            set _manpath="${_manpath}:${dir}"
+        endif
+    end
+
+    unset localdirs
+    unset localman
+endif
+
+########################################
+## If a root-local dir exists
+########################################
+if (-d /local) then
+    set localdirs=( /local/bin /local/gnu/bin /local/apps/mh )
+    set localman=( /local/man /local/apps/X11R5/man /local/gnu/man /local/apps/mh/man )
 
     foreach dir ( ${localdirs} )
         if (-d ${dir}) then
@@ -360,8 +389,8 @@ unset machman
 ########################################
 ## These are very common dirs
 ########################################
-set commondirs=( /usr/sbin /usr/ucb /usr/share/bin )
-set commonman=( /usr/share/man /usr/catman )
+set commondirs=( /usr/sbin /usr/ucb /bin /sbin /usr/bin /usr/share/bin )
+set commonman=( /usr/man /usr/share/man /usr/catman )
 
 foreach dir ( ${commondirs} )
     if (-d ${dir}) then
@@ -376,28 +405,6 @@ end
 
 unset commondirs
 unset commonman
-
-########################################
-## If a root-local dir exists
-########################################
-if (-d /local) then
-    set localdirs=( /local/bin /local/gnu/bin /local/apps/mh )
-    set localman=( /local/man /local/apps/X11R5/man /local/gnu/man /local/apps/mh/man )
-
-    foreach dir ( ${localdirs} )
-        if (-d ${dir}) then
-            set _path="${_path}:${dir}"
-        endif
-    end
-    foreach dir ( ${localman} )
-        if (-d ${dir}) then
-            set _manpath="${_manpath}:${dir}"
-        endif
-    end
-
-    unset localdirs
-    unset localman
-endif
 
 ########################################
 ## CDE paths

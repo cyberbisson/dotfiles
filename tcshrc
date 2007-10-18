@@ -104,13 +104,15 @@ endif
 ##############################################################################
 # Set limits for the environment
 ##############################################################################
-limit coredumpsize    unlimited         # Core file size (blocks)
-#limit datasize        unlimited        # Data seg size (kbytes)
-#limit filesize        unlimited        # File size (blocks)
-#limit memorylocked    unlimited        # Max locked memory (kbytes)
-#limit memoryuse       unlimited        # Max memory size (kbytes)
-#limit descriptors     1024             # Open file descriptors
-#limit openfiles       1024             # Open files
-#limit stacksize       8192 kbytes      # Stack size (kbytes)
-#limit cputime         unlimited        # CPU time (seconds)
-#limit maxproc         2048             # Max user processes
+if (`uname -s` != "CYGWIN_NT-5.1") then # Cygwin doesn't do "limit"
+    limit coredumpsize    unlimited         # Core file size (blocks)
+    #limit datasize        unlimited        # Data seg size (kbytes)
+    #limit filesize        unlimited        # File size (blocks)
+    #limit memorylocked    unlimited        # Max locked memory (kbytes)
+    #limit memoryuse       unlimited        # Max memory size (kbytes)
+    #limit descriptors     1024             # Open file descriptors
+    #limit openfiles       1024             # Open files
+    #limit stacksize       8192 kbytes      # Stack size (kbytes)
+    #limit cputime         unlimited        # CPU time (seconds)
+    #limit maxproc         2048             # Max user processes
+endif

@@ -23,6 +23,11 @@ if [ -f "${HOME}/.hollyrc.ksh" ] ; then
     . "${HOME}/.hollyrc.ksh"
 fi
 
+# Read CVS environment
+if [ -f "${HOME}/.cvsrc.ksh" ] ; then
+    . "${HOME}/.cvsrc.ksh"
+fi
+
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
@@ -91,8 +96,6 @@ Linux)
         unset tmp
     elif [ -f '/etc/fedora-release' ] ; then
         distro="fedora"
-    elif [ -f '/etc/lsb-release' ] ; then
-        distro="ubuntu"
     elif [ -f '/etc/redhat_version' ] ; then
         distro="rhat"
     elif [ -f '/etc/debian_release' ] | [ -f '/etc/debian_version' ] ; then
@@ -102,11 +105,17 @@ Linux)
     elif [ -f '/etc/mandrake-release' ] ; then
         distro="mndrk"
     elif [ -f '/etc/SuSE-release' ] ; then
+
         distro="suse"
+        machdirs="/opt/gnome/sbin /opt/gnome/bin /opt/kde3/sbin /opt/kde3/bin"
+        machman="/opt/gnome/share/man"
+
     elif [ -f '/etc/yellowdog-release' ] ; then
         distro="yellow"
     elif [ -f '/etc/UnitedLinux-release' ] ; then
         distro="united"
+    elif [ -f '/etc/lsb-release' ] ; then
+        distro="ubuntu"
     else
         distro="lnux"
     fi
@@ -304,8 +313,8 @@ fi
 ########################################
 ## I want these dirs in the path even if they don't exist
 ########################################
-basedirs="~/bin ~/bin/Linux ~/bin/scripts /bin /sbin /usr/bin"
-baseman="~/man /usr/man"
+basedirs="~/bin ~/bin/Linux ~/bin/scripts"
+baseman="~/man"
 
 for dir in ${basedirs} ; do
     _path="${_path}:${dir}"
@@ -323,6 +332,28 @@ unset baseman
 if [ -d /usr/local ] ; then
     localdirs="/usr/local/bin /usr/local/sbin"
     localman="/usr/local/man"
+
+    for dir in ${localdirs} ; do
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    done
+    for dir in ${localman} ; do
+        if [ -d ${dir} ] ; then
+            _manpath="${_manpath}:${dir}"
+        fi
+    done
+
+    unset localdirs
+    unset localman
+fi
+
+########################################
+## If a root-local dir exists
+########################################
+if [ -d /local ] ; then
+    localdirs="/local/bin /local/gnu/bin /local/apps/mh"
+    localman="/local/man /local/apps/X11R5/man /local/gnu/man /local/apps/mh/man"
 
     for dir in ${localdirs} ; do
         if [ -d ${dir} ] ; then
@@ -359,8 +390,8 @@ unset machman
 ########################################
 ## These are very common dirs
 ########################################
-commondirs="/usr/sbin /usr/ucb /usr/share/bin"
-commonman="/usr/share/man /usr/catman"
+commondirs="/usr/sbin /usr/ucb /bin /sbin /usr/bin /usr/share/bin"
+commonman="/usr/share/man /usr/man /usr/catman"
 
 for dir in ${commondirs} ; do
     if [ -d ${dir} ] ; then
@@ -375,28 +406,6 @@ done
 
 unset commondirs
 unset commonman
-
-########################################
-## If a root-local dir exists
-########################################
-if [ -d /local ] ; then
-    localdirs="/local/bin /local/gnu/bin /local/apps/mh"
-    localman="/local/man /local/apps/X11R5/man /local/gnu/man /local/apps/mh/man"
-
-    for dir in ${localdirs} ; do
-        if [ -d ${dir} ] ; then
-            _path="${_path}:${dir}"
-        fi
-    done
-    for dir in ${localman} ; do
-        if [ -d ${dir} ] ; then
-            _manpath="${_manpath}:${dir}"
-        fi
-    done
-
-    unset localdirs
-    unset localman
-fi
 
 ########################################
 ## CDE paths

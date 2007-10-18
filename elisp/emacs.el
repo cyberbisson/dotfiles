@@ -28,7 +28,10 @@
             (load-file "~/elisp/gtags.elc")
         )
         (if (file-exists-p "~/elisp/xgtags.elc")
-            (load-file "~/elisp/xgtags.elc")
+            (progn
+                (load-file "~/elisp/xgtags.elc")
+                (add-hook 'c-mode-common-hook (lambda () (xgtags-mode 1)))
+            )
         )
 
         ;; I customized SQL mode
