@@ -30,7 +30,9 @@
         (if (file-exists-p "~/elisp/xgtags.elc")
             (progn
                 (load-file "~/elisp/xgtags.elc")
-                (add-hook 'c-mode-common-hook (lambda () (xgtags-mode 1)))
+                (add-hook    'c-mode-common-hook (lambda () (xgtags-mode 1)))
+                (remove-hook 'c-mode-hook        'cscope:hook)
+                (remove-hook 'c++-mode-hook      'cscope:hook)
             )
         )
 
