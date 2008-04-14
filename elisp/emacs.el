@@ -301,6 +301,9 @@
 
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 
+;; By default, this face is UNREADABLE.
+(if (< 21 emacs-major-version) (make-face 'sh-heredoc))
+
 ;; Give me some nice pretty colors...
 (if (not terminal-frame)
 (if (eq 'light (cdr (assq 'background-mode (frame-parameters
@@ -320,6 +323,7 @@
             (if (and (eq 20 emacs-major-version)
                      (<   2 emacs-minor-version)) ; And why?
                 (set-face-foreground 'font-lock-constant-face "Burlywood4")
+                (set-face-foreground 'sh-heredoc              "Chocolate")
             )
             (make-face-bold      'font-lock-builtin-face       nil t)
             (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
@@ -346,6 +350,7 @@
             (if (and (eq 20 emacs-major-version)
                      (<   2 emacs-minor-version)) ; And why?
                 (set-face-foreground 'font-lock-constant-face "Coral")
+                (set-face-foreground 'sh-heredoc              "Chocolate")
             )
             (make-face-bold      'font-lock-builtin-face       nil t)
             (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
