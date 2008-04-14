@@ -1,4 +1,4 @@
---suppressions=/home/mbisson/.suppression_HollyMail
+--suppressions=/home/mbisson/.valgrind.supp
 --leak-check=full
 --leak-resolution=high
 --num-callers=25
