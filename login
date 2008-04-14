@@ -277,14 +277,28 @@ case "SINIX-N":
 case "CYGWIN_NT-5.1":
     set machtype="cygwin-${hwclass}"
     set winpath=`cygpath -u -S`
-    set machdirs=( `${winpath}/cmd /c path               | \
-                  sed 's/^PATH\=/;/'                     | \
-                  sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
-                  sed 's/\\/\//g'                        | \
-                  sed 's/[^;]*cygwin[^;]*;//g'           | \
-                  sed 's/ /\\ /g'                        | \
-                  sed 's/;/ /g'`)
+    set windows_path=( `${winpath}/cmd /c path               | \
+                      sed 's/^PATH\=/;/'                     | \
+                      sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
+                      sed 's/\\/\//g'                        | \
+                      sed 's/[^;]*cygwin[^;]*;//g'           | \
+                      sed 's/ /\\ /g'                        | \
+                      sed 's/;/ /g'`)
+    set machdirs=( )
     set machman=( )
+
+# TODO: This is Intellivid specific!
+setenv CXX_DEBUG_INFO         off
+setenv CXX_OPTIMIZATION_MODE  on
+setenv CXX_RUNTIME_CHECKS     off
+setenv CXX_STDLIB_DEBUG       off
+setenv CXX_NO_DEFAULT_INLINES off
+setenv CXX_NOSYNC             1
+
+setenv CVS_RSH                'ssh'
+setenv TEMP                   '/tmp'
+setenv TMP                    '/tmp'
+#
     breaksw;
 
 ########################################
@@ -580,6 +594,19 @@ if (-d /usr/atria) then
 
     unset ccdirs
     unset ccman
+endif
+
+########################################
+## Machpath in too soon in path for cygwin
+########################################
+if ( ${?windows_path} ) then
+    foreach dir ( ${windows_path} )
+        if (-d ${dir}) then
+            set _path="${_path}:${dir}"
+        endif
+    end
+
+    unset windows_path
 endif
 
 ########################################

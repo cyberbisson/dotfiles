@@ -278,17 +278,29 @@ SINIX-N)
 ########################################
 CYGWIN_NT-5.1)
     machtype="cygwin-${hwclass}"
-
-
-    machdirs=`cmd /c path`
-    machdirs=`echo "${machdirs};"                             | \
-                  sed 's/^PATH\\=/;/'                         | \
-                  sed 's/\\([A-Za-z]\\):/\\/cygdrive\\/\\1/g' | \
-                  sed 's/\\\\/\\//g'                          | \
-                  sed 's/[^;]*cygwin[^;]*;//g'                | \
-                  sed 's/ /\\\\ /g'                           | \
+    winpath=`cygpath -u -S`
+    windows_path=`${winpath}/cmd /c path                 | \
+                  sed 's/^PATH\=/;/'                     | \
+                  sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
+                  sed 's/\\/\//g'                        | \
+                  sed 's/[^;]*cygwin[^;]*;//g'           | \
+                  sed 's/ /\\ /g'                        | \
                   sed 's/;/ /g'`
+    machdirs=
     machman=
+
+# TODO: This is Intellivid specific!
+export CXX_DEBUG_INFO=off
+export CXX_OPTIMIZATION_MODE=on
+export CXX_RUNTIME_CHECKS=off
+export CXX_STDLIB_DEBUG=off
+export CXX_NO_DEFAULT_INLINES=off
+export CXX_NOSYNC=1
+
+export CVS_RSH='ssh'
+export TEMP='/tmp'
+export TMP='/tmp'
+#
     ;;
 
 ########################################
@@ -585,6 +597,19 @@ if [ -d /usr/atria ] ; then
 
     unset ccdirs
     unset ccman
+fi
+
+########################################
+## Machpath in too soon in path for cygwin
+########################################
+if [ "${windows_path}" ] ; then
+    for dir in ${windows_path}
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    fi
+
+    unset windows_path
 fi
 
 ########################################
