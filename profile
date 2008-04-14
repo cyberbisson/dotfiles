@@ -31,15 +31,24 @@ fi
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
-if [ ! "${TERM}" ] | [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | \
+
+# Annoying
+if [ ! "${TERM}" ] ; then
+    export TERM="vt100"
+else if [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | 
    [ 'network' = ${TERM} ] ; then
-
-    echo "Note: Changing terminal type..."
-    set   noglob
-    eval `tset -s -I -Q "vt100"`
-    unset noglob
-
+    export TERM="vt100"
 fi
+
+#if [ ! "${TERM}" ] | [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | \
+#   [ 'network' = ${TERM} ] ; then
+
+#    echo "Note: Changing terminal type..."
+#    set   noglob
+#    eval `tset -s -I -Q "vt100"`
+#    unset noglob
+
+#fi
 
 ###############################################################################
 # Get computer information
@@ -106,9 +115,18 @@ Linux)
         distro="mndrk"
     elif [ -f '/etc/SuSE-release' ] ; then
 
-        distro="suse"
+        ver=`grep VERSION /etc/SuSE-release | awk '{print $3}' | awk -F. '{print $1}'`
+
+        grep -q openSUSE /etc/SuSE-release
+        if [ 0 == $? ] ; then
+            machtype="openSuSE-${ver}"
+        else
+            machtype="sles${ver}"
+        fi
+
         machdirs="/opt/gnome/sbin /opt/gnome/bin /opt/kde3/sbin /opt/kde3/bin"
         machman="/opt/gnome/share/man"
+        unset ver
 
     elif [ -f '/etc/yellowdog-release' ] ; then
         distro="yellow"
@@ -120,7 +138,9 @@ Linux)
         distro="lnux"
     fi
 
-    machtype="${distro}-${hwclass}"
+    if [ "${machtype}" == "" ] ; then
+        machtype="${distro}-${hwclass}"
+    fi
     unset distro
     ;;
 

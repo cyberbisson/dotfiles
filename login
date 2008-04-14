@@ -31,16 +31,24 @@ endif
 ###############################################################################
 # If TERM is undefined, or it is not an acceptable type
 ###############################################################################
-if ((0 == ${?TERM}) || ("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
+
+# Annoying
+if (0 == ${?TERM}) then
+    setenv TERM "vt100"
+else if (("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
     ("network" == ${TERM})) then
-
-    echo "Note: Changing terminal type..."
-    set   noglob
-    eval `tset -s -I -Q "vt100"`
-    unset noglob
-
+    setenv TERM "vt100"
 endif
 
+#if ((0 == ${?TERM}) && (("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
+#    ("network" == ${TERM}))) then
+
+#    echo "Note: Changing terminal type..."
+#    set   noglob
+#    eval `tset -s -I -Q "vt100"`
+#    unset noglob
+
+#endif
 
 ###############################################################################
 # Get computer information
@@ -106,11 +114,18 @@ case "Linux"
     else if (-f '/etc/mandrake-release') then
         set distro="mndrk"
     else if (-f '/etc/SuSE-release') then
-        set distro="suse"
+        set ver=`grep VERSION /etc/SuSE-release | awk '{print $3}' | awk -F. '{print $1}'`
+
+        grep -q openSUSE /etc/SuSE-release
+        if (0 == ${status}) then
+            set machtype="openSuSE-${ver}"
+        else
+            set machtype="sles${ver}"
+        endif
 
         set machdirs=( /opt/gnome/sbin /opt/gnome/bin /opt/kde3/sbin /opt/kde3/bin )
         set machman=( /opt/gnome/share/man )
-
+        unset ver
     else if (-f '/etc/yellowdog-release') then
         set distro="yellow"
     else if (-f '/etc/UnitedLinux-release') then
@@ -121,7 +136,9 @@ case "Linux"
         set distro="lnux"
     endif
 
-    set machtype=${distro}-${hwclass}
+    if (0 == ${?machtype}) then
+        set machtype=${distro}-${hwclass}
+    endif
     unset distro
     breaksw
 
@@ -626,24 +643,25 @@ endif
 # If the login is on an X display but the DISPLAY variable has not 
 # been set, ask the user what the DISPLAY should be (e.g., rlogin)
 ###############################################################################
-if (((${TERM} =~ dtterm) || (${TERM} =~ xterm*)) && (0 == ${?DISPLAY})) then
+if (1 == ${?TERM}) then
+    if (((${TERM} =~ dtterm) || (${TERM} =~ xterm*)) && (0 == ${?DISPLAY})) then
 
-    echo -n "What DISPLAY are you using [default: NONE]? "
-    set response=($<)
+        echo -n "What DISPLAY are you using [default: NONE]? "
+        set response=($<)
 
-    if ("${response}" != "") then
-        if ("$response" =~ *:*) then
-            echo "Setting DISPLAY to $response"
-            setenv DISPLAY "$response"
+        if ("${response}" != "") then
+            if ("$response" =~ *:*) then
+                echo "Setting DISPLAY to $response"
+                setenv DISPLAY "$response"
+            else
+                echo "Setting DISPLAY to ${response}:0".0
+                setenv DISPLAY "${response}":0.0
+            endif
         else
-            echo "Setting DISPLAY to ${response}:0".0
-            setenv DISPLAY "${response}":0.0
+            # Allow this to be undefined, and we will display things
+            # on the terminal window.
         endif
-    else
-        # Allow this to be undefined, and we will display things
-        # on the terminal window.
     endif
-
 endif
 
 ###############################################################################
