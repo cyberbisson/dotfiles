@@ -17,18 +17,21 @@ if (${?USING_TCSH}) then
     if (${USING_TCSH}) then
         if (! {$?version}) then
            # Was set for tcsh, now using csh
+           unsetenv SAW_LOGIN_SCRIPT
            source ${HOME}/.login
            exit
         endif
     else
         if ({$?version}) then
            # Was set for csh, now using tcsh
+           unsetenv SAW_LOGIN_SCRIPT
            source ${HOME}/.login
            exit
         endif
     endif
 else
     # We've never seen the LOGIN script
+    unsetenv SAW_LOGIN_SCRIPT
     source ${HOME}/.login
     exit
 endif

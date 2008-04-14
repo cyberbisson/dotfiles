@@ -13,6 +13,12 @@
 ###############################################################################
 # Matt Bisson
 
+if (${?SAW_LOGIN_SCRIPT}) then
+    exit
+endif
+
+setenv SAW_LOGIN_SCRIPT 1
+
 # Read the CCS's .login file
 if (-f '/ccs/etc/dotfiles/.login') then
     source '/ccs/etc/dotfiles/.login'
@@ -670,26 +676,28 @@ endif
 # If the login is on an X display but the DISPLAY variable has not 
 # been set, ask the user what the DISPLAY should be (e.g., rlogin)
 ###############################################################################
-if (1 == ${?TERM}) then
-    if (((${TERM} =~ dtterm) || (${TERM} =~ xterm*)) && (0 == ${?DISPLAY})) then
 
-        echo -n "What DISPLAY are you using [default: NONE]? "
-        set response=($<)
+# Annoying...
+#if (1 == ${?TERM}) then
+#    if (((${TERM} =~ dtterm) || (${TERM} =~ xterm*)) && (0 == ${?DISPLAY})) then
 
-        if ("${response}" != "") then
-            if ("$response" =~ *:*) then
-                echo "Setting DISPLAY to $response"
-                setenv DISPLAY "$response"
-            else
-                echo "Setting DISPLAY to ${response}:0".0
-                setenv DISPLAY "${response}":0.0
-            endif
-        else
-            # Allow this to be undefined, and we will display things
-            # on the terminal window.
-        endif
-    endif
-endif
+#        echo -n "What DISPLAY are you using [default: NONE]? "
+#        set response=($<)
+
+#        if ("${response}" != "") then
+#            if ("$response" =~ *:*) then
+#                echo "Setting DISPLAY to $response"
+#                setenv DISPLAY "$response"
+#            else
+#                echo "Setting DISPLAY to ${response}:0".0
+#                setenv DISPLAY "${response}":0.0
+#            endif
+#        else
+#            # Allow this to be undefined, and we will display things
+#            # on the terminal window.
+#        endif
+#    endif
+#endif
 
 ###############################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...

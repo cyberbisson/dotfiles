@@ -16,19 +16,22 @@
 if [ "" != "${USING_BASH}" ] ; then
     if [ "1" != "${USING_BASH}" ] ; then
         if [ "" != "${BASH}" ] ; then
-           # Was set for bash, now using sh
-           . "${HOME}/.profile"
-           return
+            # Was set for bash, now using sh
+            SAW_LOGIN_SCRIPT=
+            . "${HOME}/.profile"
+            return
         fi
     else
         if [ "" = "${BASH}" ] ; then
-           # Was set for sh, now using bash
-           . "${HOME}/.profile"
-           return
+            # Was set for sh, now using bash
+            SAW_LOGIN_SCRIPT=
+            . "${HOME}/.profile"
+            return
         fi
     fi
 else
     # We've never seen the LOGIN script
+    SAW_LOGIN_SCRIPT=
     . "${HOME}/.profile"
     return
 fi

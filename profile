@@ -13,6 +13,13 @@
 ###############################################################################
 # Matt Bisson
 
+if [ "${SAW_LOGIN_SCRIPT}" ] ; then
+    return
+fi
+
+SAW_LOGIN_SCRIPT=1
+export SAW_LOGIN_SCRIPT
+
 # Read the CCS's .profile file
 if [ -f '/ccs/etc/dotfiles/.profile' ] ; then
     . '/ccs/etc/dotfiles/.profile'
@@ -685,30 +692,32 @@ fi
 # If the login is on an X display but the DISPLAY variable has not 
 # been set, ask the user what the DISPLAY should be (e.g., rlogin)
 ###############################################################################
-case ${TERM} in
-    dtterm | xterm*)
-        if [ ! "${DISPLAY}" ] ; then
 
-            echo "What DISPLAY are you using [default: NONE]? "
-            `read response`
+# Annoying
+#case ${TERM} in
+#    dtterm | xterm*)
+#        if [ ! "${DISPLAY}" ] ; then
 
-            if [ "${response}" != "" ] ; then
-                if [ ! "`echo ${response} | grep :`" ] ; then
-                    echo "Setting DISPLAY to ${response}"
-                    DISPLAY="${response}"; export DISPLAY
-                else
-                    echo "Setting DISPLAY to ${response}:0.0"
-                    DISPLAY="${response}:0.0"; export DISPLAY
-                fi
-#           else
-                # Allow this to be undefined, and we will display things
-                # on the terminal window.
-            fi
-        fi
-        ;;
-esac
+#            echo "What DISPLAY are you using [default: NONE]? "
+#            `read response`
 
-unset response
+#            if [ "${response}" != "" ] ; then
+#                if [ ! "`echo ${response} | grep :`" ] ; then
+#                    echo "Setting DISPLAY to ${response}"
+#                    DISPLAY="${response}"; export DISPLAY
+#                else
+#                    echo "Setting DISPLAY to ${response}:0.0"
+#                    DISPLAY="${response}:0.0"; export DISPLAY
+#                fi
+##           else
+#                # Allow this to be undefined, and we will display things
+#                # on the terminal window.
+#            fi
+#        fi
+#        ;;
+#esac
+
+#unset response
 
 ###############################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...
