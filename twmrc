@@ -123,7 +123,7 @@ menu "defops"
     "Show Iconmgr"    f.showiconmgr
     "Hide Iconmgr"    f.hideiconmgr
     ""                f.nop
-    "AIXterm"         f.exec "xterm -name aixterm &"
+    "Purple XTerm"    f.exec "xterm -name aixterm &"
     "XConsole"        f.exec "xconsole &"
     "Xterm"           f.exec "xterm &"
     ""                f.nop
