@@ -1684,7 +1684,7 @@ Try to set `comint-output-filter-functions' like this:
   (interactive)
   (if (comint-check-proc "*SQL*")
       (pop-to-buffer "*SQL*")
-    (sql-get-login 'database 'server)
+    (sql-get-login 'user 'database 'server)
     (message "Login...")
     ;; username and password are ignored.  Mark Stosberg suggest to add
     ;; the database at the end.  Jason Beegan suggest using --pset and
@@ -1695,7 +1695,7 @@ Try to set `comint-output-filter-functions' like this:
       (if (not (string= "" sql-database))
 	  (setq params (append params (list sql-database))))
       (if (not (string= "" sql-server))
-	  (setq params (append (list "-h" sql-server) params)))
+	  (setq params (append (list "-h" sql-server "-U" sql-user) params)))
       (set-buffer (apply 'make-comint "SQL" sql-postgres-program
 			 nil params)))
     (setq sql-prompt-regexp "^.*> *")
