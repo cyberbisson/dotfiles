@@ -77,6 +77,16 @@ def tarr
 #   add-shared-symbol-file /home/mbisson/tmp/toilet/arm-linux/lib/libIData.so
 end
 
+def itvui
+    handle SIGUSR2 nostop pass
+    file /home/mbisson/sb/porter/apps/ui/obj_Linux-2.6_instrumented/ui
+end
+
+def sysman
+    handle SIGUSR2 nostop pass
+    file /home/mbisson/sb/porter/apps/sysman/obj_Linux-2.6_instrumented/sysman
+end
+
 ##############################################################################
 ## Debugger Settings:
 ##############################################################################
