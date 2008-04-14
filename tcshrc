@@ -75,7 +75,7 @@ unset ignoreeof                         # I want to log out with ^D
 
 # Using stuff set in .login to get the prompt
 if (${?PROMPT}) then
-    if (${USING_TCSH}) then
+    if ((${USING_TCSH}) && (1 == ${?TERM})) then
         switch (${TERM})
             case "cygwin"
             case "dtterm"
