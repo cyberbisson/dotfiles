@@ -35,7 +35,7 @@ fi
 # Annoying
 if [ ! "${TERM}" ] ; then
     export TERM="vt100"
-else if [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | 
+elif [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | 
    [ 'network' = ${TERM} ] ; then
     export TERM="vt100"
 fi
@@ -603,11 +603,11 @@ fi
 ## Machpath in too soon in path for cygwin
 ########################################
 if [ "${windows_path}" ] ; then
-    for dir in ${windows_path}
+    for dir in ${windows_path} ; do
         if [ -d ${dir} ] ; then
             _path="${_path}:${dir}"
         fi
-    fi
+    done
 
     unset windows_path
 fi
