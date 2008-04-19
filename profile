@@ -152,6 +152,17 @@ Linux)
     ;;
 
 ########################################
+## FreeBSD
+########################################
+FreeBSD)
+    shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+    machtype="bsd${shortrel}-${hwclass}"
+    machdirs=
+    machman=
+    unset shortrel
+    ;;
+
+########################################
 ## SUN specific processing
 ########################################
 SunOS)

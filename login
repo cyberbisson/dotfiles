@@ -149,6 +149,17 @@ case "Linux"
     breaksw
 
 ########################################
+## FreeBSD
+########################################
+case "FreeBSD":
+    set shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+    set machtype="bsd${shortrel}-${hwclass}"
+    set machdirs=(  )
+    set machman=(  )
+    unset shortrel
+    breaksw
+
+########################################
 ## SUN specific processing
 ########################################
 case "SunOS":
