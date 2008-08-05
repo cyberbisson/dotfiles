@@ -77,14 +77,19 @@ def tarr
 #   add-shared-symbol-file /home/mbisson/tmp/toilet/arm-linux/lib/libIData.so
 end
 
-def itvui
+def appui
     handle SIGUSR2 nostop pass
-    file /home/mbisson/sb/porter/apps/ui/obj_Linux-2.6_instrumented/ui
+    file /home/mbisson/porter/active/apps/ui/obj_Linux-2.6_instrumented/ui
 end
 
-def sysman
+def appsysman
     handle SIGUSR2 nostop pass
-    file /home/mbisson/sb/porter/apps/sysman/obj_Linux-2.6_instrumented/sysman
+    file /home/mbisson/porter/active/apps/sysman/obj_Linux-2.6_instrumented/sysman
+end
+
+def appsyscli
+    handle SIGUSR2 nostop pass
+    file /home/mbisson/porter/active/apps/syscli/obj_Linux-2.6_instrumented/syscli
 end
 
 ##############################################################################
@@ -150,17 +155,17 @@ set debug                overload   0
 set debug                remote     0
 set debug                serial     0
 set debug                target     0
-set debug-file-directory /opt/holly/toolroot/lib/debug
+#set debug-file-directory /opt/holly/toolroot/lib/debug
 set debugvarobj          0
 
 # History
 set history expansion on
-set history filename  /home/mbisson/ws/mbisson/.gdb_history
+set history filename  /home/mbisson/.gdb_history
 set history save      on
 set history size      0d256
 
 # Log crapola
-set logging file      gdb.log
+set logging file      /home/mbisson/tmp/gdb.log
 set logging overwrite off
 set logging redirect  off
 
@@ -214,6 +219,6 @@ set step-mode              on
 set stop-on-solib-events   0
 
 # TUI
-set tui active-border-mode bold-standout
-set tui border-kind        acs
-set tui border-mode        normal
+#set tui active-border-mode bold-standout
+#set tui border-kind        acs
+#set tui border-mode        normal

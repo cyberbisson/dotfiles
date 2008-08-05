@@ -198,6 +198,7 @@
                     (cons 'width  81)
                 )
                 (list
+                    (cons 'font   "8x13")
                     (cons 'height (frame-parameter (selected-frame) 'height))
                     (cons 'width  (frame-parameter (selected-frame) 'width))
                 )
@@ -302,7 +303,11 @@
 (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 
 ;; By default, this face is UNREADABLE.
-(if (< 21 emacs-major-version) (make-face 'sh-heredoc))
+(if (or (and (eq 20 emacs-major-version)
+             (<   2 emacs-minor-version)) ; And why?
+        (< 20 emacs-major-version))
+    (make-face 'sh-heredoc)
+)
 
 ;; Give me some nice pretty colors...
 (if (not terminal-frame)

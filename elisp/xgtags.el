@@ -20,7 +20,7 @@
 ;; GNU Emacs; see the file COPYING.  If not, write to the Free Software
 ;; Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-;; $Id: xgtags.el,v 1.2 2006/07/14 23:57:57 mbisson Exp $
+;; $Id: xgtags.el,v 1.3 2008/08/05 23:08:38 mbisson Exp $
 
 ;;; Commentary:
 ;;
@@ -179,7 +179,7 @@
      (flag (define-key map "\e\t" 'xgtags-complete-tag))
      (t (define-key map "\e\t" nil)))))
 
-(defun xgtags--set-support-mouse (flag &optional keymap)
+(defun xgtags--set-support-mouse (flag &optional keymap) t
   (let ((map (or keymap (and (boundp 'xgtags-mode-map) xgtags-mode-map))))
     (cond
      ((not (keymapp map)))
@@ -313,7 +313,7 @@ killed!"
 	(when xgtags-overwrite-complete-bindings
 	  (xgtags--set-overwrite-complete-bindings t keymap))
 	(when xgtags-support-mouse
-	  (xgtags--set-support-mouse t keymap))
+	  (xgtags--set-support-mouse nil keymap))
 	keymap))
 
 (defvar xgtags-select-mode-name "xgtags-select"
