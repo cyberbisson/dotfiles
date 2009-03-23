@@ -758,8 +758,8 @@ unsetenv LS_COLORS
 #if (${SHELL} =~ *tcsh) then            # This seems to persist in nested shells.
 if (${?version}) then
     setenv USING_TCSH 1
-    source ${HOME}/.tcshrc
+    source "${HOME}/.tcshrc"
 else
     setenv USING_TCSH 0
-    source ${HOME}/.cshrc
+    source "${HOME}/.cshrc"
 endif
