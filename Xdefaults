@@ -15,6 +15,7 @@ xterm*geometry:    128x60
 xterm*saveLines:   2048
 xterm*scrollBar:   true
 xterm*term:        xterm
+xterm*toolBar:     false
 xterm*title:       X Windows Terminal
 
 !! Set up the rxvterm
