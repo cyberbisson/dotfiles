@@ -291,6 +291,7 @@ case "SINIX-N":
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
+case "CYGWIN_NT-6.0":
 case "CYGWIN_NT-5.1":
     set machtype="cygwin-${hwclass}"
     set winpath=`cygpath -u -S`

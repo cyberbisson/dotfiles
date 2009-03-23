@@ -294,7 +294,7 @@ SINIX-N)
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
-CYGWIN_NT-5.1)
+CYGWIN_NT-5.1|CYGWIN_NT-6.0)
     machtype="cygwin-${hwclass}"
     winpath=`cygpath -u -S`
     windows_path=`${winpath}/cmd /c path                 | \
