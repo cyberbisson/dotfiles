@@ -307,6 +307,7 @@
              (<   2 emacs-minor-version)) ; And why?
         (< 20 emacs-major-version))
     (make-face 'sh-heredoc)
+    (make-face 'font-lock-doc-face)
 )
 
 ;; Give me some nice pretty colors...
@@ -330,6 +331,8 @@
                 (set-face-foreground 'font-lock-constant-face "Burlywood4")
                 (set-face-foreground 'sh-heredoc              "Chocolate")
             )
+            (make-face-italic    'font-lock-doc-face           nil t)
+            (set-face-foreground 'font-lock-doc-face           "DarkGreen")
             (make-face-bold      'font-lock-builtin-face       nil t)
             (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
             (make-face-italic    'font-lock-function-name-face nil t)
@@ -357,6 +360,8 @@
                 (set-face-foreground 'font-lock-constant-face "Coral")
                 (set-face-foreground 'sh-heredoc              "Chocolate")
             )
+            (make-face-italic    'font-lock-doc-face           nil t)
+            (set-face-foreground 'font-lock-doc-face           "Navy")
             (make-face-bold      'font-lock-builtin-face       nil t)
             (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
             (make-face-italic    'font-lock-function-name-face nil t)
