@@ -23,6 +23,11 @@
             (load-file "~/elisp/xcscope.elc")
         )
 
+        ;; Load Batch-script stuff
+        (if (file-exists-p "~/elisp/dos.elc")
+            (load-file "~/elisp/dos.elc")
+        )
+
         ;; Load GTAGS stuff
         (if (file-exists-p "~/elisp/gtags.elc")
             (load-file "~/elisp/gtags.elc")
@@ -118,8 +123,8 @@
                               ("\\.bas$"     . basic-mode)
                               ("\\.vb$"      . basic-mode)
                               ("\\.vbs$"     . basic-mode)
-                              ("\\.bat$"     . batch-mode)
-                              ("\\.cmd$"     . batch-mode)
+                              ("\\.bat$"     . dos-mode)
+                              ("\\.cmd$"     . dos-mode)
                               ("\\.csh$"     . sh-mode)
                               ("\\.ksh$"     . sh-mode)
                               ("\\.S$"       . sh-mode)
@@ -192,13 +197,31 @@
                 (list
                     (cons 'background-color (frame-parameter (selected-frame)
                                              'background-color))
-                    (cons 'font ;; Lucida Console 8 thinner
-                         "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
+                    ;         Family: outline-consolas
+                    ;          Width: normal
+                    ;         Height: 90
+                    ;         Weight: normal
+                    ;          Slant: normal
+                    ;     Foreground: SystemWindowText
+                    ;     Background: SystemWindow
+                    ;      Underline: nil
+                    ;       Overline: nil
+                    ; Strike-through: nil
+                    ;            Box: nil
+                    ;        Inverse: nil
+                    ;        Stipple: nil
+                    ;        Inherit: unspecified
+
+;;                  (cons 'font ;; Lucida Console 8 thinner
+;;                       "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
+                    (cons 'font ;; Consolas 11
+                         "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1")
                     (cons 'height 70)
                     (cons 'width  81)
                 )
                 (list
-                    (cons 'font   "8x13")
+;;                  (cons 'font   "8x13")
+                    (cons 'font   "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1")
                     (cons 'height (frame-parameter (selected-frame) 'height))
                     (cons 'width  (frame-parameter (selected-frame) 'width))
                 )
