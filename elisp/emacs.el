@@ -171,7 +171,10 @@
 )
 
 ;; Show selected marked area
-;(transient-mark-mode nil)
+(transient-mark-mode nil)
+
+;; Get rid of shift moving the mark around...
+(setq shift-select-mode nil)
 
 ;; I want to know what column and line I am in
 (column-number-mode t)
