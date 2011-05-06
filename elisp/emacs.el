@@ -223,8 +223,11 @@
                     (cons 'width  81)
                 )
                 (list
-;;                  (cons 'font   "8x13")
-                    (cons 'font   "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1")
+                    (if (eq system-type 'cygwin)
+;;                      (cons 'font "8x13"))
+                        (cons 'font "Consolas 9")
+;;                      (cons 'font "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
+                        (cons 'font "Nimbus Mono L 10"))
                     (cons 'height (frame-parameter (selected-frame) 'height))
                     (cons 'width  (frame-parameter (selected-frame) 'width))
                 )

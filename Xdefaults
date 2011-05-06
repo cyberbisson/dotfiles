@@ -1,6 +1,6 @@
 !!  .Xdefaults
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  Set up my X windows environment and make it cool lookin'
+!!  Set up my X windows environment and make it cool looking
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!  Matt Bisson		10/15/2000
 
@@ -48,6 +48,9 @@ aixterm*title:       AIX Terminal
 !! Set up some emacs stuff
 Emacs*geometry:      81x70
 Emacs*Font:          8x13
+!Emacs*Font:          Consolas 9
+!Emacs*Font:          Nimbus Mono L 10
+!Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 !! Black on gray
 Emacs*Background:    #C0C0C0
 Emacs*Foreground:    #000000
