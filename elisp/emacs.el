@@ -136,7 +136,7 @@
     ;; Some C specific modes
     c-backslash-column           45
     c-default-style              "bsd"
-    c-basic-offset               4
+    c-basic-offset               (if (eq nil (getenv "VMWARE_CODE")) 4 3)
     c-tab-always-indent          nil
     tab-width                    4
     compilation-scroll-output    t
@@ -402,3 +402,13 @@
         )
     )
 ))
+
+;; Set everything up for us to use a desktop (saved session) if asked.
+(let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
+    (if (and env-dt-dir (file-exists-p env-dt-dir))
+        (progn
+            (desktop-change-dir env-dt-dir)
+;           (desktop-save-mode t)
+        )
+    )
+)
