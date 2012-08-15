@@ -59,12 +59,21 @@ endif
 ###############################################################################
 # Get computer information
 ###############################################################################
+
+# This is a fix for cygwin so that we don't pick up the Windows native whoami,
+# which will give a different result than cygwin commands.
+if (-x '/bin/whoami') then
+    set WHOAMI='/bin/whoami'
+else
+    set WHOAMI='whoami'
+endif
+
 set hwclass=`uname -m`
 set host=`uname -n | awk -F. '{print $1}'`
 set OSrelease=`uname -r`
 set OSname=`uname -s`
 set OSver=`uname -v`
-set curuser=`whoami`
+set curuser=`${WHOAMI} | sed 's/\\/\//g'`
 
 # Make sysV braindamage look like berzerkeley braindamage
 setenv TTY `tty`
@@ -292,6 +301,7 @@ case "SINIX-N":
 ## CygWin (for Win2k & XP)
 ########################################
 case "CYGWIN_NT-6.0":
+case "CYGWIN_NT-6.1-WOW64":
 case "CYGWIN_NT-5.1":
     set machtype="cygwin-${hwclass}"
     set winpath=`cygpath -u -S`

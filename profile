@@ -60,12 +60,21 @@ fi
 ###############################################################################
 # Get computer information
 ###############################################################################
+
+# This is a fix for cygwin so that we don't pick up the Windows native whoami,
+# which will give a different result than cygwin commands.
+if [ -x '/bin/whoami' ] ; then
+    WHOAMI='/bin/whoami'
+else
+    WHOAMI='whoami'
+fi
+
 hwclass=`uname -m`
 host=`uname -n | awk -F. '{print $1}'`
 OSrelease=`uname -r`
 OSname=`uname -s`
 OSver=`uname -v`
-curuser=`whoami`
+curuser=`${WHOAMI} | sed 's/\\/\//g'`
 
 # Make sysV braindamage look like berzerkeley braindamage
 TTY=`tty`; export TTY
@@ -294,7 +303,7 @@ SINIX-N)
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
-CYGWIN_NT-5.1|CYGWIN_NT-6.0)
+CYGWIN_NT-5.1|CYGWIN_NT-6.0|CYGWIN_NT-6.1-WOW64)
     machtype="cygwin-${hwclass}"
     winpath=`cygpath -u -S`
     windows_path=`${winpath}/cmd /c path                 | \
