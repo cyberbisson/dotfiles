@@ -150,6 +150,9 @@
     ;; I've already read it
     inhibit-startup-message      t
 
+    ;; Don't like the initial stuff in my scratch buffer
+    initial-scratch-message      nil
+
     ;; Only Enter and C-g exit the search
     search-exit-option           nil
 
@@ -171,7 +174,7 @@
 )
 
 ;; Show selected marked area
-(transient-mark-mode nil)
+(transient-mark-mode 0) ; nil)
 
 ;; Get rid of shift moving the mark around...
 (setq shift-select-mode nil)
@@ -224,10 +227,12 @@
                 )
                 (list
                     (if (eq system-type 'cygwin)
-;;                      (cons 'font "8x13"))
+;;                      (cons 'font "8x13")
                         (cons 'font "Consolas 9")
-;;                      (cons 'font "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
-                        (cons 'font "Nimbus Mono L 10"))
+;;                      (cons 'font
+;;                          "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
+                        (cons 'font "8x13"))
+;;                      (cons 'font "Nimbus Mono L 10"))
                     (cons 'height (frame-parameter (selected-frame) 'height))
                     (cons 'width  (frame-parameter (selected-frame) 'width))
                 )
@@ -256,7 +261,7 @@
                 (global-set-key [end]  'end-of-buffer)
                 (global-set-key [home] 'beginning-of-buffer)
                 (global-set-key "\C-c\C-r" 'recompile)
-                (tool-bar-mode nil)
+                (tool-bar-mode 0) ; nil)
                 (setq next-line-add-newlines t)
 
                 ;; Yes, emacs will do it all...
