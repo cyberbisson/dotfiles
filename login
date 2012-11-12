@@ -107,9 +107,21 @@ case "Linux"
     if      (-f '/etc/gentoo-release') then
         set distro="gentoo"
 
-        set machdirs=( /opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin )
-        set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man /opt/bin )
+        if (-f '/usr/bin/kde4') then
+            set kdever=4
+        else
+            # Nothing better to do...
+            set kdever=3.5
+        endif
 
+        set machdirs=( /opt/bin /usr/kde/${kdever}/sbin /usr/kde/${kdever}/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin /usr/games/bin )
+        set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/${kdever}/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man /opt/bin )
+        unset kdever
+
+        if (-x /usr/bin/gcc-config) then
+            set machdirs=( ${machdirs} `/usr/bin/gcc-config -B` )
+            set machman=( ${machman} "`/usr/bin/gcc-config -B`/man" )
+        endif
     else if (-f '/etc/redhat-release') then
         set tmp=`grep -q Enterprise /etc/redhat-release`
         if (0 == ${status}) then

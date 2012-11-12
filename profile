@@ -74,7 +74,7 @@ host=`uname -n | awk -F. '{print $1}'`
 OSrelease=`uname -r`
 OSname=`uname -s`
 OSver=`uname -v`
-curuser=`${WHOAMI} | sed 's/\\/\//g'`
+curuser=`${WHOAMI} | sed 's/\\\\/\\//g'`
 
 # Make sysV braindamage look like berzerkeley braindamage
 TTY=`tty`; export TTY
@@ -106,10 +106,22 @@ Linux)
     XENVIRONMENT="${HOME}/.Xdefaults"; export XENVIRONMENT
 
     if   [ -f '/etc/gentoo-release' ] ; then
-
         distro="gentoo"
-        machdirs="/opt/bin /usr/kde/3.5/sbin /usr/kde/3.5/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin"
-        machman="/usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/3.5/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man /opt/bin"
+
+        if [ -f '/usr/bin/kde4' ] ; then
+            kdever=4
+        else
+            kdever=3.5
+        fi
+
+        machdirs="/opt/bin /usr/kde/${kdever}/sbin /usr/kde/${kdever}/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin"
+        machman="/usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/${kdever}/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man /opt/bin"
+        unset kdever
+
+        if [ -x /usr/bin/gcc-config ] ; then
+            machdirs="${machdirs} `/usr/bin/gcc-config -B`"
+            machman="${machman} `/usr/bin/gcc-config -B`/man"
+        fi
 
     elif [ -f '/etc/redhat-release' ] ; then
         tmp=`grep -q Enterprise /etc/redhat-release`
