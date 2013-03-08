@@ -153,6 +153,9 @@
     ;; Don't like the initial stuff in my scratch buffer
     initial-scratch-message      nil
 
+    ;; Why was this turned off in emacs 24.1?
+    mouse-drag-copy-region       t
+
     ;; Only Enter and C-g exit the search
     search-exit-option           nil
 
@@ -165,6 +168,7 @@
     (progn
         (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
         (setq org-startup-truncated nil)
+        (setq initial-scratch-message nil)
     )
 )
 
@@ -266,7 +270,7 @@
 
                 ;; Yes, emacs will do it all...
                 (if (< 21 emacs-major-version)
-                    (display-battery-mode)
+                    (display-battery-mode 0)
                     (display-battery)
                 )
             )
@@ -410,10 +414,42 @@
 
 ;; Set everything up for us to use a desktop (saved session) if asked.
 (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
-    (if (and env-dt-dir (file-exists-p env-dt-dir))
+    (if (and env-dt-dir
+             (file-exists-p env-dt-dir)
+             (not (member "--no-desktop" command-line-args)))
         (progn
             (desktop-change-dir env-dt-dir)
 ;           (desktop-save-mode t)
         )
     )
 )
+
+;; It's stupid that this is not the default behavior
+(let ((env-server-name (getenv "EMACS_SERVER_FILE")))
+    (setq server-name env-server-name)
+)
+
+;;
+;; Provide some nice GUI tools from the Emacs command-line for diff and merge
+;;
+
+(defun command-line-diff (switch)
+    "Enter a graphical ediff from the command-line"
+    (let ((file1 (pop command-line-args-left))
+          (file2 (pop command-line-args-left)))
+        (ediff file1 file2)
+    )
+)
+
+(defun command-line-merge (switch)
+    "Enter a graphical ediff merge (with ancestor) from the command line"
+    (let ((base (pop command-line-args-left))
+          (sccs (pop command-line-args-left))
+          (mine (pop command-line-args-left))
+          (merg (pop command-line-args-left)))
+        (ediff-merge-with-ancestor sccs mine base () merg)
+    )
+)
+
+(add-to-list 'command-switch-alist '("-diff"  . command-line-diff))
+(add-to-list 'command-switch-alist '("-merge" . command-line-merge))
