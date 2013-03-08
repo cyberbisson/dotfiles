@@ -76,6 +76,8 @@ OSname=`uname -s`
 OSver=`uname -v`
 curuser=`${WHOAMI} | sed 's/\\\\/\\//g'`
 
+# TODO: WHOAMI CYGWIN FIX!!!
+
 # Make sysV braindamage look like berzerkeley braindamage
 TTY=`tty`; export TTY
 if [ $? = 0 ] ; then

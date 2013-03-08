@@ -62,7 +62,8 @@ endif
 
 # This is a fix for cygwin so that we don't pick up the Windows native whoami,
 # which will give a different result than cygwin commands.
-if (-x '/bin/whoami') then
+# NOTE: Use -f because there is a cygwin bug where /bin executables are 000!
+if (-f '/bin/whoami') then
     set WHOAMI='/bin/whoami'
 else
     set WHOAMI='whoami'
