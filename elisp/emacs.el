@@ -298,6 +298,8 @@
         (global-set-key [kp-delete]   'delete-char)
         (global-set-key [C-delete]    'kill-word)
         (global-set-key [C-kp-delete] 'kill-word)
+        (global-set-key [C-tab]       'other-frame)
+        (global-set-key [C-S-tab]     (lambda () (interactive) (other-frame -1)))
     )
 )
 
@@ -460,3 +462,7 @@
 
 (add-to-list 'command-switch-alist '("-diff"  . command-line-diff))
 (add-to-list 'command-switch-alist '("-merge" . command-line-merge))
+
+;; Quite an assumption, but there's really no uniform way to tell (even the
+;; Emacs docs say this).
+(setq focus-follows-mouse (eq system-type 'windows-nt))
