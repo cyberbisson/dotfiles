@@ -46,6 +46,11 @@
             (load-file "~/elisp/sql.elc")
         )
 
+        ;; Get fancy with wiki content
+        (if (file-exists-p "~/elisp/media-wiki.elc")
+            (load-file "~/elisp/media-wiki.elc")
+        )
+
         ;; Perforce is a horrible version control system -- it has an emacs mode
         ;(if (file-exists-p "~/elisp/p4.elc")
         ;    (load-file "~/elisp/p4.elc")
@@ -123,13 +128,15 @@
                               ("\\.bas$"     . basic-mode)
                               ("\\.vb$"      . basic-mode)
                               ("\\.vbs$"     . basic-mode)
-                              ("\\.bat$"     . dos-mode)
-                              ("\\.cmd$"     . dos-mode)
                               ("\\.csh$"     . sh-mode)
                               ("\\.ksh$"     . sh-mode)
                               ("\\.S$"       . sh-mode)
                               ("\\.sh$"      . sh-mode)
                               ("\\.txt$"     . text-mode)
+                              ;; Should check if this is even loaded...
+                              ("\\.bat$"     . dos-mode)
+                              ("\\.cmd$"     . dos-mode)
+                              ("\\.wiki$"    . mediawiki-mode)
                             )
                             auto-mode-alist)
 
