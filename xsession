@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Work around odd TWM bug...
+LC_CTYPE=en_US
+export LC_CTYPE
+
 TWM_WALLPAPER=${HOME}/doc/twm.wallpaper.jpg
 LOGFILE=${HOME}/tmp/Xsession.log
 
