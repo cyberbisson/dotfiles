@@ -25,7 +25,14 @@
 
         ;; Load Batch-script stuff
         (if (file-exists-p "~/elisp/dos.elc")
-            (load-file "~/elisp/dos.elc")
+            (progn
+                (load-file "~/elisp/dos.elc")
+
+                ;; TODO: What if it exists, but we didn't load it here?
+                (setq auto-mode-alist
+                     (append '(("\\.bat$" . dos-mode) ("\\.cmd$" . dos-mode))
+                             auto-mode-alist))
+            )
         )
 
         ;; Load GTAGS stuff
@@ -48,7 +55,11 @@
 
         ;; Get fancy with wiki content
         (if (file-exists-p "~/elisp/media-wiki.elc")
-            (load-file "~/elisp/media-wiki.elc")
+            (progn
+                (load-file "~/elisp/media-wiki.elc")
+                (setq auto-mode-alist
+                     (append '(("\\.wiki$" . mediawiki-mode)) auto-mode-alist))
+            )
         )
 
         ;; Perforce is a horrible version control system -- it has an emacs mode
@@ -134,9 +145,6 @@
                               ("\\.sh$"      . sh-mode)
                               ("\\.txt$"     . text-mode)
                               ;; Should check if this is even loaded...
-                              ("\\.bat$"     . dos-mode)
-                              ("\\.cmd$"     . dos-mode)
-                              ("\\.wiki$"    . mediawiki-mode)
                             )
                             auto-mode-alist)
 
@@ -181,18 +189,18 @@
 
 ;; Syntax highlighting
 (if (not running-xemacs)
-    (global-font-lock-mode t)
+    (global-font-lock-mode 1)
 )
 
 ;; Show selected marked area
-(transient-mark-mode 0) ; nil)
+(transient-mark-mode -1)
 
 ;; Get rid of shift moving the mark around...
 (setq shift-select-mode nil)
 
 ;; I want to know what column and line I am in
-(column-number-mode t)
-(line-number-mode   t)
+(column-number-mode 1)
+(line-number-mode   1)
 
 ;; Show me the time, so I can tell how bored I am
 (display-time)
@@ -229,21 +237,26 @@
                     ;        Stipple: nil
                     ;        Inherit: unspecified
 
-;;                  (cons 'font ;; Lucida Console 8 thinner
-;;                       "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
-                    (cons 'font ;; Consolas 11
-                         "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1")
+                    (cons 'font
+                        ;; Lucida Console 8 thinner
+;;                      "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1"
+                        ;; Consolas 11
+                        "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
+                        )
                     (cons 'height 70)
                     (cons 'width  81)
                 )
                 (list
                     (if (eq system-type 'cygwin)
-;;                      (cons 'font "8x13")
-                        (cons 'font "Consolas 9")
-;;                      (cons 'font
-;;                          "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
-                        (cons 'font "8x13"))
-;;                      (cons 'font "Nimbus Mono L 10"))
+                        (cons 'font
+;;                          "8x13"
+                            "Consolas 9"
+                            )
+                        (cons 'font
+;;                          "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"
+                            "8x13"
+;;                          "Nimbus Mono L 10"
+                            ))
                     (cons 'height (frame-parameter (selected-frame) 'height))
                     (cons 'width  (frame-parameter (selected-frame) 'width))
                 )
@@ -272,12 +285,12 @@
                 (global-set-key [end]  'end-of-buffer)
                 (global-set-key [home] 'beginning-of-buffer)
                 (global-set-key "\C-c\C-r" 'recompile)
-                (tool-bar-mode 0) ; nil)
+                (tool-bar-mode -1)
                 (setq next-line-add-newlines t)
 
                 ;; Yes, emacs will do it all...
                 (if (< 21 emacs-major-version)
-                    (display-battery-mode 0)
+                    (display-battery-mode 1)
                     (display-battery)
                 )
             )
@@ -428,7 +441,7 @@
              (not (member "--no-desktop" command-line-args)))
         (progn
             (desktop-change-dir env-dt-dir)
-;           (desktop-save-mode t)
+;           (desktop-save-mode 1)
         )
     )
 )
