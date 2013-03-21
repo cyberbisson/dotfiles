@@ -474,8 +474,8 @@
                    )
              (cons 'font
 ;;                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"
-;;                 "8x13"
-                   "Nimbus Mono L 10"
+                   "8x13"
+;;                 "Nimbus Mono L 10"
                    ))
          (cons 'height (frame-parameter (selected-frame) 'height))
          (cons 'width  (frame-parameter (selected-frame) 'width))))))
