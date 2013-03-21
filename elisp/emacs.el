@@ -103,8 +103,11 @@
   (setq next-line-add-newlines t)
 
   (blink-cursor-mode -1)
-  (ignore-errors (display-battery-mode 1)) ; Ignore errors if AC powered!
   (tool-bar-mode -1)
+
+  (condition-case nil
+      (display-battery-mode 1)
+    (error nil)) ; Ignore errors if AC powered!
 
   (if (< 21 emacs-major-version) (custom-configure-emacs-22)))
 
