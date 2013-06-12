@@ -2,7 +2,7 @@
 ;; emacs.el
 ;; This is my Emacs initialization script.  It works with Emacs 19-24
 ;; and greater.
-;; Matt Bisson	3/20/2013
+;; Matt Bisson	5/18/2013
 
 ;; -----------------------------------------------------------------------------
 ;; Top-level configuration routines:
@@ -53,9 +53,9 @@
    shift-select-mode            nil)
 
   ;; If we have a backup drop-zone, customize it to use versions, etc...
-  (let* ((backup-dir  "~/.emacs.bak")
+  (let* ((backup-dir   "~/.emacs.bak")
          (attributes   (file-attributes backup-dir))
-         (file-exists  (not (eq attributes nil)))
+         (file-exists  (not (null attributes)))
          (is-directory (car attributes)))
     (if (and (not (eq system-type 'ms-dos))
              file-exists
@@ -154,7 +154,7 @@
 (defun bg-dark-font-lock-faces-20 ()
   "Set font-lock faces for Emacs 20+ when the background is dark."
 
-  (if (and (eq 20 emacs-major-version) (< 2 emacs-minor-version))
+  (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
       (set-face-foreground 'font-lock-constant-face "Coral")
       (set-face-foreground 'sh-heredoc              "Chocolate"))
 
@@ -194,7 +194,7 @@
 (defun bg-light-font-lock-faces-20 ()
   "Set font-lock faces for Emacs 20+ when the background is light."
 
-  (if (and (eq 20 emacs-major-version) (< 2 emacs-minor-version))
+  (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
       (set-face-foreground 'font-lock-constant-face "Burlywood4")
       (set-face-foreground 'sh-heredoc              "Chocolate"))
 
@@ -541,7 +541,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
   (make-face 'gdb-selection) 
 
   ;; By default, this face is UNREADABLE.
-  (if (or (and (eq 20 emacs-major-version) (< 2 emacs-minor-version))
+  (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
           (< 20 emacs-major-version))
       (make-face 'sh-heredoc)
       (make-face 'font-lock-doc-face))
