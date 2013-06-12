@@ -11,5 +11,5 @@ rem IF NOT DEFINED USING_WIN_EV set Path = C:\Program Files\Microsoft DirectX SD
 
 DOSKEY /INSERT
 DOSKEY emacs=runemacs.exe --background-color #D8D0C8 $*
-DOSKEY emacssvr=runemacs.exe --background-color #D8D0C8 -f server-start $*
+DOSKEY emacssrv=runemacs.exe --background-color #D8D0C8 -f server-start $*
 DOSKEY vcenv="%VS90COMNTOOLS%\vsvars32.bat"
