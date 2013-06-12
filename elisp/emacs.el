@@ -34,12 +34,14 @@
 ;  display-time-format          "%a-%Y/%m/%d-%H:%M"
    display-time-format          "%a/%H:%M"
 
-
    ;; I've already read it
    inhibit-startup-message      t
 
    ;; Don't like the initial stuff in my scratch buffer
    initial-scratch-message      nil
+
+   ;; Always making backups
+   make-backup-files t
 
    ;; Only Enter and C-g exit the search
    search-exit-option           nil
@@ -50,12 +52,26 @@
    ;; Get rid of shift moving the mark around...
    shift-select-mode            nil)
 
+  ;; If we have a backup drop-zone, customize it to use versions, etc...
+  (let* ((backup-dir  "~/.emacs.bak")
+         (attributes   (file-attributes backup-dir))
+         (file-exists  (not (eq attributes nil)))
+         (is-directory (car attributes)))
+    (if (and (not (eq system-type 'ms-dos))
+             file-exists
+             is-directory)
+        (custom-configure-backups backup-dir)))
+
   ;; Clear out the "current" line when GDB quits
   (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
   (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
   (add-to-list 'command-switch-alist '("--merge" . command-line-merge))
+
+  ;; Allow us to "name" our Emacs instance from the command line
+  (add-to-list 'command-switch-alist
+               '("--instance-id" . command-line-instance-id))
 
   ;; Show me the time, so I can tell how bored I am.  Have to update the time
   ;; _after_ changing settings.
@@ -211,6 +227,16 @@
   (let ((file1 (pop command-line-args-left))
         (file2 (pop command-line-args-left)))
     (ediff file1 file2)))
+
+(defun command-line-instance-id (switch)
+  "Allows us to 'name' our Emacs instance.
+
+This is not strict, nor does it need to be unique.  The main purpose of this is for when I have more than one Emacs environment running.  This way, I can put a friendly name in the title for easy identification."
+
+  (let ((emacs-instance-id (pop command-line-args-left)))
+    (set-emacs-title-format (if emacs-instance-id
+                                (concat "(" emacs-instance-id ") %b")
+                                "%b"))))
 
 (defun command-line-merge (switch)
   "Enter a graphical ediff merge (with ancestor) from the command line"
@@ -411,6 +437,27 @@
              ("\\.txt$"     . text-mode))
            auto-mode-alist)))
 
+(defun custom-configure-backups (custom-backup-dir)
+  "Configure the Emacs backup settings."
+
+  (setq
+   ;; Send backups to a local directory.  This must exist and be writable.
+   backup-directory-alist (list (cons "." custom-backup-dir))
+
+   ;; Enable backups by number instead of the default 'tilde' style..
+   version-control   t
+
+   ;; Silently delete old backups.  My thinking here is that I don't care if
+   ;; backups get deleted because it's still better than the default, which only
+   ;; saves the LAST version...
+   delete-old-versions t
+
+   ;; Keep this many of the the latest versions
+   kept-new-versions 2
+
+   ;; Leave this many of the oldest versions
+   kept-old-versions 2))
+
 (defun custom-configure-for-terminal ()
   "Configure setting that only apply to Emacs when run in a terminal."
 
@@ -428,9 +475,6 @@
    ;; Quite an assumption, but there's really no uniform way to tell (even the
    ;; Emacs docs say this).
    focus-follows-mouse          (eq system-type 'windows-nt)
-
-   ;; Print the name of the visited file in the title of the window...
-   frame-title-format           "%b"
 
    ;; Let's set up some universal window (frame) attributes.
    default-frame-alist
@@ -483,6 +527,9 @@
          (cons 'height (frame-parameter (selected-frame) 'height))
          (cons 'width  (frame-parameter (selected-frame) 'width))))))
 
+  ;; Print the name of the visited file in the title of the window...
+  (set-emacs-title-format "%b")
+
   ;; Can't customize font lock until we load the libary (and faces) first
   (load-library "font-lock")
   (customize-font-lock))
@@ -526,15 +573,15 @@ my file."
   (interactive "P")
   (insert (format-time-string "%A, %e %B %Y" (current-time))))
 
+(defun set-emacs-title-format (title-format)
+  "Set the title for Emacs frames (iconized or not)."
+
+  (setq frame-title-format title-format
+        icon-title-format  title-format))
+
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
 ;; -----------------------------------------------------------------------------
-
-;; Are we running XEmacs or Emacs?
-;; TODO Test against XEmacs.  This will be a problem...
-(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
-  "Evaluates to t if this is the (obviously inferior) XEmacs."
-)
 
 (defvar gud-overlay
   (let* ((ov (make-overlay (point-min) (point-min))))
@@ -542,6 +589,12 @@ my file."
     ov)
 
   "Overlay variable for GUD highlighting."
+)
+
+;; Are we running XEmacs or Emacs?
+;; TODO Test against XEmacs.  This will be a problem...
+(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
+  "Evaluates to t if this is the (obviously inferior) XEmacs."
 )
 
 ;; TODO: Why bother?
