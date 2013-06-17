@@ -365,6 +365,12 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   (global-set-key "\C-c\C-r" 'recompile)
 
+  (global-set-key "\C-c\C-v"
+   (function (lambda ()
+     "Copy the buffer's full path into the kill-ring."
+     (interactive)
+     (when buffer-file-name (kill-new (file-truename buffer-file-name))))))
+
   ;; Make sure there is no confusion about delete characters
   (if terminal-frame
       (set-key-bindings-term)
