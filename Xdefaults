@@ -46,20 +46,26 @@ aixterm*term:        aixterm
 aixterm*title:       AIX Terminal
 
 !! Set up some emacs stuff
-Emacs*geometry:      81x70
-Emacs*Font:          8x13
+!Emacs*geometry:      81x70
+Emacs*geometry:      81x60
+!Emacs*Font:          8x13
+!Emacs*Font:          -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
 !Emacs*Font:          Consolas 9
-!Emacs*Font:          Nimbus Mono L 10
+Emacs*Font:          Nimbus Mono L 10
 !Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 !! Black on gray
-Emacs*Background:    #C0C0C0
-Emacs*Foreground:    #000000
+!Emacs*Background:    #C0C0C0
+!Emacs*Foreground:    #000000
 !! White on green
 !Emacs*Background:    #374D4E
 !Emacs*Foreground:    #FFFFFF
 !! Grey on white
 !Emacs*Background:    #000000
 !Emacs*Foreground:    #C0C0C0
+!! Light grey on dark
+Emacs*Background:    #333333
+Emacs*Foreground:    #D0D0D0
+Emacs*toolbar:       0
 
 !! Set up the terminal that I actually use...
 Dtterm*geometry:     128x60
