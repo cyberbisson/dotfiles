@@ -143,11 +143,11 @@
   "Set font-lock faces for Emacs when the background is dark."
 
   (make-face-italic    'font-lock-comment-face       nil t)
-  (set-face-foreground 'font-lock-comment-face       "Navy")
+  (set-face-foreground 'font-lock-comment-face       "PaleTurquoise")
   (make-face-bold      'font-lock-keyword-face       nil t)
-  (set-face-foreground 'font-lock-keyword-face       "MediumAquamarine")
-  (set-face-foreground 'font-lock-type-face          "Goldenrod")
-  (set-face-foreground 'font-lock-variable-name-face "Salmon")
+  (set-face-foreground 'font-lock-keyword-face       "IndianRed")
+  (set-face-foreground 'font-lock-type-face          "Violet")
+  (set-face-foreground 'font-lock-variable-name-face "Turquoise")
 
   (if (< 19 emacs-major-version) (bg-dark-font-lock-faces-20)))
 
@@ -159,10 +159,10 @@
       (set-face-foreground 'sh-heredoc              "Chocolate"))
 
   (make-face-bold      'font-lock-builtin-face       nil t)
-  (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
+  (set-face-foreground 'font-lock-builtin-face       "LightSalmon")
   (make-face-italic    'font-lock-function-name-face nil t)
-  (set-face-foreground 'font-lock-function-name-face "OrangeRed2")
-  (set-face-foreground 'font-lock-string-face        "Chocolate")
+  (set-face-foreground 'font-lock-function-name-face "Aquamarine")
+  (set-face-foreground 'font-lock-string-face        "LightSkyBlue")
   (set-face-background 'gdb-selection                "MidnightBlue")
   (set-face-background 'highlight                    "CadetBlue")
   (set-face-background 'region                       "Firebrick")
@@ -173,7 +173,7 @@
   "Set font-lock faces for Emacs 21+ when the background is dark."
 
   (make-face-italic    'font-lock-doc-face           nil t)
-  (set-face-foreground 'font-lock-doc-face           "Navy"))
+  (set-face-foreground 'font-lock-doc-face           "LightBlue"))
 
 ;; -----------------------------------------------------------------------------
 ;; Font coloring for light Emacs backgrounds:
@@ -427,6 +427,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              ("\\.i$"       . c++-mode)
              ("\\.rc$"      . c++-mode)
              ("\\.r$"       . c-mode)
+             ("\\.make$"    . makefile-mode)
              ("\\.mk$"      . makefile-mode)
              ("[Mm]akefile" . makefile-mode)
              ("\\.M$"       . nroff-mode)
@@ -438,7 +439,6 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              ("\\.vbs$"     . basic-mode)
              ("\\.csh$"     . sh-mode)
              ("\\.ksh$"     . sh-mode)
-             ("\\.S$"       . sh-mode)
              ("\\.sh$"      . sh-mode)
              ("\\.txt$"     . text-mode))
            auto-mode-alist)))
@@ -527,8 +527,8 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
                    )
              (cons 'font
 ;;                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"
-                   "8x13"
-;;                 "Nimbus Mono L 10"
+;;                 "8x13"
+                   "Nimbus Mono L 10"
                    ))
          (cons 'height (frame-parameter (selected-frame) 'height))
          (cons 'width  (frame-parameter (selected-frame) 'width))))))
@@ -536,6 +536,14 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
   ;; Print the name of the visited file in the title of the window...
   (set-emacs-title-format "%b")
 
+  ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
+  ;; unless the background is pure black.
+  (let ((frame-params (frame-parameters)))
+    (if (eq 'dark (cdr (assq 'background-mode frame-params)))
+        (let ((fg-color (cdr (assq 'foreground-color frame-params))))
+          (set-cursor-color fg-color)
+          (set-mouse-color  fg-color))))
+  
   ;; Can't customize font lock until we load the libary (and faces) first
   (load-library "font-lock")
   (customize-font-lock))
