@@ -2,6 +2,18 @@
 ;; emacs.el
 ;; This is my Emacs initialization script.  It works with Emacs 19-24
 ;; and greater.
+;;
+;; Features:
+;; - Fully compatible with Emacs v19 to current, for X, Windows, and shell.
+;; - Aims to maintains basic text editing behavior of Emacs since v19.
+;; - Minimal startup fuss (e.g., no text in *scratch*, no start-up message).
+;; - More modeline info (e.g., day of week, battery %)
+;; - --merge and --diff command-line options (suitable for Perforce, et al.).
+;; - Automatic load of desktop when $EMACS_SERVER_FILE is defined in the env.
+;; - Versioned backup away from local directory when ~/.emacs.bak exists.
+;; - --instance-id command line gives emacs a name (good for keeping track).
+;; - Different customized syntax coloration based on dark or light background.
+;;
 ;; Matt Bisson	5/18/2013
 
 ;; -----------------------------------------------------------------------------
