@@ -154,12 +154,11 @@
 (defun bg-dark-font-lock-faces ()
   "Set font-lock faces for Emacs when the background is dark."
 
-  (make-face-italic    'font-lock-comment-face       nil t)
-  (set-face-foreground 'font-lock-comment-face       "PaleTurquoise")
-  (make-face-bold      'font-lock-keyword-face       nil t)
-  (set-face-foreground 'font-lock-keyword-face       "IndianRed")
-  (set-face-foreground 'font-lock-type-face          "Violet")
-  (set-face-foreground 'font-lock-variable-name-face "Turquoise")
+  ;;           'face                         fg              bg  st  b   i   u
+  (modify-face 'font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
+  (modify-face 'font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
+  (modify-face 'font-lock-type-face          "Violet"        nil nil nil nil nil)
+  (modify-face 'font-lock-variable-name-face "Turquoise"     nil nil nil nil nil)
 
   (if (< 19 emacs-major-version) (bg-dark-font-lock-faces-20)))
 
@@ -167,25 +166,23 @@
   "Set font-lock faces for Emacs 20+ when the background is dark."
 
   (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-      (set-face-foreground 'font-lock-constant-face "Coral")
-      (set-face-foreground 'sh-heredoc              "Chocolate"))
+      (modify-face 'font-lock-constant-face "Coral"     nil nil nil nil nil)
+      (modify-face 'sh-heredoc              "Chocolate" nil nil nil nil nil))
 
-  (make-face-bold      'font-lock-builtin-face       nil t)
-  (set-face-foreground 'font-lock-builtin-face       "LightSalmon")
-  (make-face-italic    'font-lock-function-name-face nil t)
-  (set-face-foreground 'font-lock-function-name-face "Aquamarine")
-  (set-face-foreground 'font-lock-string-face        "LightSkyBlue")
-  (set-face-background 'gdb-selection                "MidnightBlue")
-  (set-face-background 'highlight                    "CadetBlue")
-  (set-face-background 'region                       "Firebrick")
+  (modify-face 'font-lock-builtin-face       "LightSalmon"  nil nil t   nil nil)
+  (modify-face 'font-lock-function-name-face "Aquamarine"   nil nil nil t   nil)
+  (modify-face 'font-lock-string-face        "LightSkyBlue" nil nil nil nil nil)
+
+  (modify-face 'gdb-selection nil "MidnightBlue" nil nil nil nil)
+  (modify-face 'highlight     nil "CadetBlue"    nil nil nil nil)
+  (modify-face 'region        nil "Firebrick"    nil nil nil nil)
 
   (if (< 20 emacs-major-version) (bg-dark-font-lock-faces-21)))
 
 (defun bg-dark-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is dark."
 
-  (make-face-italic    'font-lock-doc-face           nil t)
-  (set-face-foreground 'font-lock-doc-face           "LightBlue"))
+  (modify-face 'font-lock-doc-face "LightBlue" nil nil nil t nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Font coloring for light Emacs backgrounds:
@@ -194,12 +191,11 @@
 (defun bg-light-font-lock-faces ()
   "Set font-lock faces for Emacs when the background is light."
 
-  (make-face-italic    'font-lock-comment-face       nil t)
-  (set-face-foreground 'font-lock-comment-face       "DarkGreen")
-  (make-face-bold      'font-lock-keyword-face       nil t)
-  (set-face-foreground 'font-lock-keyword-face       "FireBrick")
-  (set-face-foreground 'font-lock-type-face          "Maroon")
-  (set-face-foreground 'font-lock-variable-name-face "SteelBlue")
+  ;;           'face                         fg          bg  st  b   i   u
+  (modify-face 'font-lock-comment-face       "DarkGreen" nil nil nil t   nil)
+  (modify-face 'font-lock-keyword-face       "FireBrick" nil nil t   nil nil)
+  (modify-face 'font-lock-type-face          "Maroon"    nil nil nil nil nil)
+  (modify-face 'font-lock-variable-name-face "SteelBlue" nil nil nil nil nil)
 
   (if (< 19 emacs-major-version) (bg-light-font-lock-faces-20)))
 
@@ -207,25 +203,23 @@
   "Set font-lock faces for Emacs 20+ when the background is light."
 
   (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-      (set-face-foreground 'font-lock-constant-face "Burlywood4")
-      (set-face-foreground 'sh-heredoc              "Chocolate"))
+      (modify-face 'font-lock-constant-face "Burlywood4" nil nil nil nil nil)
+      (modify-face 'sh-heredoc              "Chocolate"  nil nil nil nil nil))
 
-  (make-face-bold      'font-lock-builtin-face       nil t)
-  (set-face-foreground 'font-lock-builtin-face       "DodgerBlue4")
-  (make-face-italic    'font-lock-function-name-face nil t)
-  (set-face-foreground 'font-lock-function-name-face "OrangeRed2")
-  (set-face-foreground 'font-lock-string-face        "Chocolate")
-  (set-face-background 'gdb-selection                "DarkSeaGreen3")
-  (set-face-background 'highlight                    "CadetBlue")
-  (set-face-background 'region                       "LightSteelBlue3")
+  (modify-face 'font-lock-builtin-face       "DodgerBlue4" nil nil t   nil nil)
+  (modify-face 'font-lock-function-name-face "OrangeRed2"  nil nil nil t   nil)
+  (modify-face 'font-lock-string-face        "Chocolate"   nil nil nil nil nil)
+
+  (modify-face 'gdb-selection nil "DarkSeaGreen3"   nil nil nil nil)
+  (modify-face 'highlight     nil "CadetBlue"       nil nil nil nil)
+  (modify-face 'region        nil "LightSteelBlue3" nil nil nil nil)
 
   (if (< 20 emacs-major-version) (bg-light-font-lock-faces-21)))
 
 (defun bg-light-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is light."
 
-  (make-face-italic    'font-lock-doc-face nil t)
-  (set-face-foreground 'font-lock-doc-face "DarkGreen"))
+  (modify-face 'font-lock-doc-face "DarkGreen" nil nil nil t nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions used for command-line control:
@@ -328,6 +322,8 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 (defun provide-customized-fetures-20 ()
   "Load features that only work with Emacs 20 and above."
 
+  (if (< 20 emacs-major-version) (provide-customized-fetures-21))
+
   ;; Enable wheelmouse support by default
   (if (not terminal-frame) (load "mwheel" t))
 
@@ -336,9 +332,6 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   ;; Load CSCOPE stuff
   (if (file-exists-p "~/elisp/xcscope.elc") (load-file "~/elisp/xcscope.elc"))
-
-  ;; Load Batch-script stuff
-  (if (file-exists-p "~/elisp/dos.elc") (load-file "~/elisp/dos.elc"))
 
   ;; Load GTAGS stuff
   (if (file-exists-p "~/elisp/gtags.elc") (load-file "~/elisp/gtags.elc"))
@@ -359,6 +352,12 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   ;; Perforce is a horrible version control system -- it has an Emacs mode
   (if (file-exists-p "~/elisp/p4.elc") (load-file "~/elisp/p4.elc"))) ;; 2 slow
+
+(defun provide-customized-fetures-21 ()
+  "Load features that only work with Emacs 21 and above."
+
+  ;; Load Batch-script stuff
+  (if (file-exists-p "~/elisp/dos.elc") (load-file "~/elisp/dos.elc")))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions for keyboard macros:
