@@ -317,31 +317,20 @@ SINIX-N)
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
-CYGWIN_NT-5.1|CYGWIN_NT-6.0|CYGWIN_NT-6.1-WOW64)
+CYGWIN_NT-5.1|CYGWIN_NT-6.0|CYGWIN_NT-6.1|CYGWIN_NT-6.1-WOW64)
     machtype="cygwin-${hwclass}"
     winpath=`cygpath -u -S`
     windows_path=`${winpath}/cmd /c path                 | \
                   sed 's/^PATH\=/;/'                     | \
                   sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
-                  sed 's/\\/\//g'                        | \
+                  sed 's/\\\\/\//g'                      | \
                   sed 's/[^;]*cygwin[^;]*;//g'           | \
                   sed 's/ /\\ /g'                        | \
                   sed 's/;/ /g'`
     machdirs=
     machman=
 
-# TODO: This is Intellivid specific!
-export CXX_DEBUG_INFO=off
-export CXX_OPTIMIZATION_MODE=on
-export CXX_RUNTIME_CHECKS=off
-export CXX_STDLIB_DEBUG=off
-export CXX_NO_DEFAULT_INLINES=off
-export CXX_NOSYNC=1
-
-export CVS_RSH='ssh'
-export TEMP='/tmp'
-export TMP='/tmp'
-#
+    unset winpath
     ;;
 
 ########################################

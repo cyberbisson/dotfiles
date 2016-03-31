@@ -313,8 +313,9 @@ case "SINIX-N":
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
-case "CYGWIN_NT-6.0":
+case "CYGWIN_NT-6.1":
 case "CYGWIN_NT-6.1-WOW64":
+case "CYGWIN_NT-6.0":
 case "CYGWIN_NT-5.1":
     set machtype="cygwin-${hwclass}"
     set winpath=`cygpath -u -S`
@@ -328,18 +329,7 @@ case "CYGWIN_NT-5.1":
     set machdirs=( )
     set machman=( )
 
-# TODO: This is Intellivid specific!
-setenv CXX_DEBUG_INFO         off
-setenv CXX_OPTIMIZATION_MODE  on
-setenv CXX_RUNTIME_CHECKS     off
-setenv CXX_STDLIB_DEBUG       off
-setenv CXX_NO_DEFAULT_INLINES off
-setenv CXX_NOSYNC             1
-
-setenv CVS_RSH                'ssh'
-setenv TEMP                   '/tmp'
-setenv TMP                    '/tmp'
-#
+    unset winpath
     breaksw;
 
 ########################################
