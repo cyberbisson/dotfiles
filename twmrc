@@ -138,7 +138,7 @@ menu "weirdops"
 {
     "Options"             f.title
     "Identify"            f.identify
-	"Toggle AutoRaise"    f.autoraise
+    "Toggle AutoRaise"    f.autoraise
     ""                    f.nop
     "Refresh"             f.winrefresh
     "Refresh All"         f.refresh
@@ -150,12 +150,13 @@ menu "commonapps"
     "Applications"        f.title
     "Amarok"              ! "amarok -m &"
     "Emacs"               ! "emacs &"
-    "Calculator"          ! "gcalctool &"
+#   "Calculator"          ! "gcalctool &"
+    "Calculator"          ! "kcalc &"
     "Volume Control"      ! "gnome-volume-control &"
-	"VMWare"              ! "vmwareesd &"
+    "VMWare"              ! "vmwareesd &"
     ""                    f.nop
     "Firefox"             ! "firefox &"
-    "Gaim"                ! "gaim &"
+    "Pidgin"              ! "pidgin &"
     ""                    f.nop
     "Lock Screen"         ! "xscreensaver-command -lock &"
 }
