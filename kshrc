@@ -48,6 +48,15 @@ if [ -f "${HOME}/.alias.ksh" ] ; then
     . "${HOME}/.alias.ksh"
 fi
 
+if [ "" != "${SRM_BRANCH}" ] ; then
+    if [ -f "${HOME}/.kshrc.${SRM_BRANCH}" ] ; then
+        . "${HOME}/.kshrc.${SRM_BRANCH}"
+    else
+        echo ".kshrc: No loadable profile for SRM branch: '${SRM_BRANCH}'." \
+        > /dev/stderr
+    fi
+fi
+
 ###############################################################################
 # Miscellaneous settings
 ###############################################################################

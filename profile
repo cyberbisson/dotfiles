@@ -444,6 +444,27 @@ if [ -d /local ] ; then
 fi
 
 ########################################
+## VMware-specific areas
+########################################
+if [ -d /mts/git ] ; then
+    gitdirs="/mts/git/tools/bin"
+    gitman=""
+    for dir in ${gitdirs} ; do
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    done
+    for dir in ${gitman} ; do
+        if [ -d ${dir} ] ; then
+            _manpath="${_manpath}:${dir}"
+        fi
+    done
+
+    unset gitdirs
+    unset gitman
+fi
+
+########################################
 ## Machine-specific paths gathered above
 ########################################
 for dir in ${machdirs} ; do
