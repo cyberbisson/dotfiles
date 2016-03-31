@@ -356,8 +356,20 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 (defun provide-customized-fetures-21 ()
   "Load features that only work with Emacs 21 and above."
 
+  (if (< 23 emacs-major-version) (provide-customized-fetures-24))
+
   ;; Load Batch-script stuff
   (if (file-exists-p "~/elisp/dos.elc") (load-file "~/elisp/dos.elc")))
+
+(defun provide-customized-fetures-24 ()
+  "Load features that only work with Emacs 24 and above."
+
+  (if (file-exists-p "~/elisp/clang-format.elc")
+      (progn
+        (load-file "~/elisp/clang-format.elc")
+        (global-set-key (kbd "C-M-i") 'clang-format-region)
+        (global-set-key (kbd "C-c d") 'clang-format)
+        (setq clang-format-executable "~/bin/clang-format"))))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions for keyboard macros:
@@ -437,6 +449,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              ("\\.hpp$"     . c++-mode)
              ("\\.i$"       . c++-mode)
              ("\\.rc$"      . c++-mode)
+             ("\\.sc$"      . python-mode)
              ("\\.r$"       . c-mode)
              ("\\.make$"    . makefile-mode)
              ("\\.mk$"      . makefile-mode)
