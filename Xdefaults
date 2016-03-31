@@ -11,7 +11,7 @@ xterm*borderColor: white
 xterm*fullCursor:  true
 xterm*cursorColor: black
 xterm*foreground:  black
-xterm*geometry:    128x60
+xterm*geometry:    128x45
 xterm*saveLines:   2048
 xterm*scrollBar:   true
 xterm*term:        xterm
@@ -39,14 +39,13 @@ aixterm*fullCursor:  true
 aixterm*cursorColor: white
 aixterm*foreground:  lightgray
 !!aixterm*foreground:  white
-aixterm*geometry:    128x60
+aixterm*geometry:    128x45
 aixterm*saveLines:   2048
 aixterm*scrollBar:   true
 aixterm*term:        aixterm
 aixterm*title:       AIX Terminal
 
 !! Set up some emacs stuff
-!Emacs*geometry:      81x70
 Emacs*geometry:      81x60
 !Emacs*Font:          8x13
 !Emacs*Font:          -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
@@ -67,7 +66,20 @@ Emacs*Background:    #333333
 Emacs*Foreground:    #D0D0D0
 Emacs*toolbar:       0
 
-!! Set up the terminal that I actually use...
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Annoying hack for Emacs-24.4
+Emacs.default.attributeBackground:      #333333
+Emacs.default.attributeForeground:      #D0D0D0
+
+!! Now in lower case, for some reason...
+emacs*geometry:      81x60
+emacs*Font:          Nimbus Mono L 10
+emacs*Background:    #333333
+emacs*Foreground:    #D0D0D0
+emacs*toolbar:       0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!! Set up CDE terminal, since this file dates back to the mid-1990's...
 Dtterm*geometry:     128x60
 Dtterm*saveLines:    2048
 Dtterm*title:        Desktop Terminal
