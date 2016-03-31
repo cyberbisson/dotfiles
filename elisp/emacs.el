@@ -23,7 +23,7 @@
 (defun custom-configure-emacs ()
   "This is the full configuration/customization function for Emacs."
 
-  (provide-customized-fetures)
+  (provide-customized-features)
 
   (set-key-bindings)
 
@@ -303,10 +303,10 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 ;; External package loaders:
 ;; -----------------------------------------------------------------------------
 
-(defun provide-customized-fetures ()
+(defun provide-customized-features ()
   "Load external packages and those that are not enabled by default."
 
-  (if (< 19 emacs-major-version) (provide-customized-fetures-20))
+  (if (< 19 emacs-major-version) (provide-customized-features-20))
 
   ;; All this ccs stuff happens if the dotfile exists...
   (if (file-exists-p "/ccs/etc/dotfiles/.emacs")
@@ -319,10 +319,10 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   (if (getenv "VMWARE_CODE") (configure-vmware-dev-env)))
 
-(defun provide-customized-fetures-20 ()
+(defun provide-customized-features-20 ()
   "Load features that only work with Emacs 20 and above."
 
-  (if (< 20 emacs-major-version) (provide-customized-fetures-21))
+  (if (< 20 emacs-major-version) (provide-customized-features-21))
 
   ;; Enable wheelmouse support by default
   (if (not terminal-frame) (load "mwheel" t))
@@ -353,15 +353,25 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
   ;; Perforce is a horrible version control system -- it has an Emacs mode
   (if (file-exists-p "~/elisp/p4.elc") (load-file "~/elisp/p4.elc"))) ;; 2 slow
 
-(defun provide-customized-fetures-21 ()
+(defun provide-customized-features-21 ()
   "Load features that only work with Emacs 21 and above."
 
-  (if (< 23 emacs-major-version) (provide-customized-fetures-24))
+  (if (< 22 emacs-major-version) (provide-customized-features-23))
 
   ;; Load Batch-script stuff
   (if (file-exists-p "~/elisp/dos.elc") (load-file "~/elisp/dos.elc")))
 
-(defun provide-customized-fetures-24 ()
+(defun provide-customized-features-23 ()
+  "Load features that only work with Emacs 23 and above."
+
+  (if (< 23 emacs-major-version) (provide-customized-features-24))
+
+  (if (file-exists-p "~/elisp/undo-tree.elc")
+      (progn
+        (load-file "~/elisp/undo-tree.elc")
+        (global-undo-tree-mode))))
+
+(defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
 
   (if (file-exists-p "~/elisp/clang-format.elc")
