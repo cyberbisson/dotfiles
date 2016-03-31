@@ -65,11 +65,6 @@ if (${?USE_HOLLY}) then
     alias hoseenv "setenv LD_LIBRARY_PATH ${HOLLY_SYSTEM_ROOT}/usr/lib"
 endif
 
-#####################################
-# HACK!!!
-alias emacs 'emacs -fn 8x13'
-#####################################
-
 # Unset frivolous aliases
 unalias alais
 unalias csl
