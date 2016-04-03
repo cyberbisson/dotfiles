@@ -42,12 +42,12 @@ fi
 # Annoying
 if [ ! "${TERM}" ] ; then
     export TERM="vt100"
-elif [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | 
+elif [ 'unknown' = ${TERM} ] || [ 'ANSI' = ${TERM} ] ||
    [ 'network' = ${TERM} ] ; then
     export TERM="vt100"
 fi
 
-#if [ ! "${TERM}" ] | [ 'unknown' = ${TERM} ] | [ 'ANSI' = ${TERM} ] | \
+#if [ ! "${TERM}" ] || [ 'unknown' = ${TERM} ] || [ 'ANSI' = ${TERM} ] || \
 #   [ 'network' = ${TERM} ] ; then
 
 #    echo "Note: Changing terminal type..."
@@ -87,8 +87,8 @@ else
 fi
 
 # What type of CPU
-if [ -x '/bin/machine' ] | [ -x '/usr/bin/machine' ] | 
-   [ -x '/usr/local/bin/machine' ] | [ -x "${HOME}/machine" ] ; then
+if [ -x '/bin/machine' ] || [ -x '/usr/bin/machine' ] ||
+   [ -x '/usr/local/bin/machine' ] || [ -x "${HOME}/machine" ] ; then
     CPU=`machine`; export CPU
     CCPU="${CPU}"; export CCPU
 fi
@@ -137,9 +137,9 @@ Linux)
         distro="fedora"
     elif [ -f '/etc/redhat_version' ] ; then
         distro="rhat"
-    elif [ -f '/etc/debian_release' ] | [ -f '/etc/debian_version' ] ; then
+    elif [ -f '/etc/debian_release' ] || [ -f '/etc/debian_version' ] ; then
         distro="deb"
-    elif [ -f '/etc/slackware-release' ] | [ -f '/etc/slackware-version' ] ; then
+    elif [ -f '/etc/slackware-release' ] || [ -f '/etc/slackware-version' ] ; then
         distro="slack"
     elif [ -f '/etc/mandrake-release' ] ; then
         distro="mndrk"
@@ -746,7 +746,7 @@ fi
 #            `read response`
 
 #            if [ "${response}" != "" ] ; then
-#                if [ ! "`echo ${response} | grep :`" ] ; then
+#                if [ ! "`echo ${response} || grep :`" ] ; then
 #                    echo "Setting DISPLAY to ${response}"
 #                    DISPLAY="${response}"; export DISPLAY
 #                else
