@@ -412,8 +412,12 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 (defun set-key-bindings-term ()
   "Set key bindings to make Emacs work well on the terminal."
 
-  (global-set-key "\C-h" 'delete-backward-char)
-  (global-set-key "\C-?" 'delete-char))
+  ;; TODO: These used to be required, but now Emacs and the console have figured
+  ;; out how to place nice.  Re-enable these (with an appropriate conditional)
+  ;; when we encounter another terminal / keyboard issue.
+; (global-set-key "\C-h" 'delete-backward-char)
+; (global-set-key "\C-?" 'delete-char)
+)
 
 (defun set-key-bindings-xwin ()
   "Set key bindings that are specific to graphical Emacs instances."
