@@ -1,0 +1,17 @@
+BackgroundColour=0,0,0
+BellFlash=yes
+BoldAsColour=no
+BoldAsFont=yes
+Charset=UTF-8
+Columns=128
+CursorType=block
+Font=Liberation Mono
+FontHeight=9
+FontSmoothing=default
+ForegroundColour=192,192,192
+Locale=en_US
+Rows=50
+Scrollbar=left
+Term=xterm-256color
+Transparency=medium
+ZoomShortcuts=no
