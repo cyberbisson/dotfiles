@@ -95,6 +95,7 @@ if (${?PROMPT}) then
             case "rxvt"
             case "xterm"
             case "xterm-color"
+            case "xterm-256color"
             case "xterm-xfree86"
                 set prompt="%{^[[01;39m%}${PROMPT}\%%{^[[00m%} "
                 breaksw

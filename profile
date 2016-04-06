@@ -694,7 +694,7 @@ PS1="$machprompt$hostprompt# "
 
 if [ "" != "${BASH}" ] ; then
     case ${TERM} in
-    cygwin | dtterm | linux | rxvt | xterm | xterm-color | xterm-xfree86)
+    cygwin | dtterm | linux | rxvt | xterm | xterm-*color | xterm-xfree86)
         PS1="\[\033[01;39m\]${PS1}\[\033[00m\]"
         ;;
     esac
