@@ -12,7 +12,7 @@
 # If we've not seen the login script, we need to load it.  Also, if we have
 # seen the thing, but were configured for a different shell, we need to
 # reload it.
-if [ ! ${SAW_ZPROFILE_SCRIPT} ] ; then
+if [ ${+SAW_ZPROFILE_SCRIPT} -eq 0 ] || [ ${SAW_ZPROFILE_SCRIPT} -eq 0 ] ; then
     source "${HOME}/.zprofile"
 fi
 
@@ -22,7 +22,7 @@ if [ -f "${HOME}/.alias.zsh" ] ; then
     source "${HOME}/.alias.zsh"
 fi
 
-if [ ${SRM_BRANCH} ] ; then
+if [ ${+SRM_BRANCH} -ne 0 ] ; then
     if [ -f "${HOME}/.zshrc.${SRM_BRANCH}" ] ; then
         source "${HOME}/.zshrc.${SRM_BRANCH}"
     else
@@ -31,34 +31,50 @@ if [ ${SRM_BRANCH} ] ; then
     fi
 fi
 
-###############################################################################
+################################################################################
 # Miscellaneous settings
-###############################################################################
+################################################################################
 
 case ${TERM} in
 cygwin | dtterm | linux | rxvt | xterm | xterm-*color | xterm-xfree86)
-    PROMPT=%{$'\e[01;39m'%}${PROMPT}%{$'\e[00m'%}' '
+    PROMPT=%{$'\e[01;39m'%}${BASE_PROMPT}%{$'\e[00m'%}' '
     ;;
 esac
 
-##############################################################################
-# Set limits for the environment
-##############################################################################
-ulimit -c unlimited                     # Core file size (blocks)
-
-###############################################################################
+################################################################################
 # Miscellaneous settings
-###############################################################################
+################################################################################
 
 # History file settings
-HISTFILE=${HOME}/.zsh_histfile
-HISTSIZE=1024
-SAVEHIST=1024
+export HISTFILE=${HOME}/.zsh_histfile
+export HISTSIZE=1024
+export SAVEHIST=1024
+
+# Hate hate hate colored ls output
+unset LS_COLORS
+
+# Set up ZSH options:
+unsetopt BG_NICE
+setopt   C_BASES
+unsetopt IGNORE_EOF
+unsetopt HUP
+setopt   LIST_PACKED
+unsetopt RM_STAR_SILENT # Might be good since I alias rm -f sometimes.
+setopt   SH_NULL_CMD
 
 # Use emacs keybindings
 bindkey -e
 
-# TODO: What??
+# Ctrl+LEFT / Ctrl+RIGHT move entire words
+bindkey ';5C' forward-word
+bindkey ';5D' backward-word
+
+# Delete ahead with delete key
+bindkey '\e[3~' delete-char
+
+# TODO: What??  I think this is just marking to compinstall that the
+# configuration was written here.
 zstyle :compinstall filename "${HOME}/.zshrc"
 
+# Set up command completions
 autoload -Uz compinit && compinit

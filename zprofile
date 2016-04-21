@@ -9,17 +9,17 @@
 ################################################################################
 # Matt Bisson
 
-if [ ${SAW_ZPROFILE_SCRIPT} ] ; then
+if [ ${+SAW_ZPROFILE_SCRIPT} -ne 0 ] && [${SAW_ZPROFILE_SCRIPT} -ne 0] ; then
     return
 fi
 
-export SAW_ZPROFILE_SCRIPT=0
+export SAW_ZPROFILE_SCRIPT=1
 
 ################################################################################
 # If TERM is undefined, or it is not an acceptable type
 ################################################################################
 
-if [ ! ${TERM} ] ; then
+if [ ${+TERM} -eq 0 ] ; then
     echo "Changing terminal type..."
     export TERM='vt100'
 else
@@ -31,9 +31,9 @@ else
     esac
 fi
 
-###############################################################################
+################################################################################
 # Perform machine specific initializations
-###############################################################################
+################################################################################
 
 hwclass=`uname -m`
 OSrelease=`uname -r`
@@ -44,12 +44,14 @@ case `uname -s` in
 ## Linux
 ########################################
 'Linux')
-    export XENVIRONMENT "${HOME}/.Xdefaults"
+    export XENVIRONMENT="${HOME}/.Xdefaults"
     if [ -f '/etc/gentoo-release' ] ; then
 
         distro='gentoo'
 
-        if [ -f '/usr/bin/kde4' ] ; then
+        if [ -f '/usr/bin/kde5' ] ; then
+            kdever=5
+        elif [ -f '/usr/bin/kde4' ] ; then
             kdever=4
         else
             # Nothing better to do...
@@ -61,9 +63,24 @@ case `uname -s` in
         machman=( '/usr/local/share/man' '/usr/share/man' '/usr/share/binutils-data/i686-pc-linux-gnu/2.17/man' '/usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man' '/opt/sun-jdk-1.4.2.13/man' '/etc/java-config/system-vm/man' /usr/kde/${kdever}/share/man '/usr/qt/3/doc/man' '/opt/vmware/workstation/man' '/opt/bin' )
         unset kdever
 
-        if [ -x '/usr/bin/gcc-config' ] ; then
-            machdirs=( ${machdirs} `/usr/bin/gcc-config -B` )
-            machman=( ${machman} "`/usr/bin/gcc-config -B`/man" )
+        # Try to read configuration files to determine where GCC is.  Failing
+        # this, use the gcc-config command, which is much slower.
+        if [ -x '/etc/env.d/gcc' ] ; then
+            for file in /etc/env.d/gcc/`uname -m`-*-linux-gnu-* ; do
+                tmp_gccpath=`grep '^GCC_PATH=' ${file} | \
+                             sed 's/^GCC_PATH=//' | sed 's/"//g'`
+                tmp_manpath=`grep '^MANPATH=' ${file} | \
+                             sed 's/^MANPATH=//' | sed 's/"//g'`
+                machdirs=( ${machdirs} ${tmp_gccpath} )
+                machman=( ${machman} ${tmp_manpath} )
+                unset tmp_gccpath
+                unset tmp_manpath
+            done
+        elif [ -x '/usr/bin/gcc-config' ] ; then
+            gcc_config=`/usr/bin/gcc-config -B`
+            machdirs=( ${machdirs} ${gcc_config} )
+            machman=( ${machman} "${gcc_config}/man" )
+            unset gcc_config
         fi
 
     elif [ -f '/etc/redhat-release' ] ; then
@@ -110,7 +127,7 @@ case `uname -s` in
         distro='lnux'
     fi
 
-    if [ ! ${machtype} ] ; then
+    if [ ${+machtype} -eq 0 ] ; then
         machtype=${distro}-${hwclass}
     fi
     unset distro
@@ -274,10 +291,10 @@ case `uname -s` in
 
 esac
 
-if [ ! ${machdirs} ] ; then
+if [ ${+machdirs} -eq 0 ] ; then
     machdirs=(  )
 fi
-if [ ! ${machman} ] ; then
+if [ ${+machman} -eq 0 ] ; then
     machman=(  )
 fi
 unset hwclass
@@ -597,9 +614,9 @@ unset _path
 unset _manpath
 
 
-###############################################################################
+################################################################################
 # Set the prompt
-###############################################################################
+################################################################################
 
 # This is a fix for cygwin so that we don't pick up the Windows native whoami,
 # which will give a different result than cygwin commands.
@@ -617,7 +634,7 @@ if [ "${LOGNAME}" != "${curuser}" ] ; then
 else
     hostprompt="${host}"
 fi
-if [ ${machtype} ] ; then
+if [ ${+machtype} -ne 0 ] ; then
     machprompt="[${machtype}]:"
 else
     machprompt=
@@ -626,16 +643,17 @@ fi
 unset curuser
 unset host
 
-export PROMPT="${machprompt}${hostprompt}%#"
+export BASE_PROMPT="${machprompt}${hostprompt}%#"
+
 unset hostprompt
 unset machprompt
 unset machtype
 
-###############################################################################
+################################################################################
 # Miscellaneous settings
-###############################################################################
+################################################################################
 # Make user and login name the same thing
-if ([ ! ${USER} ] && [ ${LOGNAME} ]) ; then
+if ([ ${+USER} -eq 0 ] && [ ${+LOGNAME} -ne 0 ]) ; then
     export USER=${LOGNAME}
 fi
 
@@ -649,13 +667,13 @@ export ENV='~/.profile'
 export ENSCRIPT='-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15:15 --mark-wrapped-lines=arrow'
 
 # Get the timezone set... sigh
-if [ ! ${TZ} ] ; then
+if [ ${+TZ} -eq 0 ] ; then
     export TZ='EST5EDT'
 fi
 
-###############################################################################
+################################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...
-###############################################################################
+################################################################################
 
 # Make sysV braindamage look like berzerkeley braindamage
 export TTY=`tty`
@@ -691,8 +709,7 @@ fi
 
 unset isatty
 
-###############################################################################
-# Unset all unnecessary variables...
-###############################################################################
-
-unset LS_COLORS
+################################################################################
+# Set limits for the environment
+################################################################################
+ulimit -c unlimited                     # Core file size (blocks)
