@@ -39,6 +39,9 @@ case ${TERM} in
 cygwin | dtterm | linux | rxvt | xterm | xterm-*color | xterm-xfree86)
     PROMPT=%{$'\e[01;39m'%}${BASE_PROMPT}%{$'\e[00m'%}' '
     ;;
+*)
+    PROMPT=${BASE_PROMPT}' '
+    ;;
 esac
 
 ################################################################################
@@ -61,6 +64,11 @@ unsetopt HUP
 setopt   LIST_PACKED
 unsetopt RM_STAR_SILENT # Might be good since I alias rm -f sometimes.
 setopt   SH_NULL_CMD
+
+# Emacs shell-mode does all the driving, so take this control from ZSH
+if [ "${EMACS}" = "t" ] ; then
+    unsetopt zle
+fi
 
 # Use emacs keybindings
 bindkey -e
