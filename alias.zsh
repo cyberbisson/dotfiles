@@ -31,7 +31,7 @@ if [ -d ${VPNDIR} ] ; then
     alias vpnstart="'cp' -f ${VPNDIR}/palm.mod.pcf ${VPNDIR}/palm.pcf; /opt/cisco-vpnclient/bin/vpnclient connect palm"
 fi
 
-if ([ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ]) then
+if [ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ] ; then
     alias  more=less                    # Less IS more...
     export PAGER=less
 fi

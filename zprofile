@@ -9,7 +9,7 @@
 ################################################################################
 # Matt Bisson
 
-if [ ${+SAW_ZPROFILE_SCRIPT} -ne 0 ] && [${SAW_ZPROFILE_SCRIPT} -ne 0] ; then
+if [ ${+SAW_ZPROFILE_SCRIPT} -ne 0 ] && [ ${SAW_ZPROFILE_SCRIPT} -ne 0 ] ; then
     return
 fi
 
@@ -653,7 +653,7 @@ unset machtype
 # Miscellaneous settings
 ################################################################################
 # Make user and login name the same thing
-if ([ ${+USER} -eq 0 ] && [ ${+LOGNAME} -ne 0 ]) ; then
+if [ ${+USER} -eq 0 ] && [ ${+LOGNAME} -ne 0 ] ; then
     export USER=${LOGNAME}
 fi
 
