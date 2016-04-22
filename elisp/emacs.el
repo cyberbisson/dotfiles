@@ -37,8 +37,10 @@
    c-default-style              "bsd"
    c-basic-offset               (if (getenv "VMWARE_CODE") 3 4)
    c-tab-always-indent          nil
-   tab-width                    4
    compilation-scroll-output    t
+
+   ;; By default, I'll want to wrap my lines at 80 columns
+   default-fill-column          80
 
    ;; Longer selections tend to make the mode-line too long (with battery)
 ;  display-time-24hr-format     t
@@ -115,7 +117,8 @@
 
   (show-paren-mode 1)
 
-  ;; TODO: Can't seem to do this any other way...
+  ;; Using buffer-local variables to set defaults.  We could use setq-default
+  ;; instead of custom-set-variables if we cared...
   (if (getenv "USE_HOLLY")
       (custom-set-variables '(tab-width        4))
       (custom-set-variables '(indent-tabs-mode nil)))
