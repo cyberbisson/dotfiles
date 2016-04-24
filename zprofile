@@ -145,7 +145,7 @@ case `uname -s` in
 ########################################
 ## CygWin (for Win2k & XP)
 ########################################
-'CYGWIN_NT-6.1'|'CYGWIN_NT-6.1-WOW64'|'CYGWIN_NT-6.0'|'CYGWIN_NT-5.1')
+CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
     machtype='cygwin-'${hwclass}
     winpath=`cygpath -u -S`
 
@@ -659,9 +659,16 @@ fi
 
 umask 022
 
-export EDITOR='emacs'
-export VISUAL='emacs'
-export WINEDITOR='emacs'
+# Only set Emacs as the editor when we find it in /usr/bin.  This is a
+# simplification because (at least) Git on Cygwin doesn't like to use the
+# Windows Emacs when it exists in the path.  If a valid Emacs lives in a custom
+# location, we can make fixes at that time.
+if [ -x /usr/bin/emacs ] ; then
+    export EDITOR='emacs'
+    export VISUAL='emacs'
+    export WINEDITOR='emacs'
+fi
+
 export ENV='~/.profile'
 
 export ENSCRIPT='-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15:15 --mark-wrapped-lines=arrow'
