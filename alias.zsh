@@ -34,6 +34,9 @@ fi
 if [ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ] ; then
     alias  more=less                    # Less IS more...
     export PAGER=less
+    # -X tends to needlessly clear the screen, and -F lets a single screenful
+    # -print and quit...
+    export LESS="${LESS} -F -X"
 fi
 
 # TTY Setting aliases
