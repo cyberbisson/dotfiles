@@ -22,11 +22,12 @@ if [ -f "${HOME}/.alias.zsh" ] ; then
     source "${HOME}/.alias.zsh"
 fi
 
-if [ ${+SRM_BRANCH} -ne 0 ] ; then
-    if [ -f "${HOME}/.zshrc.${SRM_BRANCH}" ] ; then
-        source "${HOME}/.zshrc.${SRM_BRANCH}"
+# Add special environment for VMware development if desired
+if [ ${+VMWARE_BRANCH} -ne 0 ] ; then
+    if [ -f "${HOME}/.zshrc.${VMWARE_BRANCH}" ] ; then
+        source "${HOME}/.zshrc.${VMWARE_BRANCH}"
     else
-        echo ".zshrc: No loadable profile for SRM branch: '${SRM_BRANCH}'." \
+        echo ".zshrc: No loadable profile for VMware branch: '${VMWARE_BRANCH}'." \
         > /dev/stderr
     fi
 fi

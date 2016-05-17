@@ -48,11 +48,12 @@ if (-f "${HOME}/.alias.csh") then
     source "${HOME}/.alias.csh"
 endif
 
-if (${?SRM_BRANCH}) then
-    if (-f "${HOME}/.tcshrc.${SRM_BRANCH}") then
-        source "${HOME}/.tcshrc.${SRM_BRANCH}"
+# Add special environment for VMware development if desired
+if (${?VMWARE_BRANCH}) then
+    if (-f "${HOME}/.tcshrc.${VMWARE_BRANCH}") then
+        source "${HOME}/.tcshrc.${VMWARE_BRANCH}"
     else
-        echo ".tcshrc: No loadable profile for SRM branch: '${SRM_BRANCH}'." \
+        echo ".tcshrc: No loadable profile for VMware branch: '${VMWARE_BRANCH}'." \
         > /dev/stderr
     endif
 endif

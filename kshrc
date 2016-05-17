@@ -48,11 +48,12 @@ if [ -f "${HOME}/.alias.ksh" ] ; then
     . "${HOME}/.alias.ksh"
 fi
 
-if [ "" != "${SRM_BRANCH}" ] ; then
-    if [ -f "${HOME}/.kshrc.${SRM_BRANCH}" ] ; then
-        . "${HOME}/.kshrc.${SRM_BRANCH}"
+# Add special environment for VMware development if desired
+if [ "" != "${VMWARE_BRANCH}" ] ; then
+    if [ -f "${HOME}/.kshrc.${VMWARE_BRANCH}" ] ; then
+        . "${HOME}/.kshrc.${VMWARE_BRANCH}"
     else
-        echo ".kshrc: No loadable profile for SRM branch: '${SRM_BRANCH}'." \
+        echo ".kshrc: No loadable profile for VMware branch: '${VMWARE_BRANCH}'." \
         > /dev/stderr
     fi
 fi
