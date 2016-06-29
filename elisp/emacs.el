@@ -54,6 +54,10 @@
    ;; Don't like the initial stuff in my scratch buffer
    initial-scratch-message      nil
 
+   ;; I'm not sure why anybody thought this was a good idea...
+   isearch-lax-whitespace       nil
+   isearch-regexp-lax-whitespace nil
+
    ;; Always making backups
    make-backup-files t
 
