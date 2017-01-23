@@ -331,7 +331,9 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
   (let ((vmware-style-hook
          (lambda () (c-set-style "vmware-c-c++-engineering-manual"))))
     (add-hook 'c-mode-hook   vmware-style-hook)
-    (add-hook 'c++-mode-hook vmware-style-hook))
+    (add-hook 'c++-mode-hook vmware-style-hook)
+    (add-hook 'java-mode-hook
+              (function (lambda ()(setq c-basic-offset 3)))))
 
   (let ((srcdir (getenv "DR_SRCDIR_UNIX")))
     (if (and srcdir (file-exists-p srcdir))
@@ -342,10 +344,10 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   (interactive)
   (insert-string (concat "\
-/* ****************************************************************************
- * Copyright " (int-to-string (nth 5 (decode-time)))
- " VMware, Inc.  All rights reserved. -- VMware Confidential
- * ***************************************************************************/
+/* *****************************************************************************
+ * Copyright (c) " (int-to-string (nth 5 (decode-time)))
+ " VMware, Inc.  All rights reserved. -- VMware Confidential.
+ * ****************************************************************************/
 
 /**
  * @file
@@ -427,6 +429,8 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
 (defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
+
+  (ido-mode 1)
 
   (if (file-exists-p "~/elisp/clang-format.elc")
       (progn
@@ -535,6 +539,22 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              ("\\.txt$"     . text-mode))
            auto-mode-alist)))
 
+(defun buffer-list-sorted-by-path ()
+  "Gathers a list of buffers, ordered by their file name (see sort-buffers)."
+
+  (sort (buffer-list)
+        (function (lambda (o1 o2)
+                    (let ((buf-file1 (buffer-file-name o1))
+                          (buf-file2 (buffer-file-name o2)))
+                      (cond
+                       ((and (null buf-file1) (null buf-file2))
+                        (string<
+                         (downcase (buffer-name o1))
+                         (downcase (buffer-name o2))))
+                       ((null buf-file1) nil)
+                       ((null buf-file2) t)
+                       (t (string< buf-file1 buf-file2))))))))
+
 (defun custom-configure-backups (custom-backup-dir)
   "Configure the Emacs backup settings."
 
@@ -558,6 +578,8 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
 (defun custom-configure-for-terminal ()
   "Configure setting that only apply to Emacs when run in a terminal."
+
+  (menu-bar-mode -1)
 
   ;; I just find syntax highlighting annoying on the terminal
   ;; TODO: XEmacs?!?
@@ -620,7 +642,8 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              (cons 'font
 ;;                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"
 ;;                 "8x13"
-                   "Nimbus Mono L 10"
+;;                 "Nimbus Mono L 10"
+                   "DejaVu Sans Mono 10"
                    ))
          (cons 'height (frame-parameter (selected-frame) 'height))
          (cons 'width  (frame-parameter (selected-frame) 'width))))))
@@ -684,6 +707,14 @@ my file."
 
   (setq frame-title-format title-format
         icon-title-format  title-format))
+
+(defun sort-buffers ()
+  "Re-order the buffers alphabetically by their path."
+
+  (interactive)
+  (dolist (cur (buffer-list-sorted-by-path))
+    (bury-buffer cur))
+  (if (interactive-p) (list-buffers)))
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
