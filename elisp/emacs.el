@@ -609,42 +609,27 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
          (cons 'background-color
                (frame-parameter (selected-frame) 'background-color))
 
-         ; TODO: Make font selection dynamically select the first one that is
-         ;       available.
-         ;         Family: outline-consolas
-         ;          Width: normal
-         ;         Height: 90
-         ;         Weight: normal
-         ;          Slant: normal
-         ;     Foreground: SystemWindowText
-         ;     Background: SystemWindow
-         ;      Underline: nil
-         ;       Overline: nil
-         ; Strike-through: nil
-         ;            Box: nil
-         ;        Inverse: nil
-         ;        Stipple: nil
-         ;        Inherit: unspecified
+         ;; Determine the font we can use somewhat dynamically by falling
+         ;; through until we find one that exists on our system.
          (cons 'font
-               ;; Lucida Console 8 (thinner)
-;;             "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1"
-               ;; Consolas 11
-               "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
-               )
+          (find-first-defined-font
+           "8x13"
+           '(;; Consolas 11
+             "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
+             ;; Lucida Console 8 (thinner)
+             "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
          (cons 'height 70)
          (cons 'width  81))
         (list
          (if (eq system-type 'cygwin)
+             (cons 'font (find-first-defined-font "8x13" '("Consolas 9")) )
              (cons 'font
-;;                 "8x13"
-                   "Consolas 9"
-                   )
-             (cons 'font
-;;                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"
-;;                 "8x13"
-;;                 "Nimbus Mono L 10"
-                   "DejaVu Sans Mono 10"
-                   ))
+              (find-first-defined-font
+               "8x13"
+               '("DejaVu Sans Mono 10"
+                 "Nimbus Mono L 10"
+                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
+              ))
          (cons 'height (frame-parameter (selected-frame) 'height))
          (cons 'width  (frame-parameter (selected-frame) 'width))))))
 
@@ -688,6 +673,19 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
               (cdr (assq 'background-mode (frame-parameters (selected-frame)))))
           (bg-light-font-lock-faces)
         (bg-dark-font-lock-faces))))
+
+(defun find-first-defined-font (default-font-name font-names)
+  "Searches the provided list of font name (strings), returning the name of the
+first font that Emacs can find on this system.  If it finds no fonts, it uses
+the default-font-name."
+
+  (if (null font-names) default-font-name
+
+    (let ((font-name       (car font-names))
+          (rest-font-names (cdr font-names)))
+      (if (find-font (font-spec :name font-name)) font-name ;; <- Found it.
+        (if (null rest-font-names) default-font-name     ;; <- Found nothing...
+          (find-first-defined-font rest-font-names)))))) ;; <- Keep searching...
 
 (defun gud-kill-buffer ()
   "Get rid of the GDB highlight.  This should be added as a hook for when the
