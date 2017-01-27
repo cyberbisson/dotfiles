@@ -83,6 +83,10 @@
   ;; Clear out the "current" line when GDB quits
   (add-hook 'kill-buffer-hook 'gud-kill-buffer)
 
+  ;; If and when we use Google Go, the language relies on TAB indentation by
+  ;; default.  Set the tab stop to something reasonable.
+  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
   (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
   (add-to-list 'command-switch-alist '("--merge" . command-line-merge))
@@ -430,8 +434,6 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 (defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
 
-  (ido-mode 1)
-
   (if (file-exists-p "~/elisp/clang-format.elc")
       (progn
         (load-file "~/elisp/clang-format.elc")
@@ -685,7 +687,8 @@ the default-font-name."
           (rest-font-names (cdr font-names)))
       (if (find-font (font-spec :name font-name)) font-name ;; <- Found it.
         (if (null rest-font-names) default-font-name     ;; <- Found nothing...
-          (find-first-defined-font rest-font-names)))))) ;; <- Keep searching...
+          ;; Keep searching...
+          (find-first-defined-font default-font-name rest-font-names))))))
 
 (defun gud-kill-buffer ()
   "Get rid of the GDB highlight.  This should be added as a hook for when the
