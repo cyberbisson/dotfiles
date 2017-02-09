@@ -137,8 +137,8 @@ case `uname -s` in
 ## FreeBSD
 ########################################
 'FreeBSD')
-    set shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
-    set machtype='bsd'${shortrel}'-'${hwclass}
+    shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
+    machtype='bsd'${shortrel}'-'${hwclass}
     unset shortrel
     ;;
 
