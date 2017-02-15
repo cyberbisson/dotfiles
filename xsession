@@ -14,7 +14,9 @@ echo '--------'Session started: `date`'--------' >> ${LOGFILE}
 #	/usr/bin/beryl-xgl --replace &
 #	exec /usr/bin/beryl-manager
 #elif [ -x /usr/openwin/bin/twm ] ; then
-if [ -x /usr/openwin/bin/twm ] ; then
+if [ -x /usr/bin/fvwm ] ; then
+    exec /usr/bin/fvwm >> ${LOGFILE} 2>&1
+elif [ -x /usr/openwin/bin/twm ] ; then
     /bin/echo '--------OPENWIN--------' >> ${LOGFILE}
     /usr/openwin/bin/xclock -geometry 100x100-0+0 &
     exec /usr/openwin/bin/twm -f ${HOME}/.twmrc >> ${LOGFILE} 2>&1
@@ -29,7 +31,7 @@ elif [ -x /usr/X11/bin/twm ] ; then
     exec /usr/X11/bin/twm -f ${HOME}/.twmrc >> ${LOGFILE} 2>&1
 else
     if [ -f ${TWM_WALLPAPER} ] ; then
-        /usr/bin/xview -onroot ${TWM_WALLPAPER}
+        /usr/bin/xli -onroot ${TWM_WALLPAPER}
     fi
 
     /usr/bin/xclock -geometry 100x100-0+0 &
