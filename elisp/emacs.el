@@ -629,6 +629,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
               (find-first-defined-font
                "8x13"
                '("DejaVu Sans Mono 10"
+                 "FreeMono 10"
                  "Nimbus Mono L 10"
                  "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
               ))
