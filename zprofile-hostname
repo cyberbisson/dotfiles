@@ -1,0 +1,60 @@
+#!/bin/zsh -x
+# .zprofile.${HOSTNAME}
+################################################################################
+# Host-specific Z-Shell Profile script:
+#
+# This file contains host-specific initialization when ZSH gets invoked as a
+# "log-in" shell (see .zprofile).
+################################################################################
+# Matt Bisson
+
+################################################################################
+# Set up the ssh-agent.
+#
+# SSH agent basically circumvents the normal system login procedures when using
+# any of the OpenSSH commands.  When we add public keys to the
+# ~/.ssh/authorized_keys file, any SSH client that presents those public keys
+# can log into the system without a system password (this is Public Key
+# authentication).  This is fine for a trusted client machine, but for LDAP
+# accounts, this means that any compromised machine would be able to log in
+# without a password.  Thus, we add a password to the private key, and SSH once
+# again challenges clients.  SSH agent allows these private keys to become
+# resident in memory on the SSH server (the destination machine), so it no
+# longer requires the private key's password.
+#
+# To make a long story short, the script below requires a password for logging
+# in, but subsequent (local) logins will be cached in the SSH agent.
+################################################################################
+
+# Store SSH agent environment in a host-specific area, since many computer share
+# the same home directory.
+export SSH_ENV="${HOME}/.ssh/agent-env."${HOST}
+
+local no_running_agent=1
+if [ -f "${SSH_ENV}" ] ; then
+    # Read whatever is there -- it may be wrong.
+    source "${SSH_ENV}" > /dev/null
+
+    # Check to see if what agent we think is running, is actually running.
+    if [ ${+SSH_AGENT_PID} -ne 0 ] ; then
+        ps -e | grep "\\b${SSH_AGENT_PID}\\b" | grep '\bssh-agent$' > /dev/null
+        no_running_agent=$?
+    fi
+fi
+
+# Start the new agent (cleaing out the old data) if we didn't find anything
+# real.
+if [ $no_running_agent -ne 0 ] ; then
+    echo "Initializing new SSH agent..."
+
+    # Create the file first, so we don't drop potentially sensitive data into a
+    # world-readable file.
+    touch "${SSH_ENV}"
+    chmod 600 "${SSH_ENV}"
+
+    /usr/bin/ssh-agent > "${SSH_ENV}"
+    source "${SSH_ENV}" > /dev/null
+
+    # Adds any known public keys into the agent instance.
+    /usr/bin/ssh-add
+fi

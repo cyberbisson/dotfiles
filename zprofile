@@ -720,3 +720,10 @@ unset isatty
 # Set limits for the environment
 ################################################################################
 ulimit -c unlimited                     # Core file size (blocks)
+
+################################################################################
+# Run any host-specific initialization
+################################################################################
+if [ -f "${HOME}/.zprofile.${HOSTNAME}" ] ; then
+    source "${HOME}/.zprofile.${HOSTNAME}"
+fi
