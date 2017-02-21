@@ -628,7 +628,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
              (cons 'font
               (find-first-defined-font
                "8x13"
-               '("DejaVu Sans Mono 10"
+               '("DejaVu Sans Mono 9"; 10"
                  "FreeMono 10"
                  "Nimbus Mono L 10"
                  "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
@@ -709,6 +709,21 @@ my file."
 
   (setq frame-title-format title-format
         icon-title-format  title-format))
+
+;; TODO: Instead of requiring C-u, this should ask the user for input.  There's
+;;       also no validation...
+(defun set-active-frame-width-for-parallel-windows (window-count)
+  "Set the width of the frame to allow WINDOW-COUNT parallel windows to have a
+uniform 80 column width"
+
+  (interactive "p")
+  (set-frame-size
+   (selected-frame)
+   (+ (* 80 window-count)           ; Column count could be configurable...
+      window-count                  ; One extra letter so cursor sits on the end
+      (* 5 (- window-count 1)))     ; Ballpark scroll-bar width
+   (frame-parameter (selected-frame) 'height))
+  (balance-windows))
 
 (defun sort-buffers ()
   "Re-order the buffers alphabetically by their path."

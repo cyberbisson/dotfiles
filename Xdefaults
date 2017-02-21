@@ -52,7 +52,7 @@ Emacs*geometry:      81x60
 !Emacs*Font:          -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
 !Emacs*Font:          Consolas 9
 !Emacs*Font:          Nimbus Mono L 10
-Emacs*Font:          DejaVu Sans Mono 10
+Emacs*Font:          DejaVu Sans Mono 9
 !Emacs*Font:          FreeMono 10
 !Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 !! Black on gray
@@ -78,7 +78,7 @@ Emacs.default.attributeForeground:      #D0D0D0
 emacs*geometry:      81x60
 !emacs*geometry:      81x70
 !emacs*Font:          Nimbus Mono L 10
-emacs*Font:          DejaVu Sans Mono 10
+emacs*Font:          DejaVu Sans Mono 9
 !emacs*Font:          FreeMono 10
 emacs*Background:    #333333
 emacs*Foreground:    #D0D0D0
