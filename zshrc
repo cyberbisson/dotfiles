@@ -37,7 +37,8 @@ fi
 ################################################################################
 
 case ${TERM} in
-cygwin | dtterm | linux | rxvt | xterm | xterm-*color | xterm-xfree86)
+cygwin | dtterm | eterm-color | linux | rxvt | xterm | xterm-*color | \
+xterm-xfree86)
     PROMPT=%{$'\e[01;39m'%}${BASE_PROMPT}%{$'\e[00m'%}' '
     ;;
 *)
