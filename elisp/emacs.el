@@ -39,6 +39,9 @@
    c-tab-always-indent          nil
    compilation-scroll-output    t
 
+   ;; I don't like that I can delete the prompt in the shell.
+   comint-prompt-read-only      t
+
    ;; By default, I'll want to wrap my lines at 80 columns
    default-fill-column          80
 
@@ -166,7 +169,7 @@
   "Set font-lock faces for Emacs when the background is dark."
 
   ;;           'face                         fg              bg  st  b   i   u
-  (modify-face 'comint-highlight-prompt      "DodgerBlue"    nil nil t   nil nil)
+  (modify-face 'minibuffer-prompt            "DodgerBlue"    nil nil t   nil nil)
   (modify-face 'font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
   (modify-face 'font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
   (modify-face 'font-lock-type-face          "Violet"        nil nil nil nil nil)
@@ -203,12 +206,12 @@
 (defun bg-light-font-lock-faces ()
   "Set font-lock faces for Emacs when the background is light."
 
-  ;;           'face                         fg           bg  st  b   i   u
-  (modify-face 'comint-highlight-prompt      "DodgerBlue" nil nil t   nil nil)
-  (modify-face 'font-lock-comment-face       "DarkGreen"  nil nil nil t   nil)
-  (modify-face 'font-lock-keyword-face       "FireBrick"  nil nil t   nil nil)
-  (modify-face 'font-lock-type-face          "Maroon"     nil nil nil nil nil)
-  (modify-face 'font-lock-variable-name-face "SteelBlue"  nil nil nil nil nil)
+  ;;           'face                         fg            bg  st  b   i   u
+  (modify-face 'minibuffer-prompt            "DodgerBlue4" nil nil t   nil nil)
+  (modify-face 'font-lock-comment-face       "DarkGreen"   nil nil nil t   nil)
+  (modify-face 'font-lock-keyword-face       "FireBrick"   nil nil t   nil nil)
+  (modify-face 'font-lock-type-face          "Maroon"      nil nil nil nil nil)
+  (modify-face 'font-lock-variable-name-face "SteelBlue"   nil nil nil nil nil)
 
   (if (< 19 emacs-major-version) (bg-light-font-lock-faces-20)))
 
@@ -664,9 +667,6 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
           (< 20 emacs-major-version))
       (make-face 'sh-heredoc)
       (make-face 'font-lock-doc-face))
-
-  ;; This won't appear until after loading "M-x shell", so make it now.
-  (make-face 'comint-highlight-prompt)
 
   ;; Go all out with the font colors
   (setq font-lock-maximum-decoration t)
