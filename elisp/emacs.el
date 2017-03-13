@@ -471,6 +471,10 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   (global-set-key "\C-c\C-r" 'recompile)
 
+  ;; It helps to go backwards sometimes.
+  (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))
+  (global-set-key "\C-x9" 'delete-other-windows-vertically)
+
   (global-set-key "\C-c\C-v"
    (function (lambda ()
      "Copy the buffer's full path into the kill-ring."
@@ -659,7 +663,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
         (let ((fg-color (cdr (assq 'foreground-color frame-params))))
           (set-cursor-color fg-color)
           (set-mouse-color  fg-color))))
-  
+
   ;; Can't customize font lock until we load the libary (and faces) first
   (load-library "font-lock")
   (customize-font-lock))
@@ -668,7 +672,7 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
   "Set up syntax highlighting."
 
   ;; Add color to the current GUD line
-  (make-face 'gdb-selection) 
+  (make-face 'gdb-selection)
 
   ;; By default, this face is UNREADABLE.
   (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
