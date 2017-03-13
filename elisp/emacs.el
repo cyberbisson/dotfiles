@@ -344,6 +344,14 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
     (add-hook 'java-mode-hook
               (function (lambda ()(setq c-basic-offset 3)))))
 
+  ;; We are only using a certain few compilers, so clean this up.
+  (setq compilation-error-regexp-alist '(gcc-include gnu msft))
+
+  (let ((srcdir (getenv "RP_SRCDIR")))
+    (if (and srcdir (file-exists-p srcdir))
+        (setq compile-command
+              (concat "cd " srcdir " && iscons PRODUCT=vsanrp vsanrp-all"))))
+
   (let ((srcdir (getenv "DR_SRCDIR_UNIX")))
     (if (and srcdir (file-exists-p srcdir))
         (setq compile-command (concat "make -C " srcdir " server")))))
