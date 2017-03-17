@@ -197,7 +197,12 @@
 (defun bg-dark-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is dark."
 
-  (modify-face 'font-lock-doc-face "LightBlue" nil nil nil t nil))
+  (modify-face 'font-lock-doc-face "LightBlue" nil nil nil t nil)
+  (if (< 24 emacs-major-version) (bg-dark-font-lock-faces-25)))
+
+(defun bg-dark-font-lock-faces-25 ()
+  "Set font-lock faces for Emacs 25+ when the background is light."
+  (modify-face 'ebrowse-root-class "Violet" nil nil nil nil nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Font coloring for light Emacs backgrounds:
@@ -235,7 +240,12 @@
 (defun bg-light-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is light."
 
-  (modify-face 'font-lock-doc-face "DarkGreen" nil nil nil t nil))
+  (modify-face 'font-lock-doc-face "DarkGreen" nil nil nil t nil)
+  (if (< 24 emacs-major-version) (bg-light-font-lock-faces-25)))
+
+(defun bg-light-font-lock-faces-25 ()
+  "Set font-lock faces for Emacs 25+ when the background is light."
+  (modify-face 'ebrowse-root-class "Maroon" nil nil nil nil nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions used for command-line control:
@@ -346,6 +356,10 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   ;; We are only using a certain few compilers, so clean this up.
   (setq compilation-error-regexp-alist '(gcc-include gnu msft))
+  (add-hook
+   'compilation-filter-hook
+   (lambda ()
+     (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
   (let ((srcdir (getenv "RP_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
@@ -447,12 +461,18 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 (defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
 
+  (if (< 24 emacs-major-version) (provide-customized-features-25))
+
   (if (file-exists-p "~/elisp/clang-format.elc")
       (progn
         (load-file "~/elisp/clang-format.elc")
         (global-set-key (kbd "C-M-i") 'clang-format-region)
         (global-set-key (kbd "C-c d") 'clang-format)
         (setq clang-format-executable "~/bin/clang-format"))))
+
+(defun provide-customized-features-25 ()
+  "Load features that only work with Emacs 25 and above."
+  (require 'ebrowse))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions for keyboard macros:
