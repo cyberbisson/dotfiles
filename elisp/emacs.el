@@ -145,7 +145,7 @@
   (setq next-line-add-newlines t)
 
   (blink-cursor-mode -1)
-  (tool-bar-mode -1)
+  (if (not terminal-frame) (tool-bar-mode -1))
 
   (condition-case nil
       (display-battery-mode 1)
