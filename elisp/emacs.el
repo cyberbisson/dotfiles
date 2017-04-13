@@ -1,6 +1,5 @@
-
 ;; emacs.el
-;; This is my Emacs initialization script.  It works with Emacs 19-24
+;; This is my Emacs initialization script.  It works with Emacs 19-25
 ;; and greater.
 ;;
 ;; Features:
@@ -14,7 +13,7 @@
 ;; - --instance-id command line gives emacs a name (good for keeping track).
 ;; - Different customized syntax coloration based on dark or light background.
 ;;
-;; Matt Bisson	5/18/2013
+;; Matt Bisson	4/13/2017
 
 ;; -----------------------------------------------------------------------------
 ;; Top-level configuration routines:
@@ -159,7 +158,11 @@
   ;; Org-mode only exists in version 22 and above.
   (setq
    auto-mode-alist       (append '(("\\.org$" . org-mode)) auto-mode-alist)
-   org-startup-truncated nil))
+   org-startup-truncated nil)
+
+  ;; Show me a small set of extraneous bits of whitespace.
+  (global-whitespace-mode 1)
+  (setq whitespace-style '(face trailing table lines empty tab-mark)))
 
 ;; -----------------------------------------------------------------------------
 ;; Font coloring for dark Emacs backgrounds:
