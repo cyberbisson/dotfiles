@@ -108,19 +108,24 @@
   ;; Show selected marked area
   (transient-mark-mode -1)
 
-  ;; Set everything up for us to use a desktop (saved session) if asked.
-  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
-    (if (and env-dt-dir
-             (file-exists-p env-dt-dir)
-             (not (member "--no-desktop" command-line-args)))
-        (desktop-change-dir env-dt-dir)))
-
   ;; Some additional major customizations based on display capabilities:
   (if (not terminal-frame)
       (custom-configure-for-xwindows)
       (custom-configure-for-terminal))
 
-  (if (< 19 emacs-major-version) (custom-configure-emacs-20)))
+  (if (< 19 emacs-major-version) (custom-configure-emacs-20))
+
+  ;; Set everything up for us to use a desktop (saved session) if asked.
+  ;;
+  ;; This should be the last thing the init-file does so that all modes are
+  ;; fully configured prior to resurrecting any stateful buffers from the
+  ;; desktop.  Otherwise, we get things like whitespace-mode with all the
+  ;; settings we don't want to have enabled.
+  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
+    (if (and env-dt-dir
+             (file-exists-p env-dt-dir)
+             (not (member "--no-desktop" command-line-args)))
+        (desktop-change-dir env-dt-dir))))
 
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
