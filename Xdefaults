@@ -5,12 +5,15 @@
 !!  Matt Bisson		10/15/2000
 
 !! Set up the Xterm
-xterm*background:  tan
+xterm*background:  gray20
+xterm*cursorColor: gray81
+xterm*foreground:  gray81
+!xterm*background:  tan
+!xterm*cursorColor: black
+!xterm*foreground:  black
 xterm*font:        7x13
 xterm*borderColor: white
 xterm*fullCursor:  true
-xterm*cursorColor: black
-xterm*foreground:  black
 xterm*geometry:    128x45
 xterm*saveLines:   2048
 xterm*scrollBar:   true
@@ -56,23 +59,23 @@ Emacs*Font:          DejaVu Sans Mono 9
 !Emacs*Font:          FreeMono 10
 !Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 !! Black on gray
-!Emacs*Background:    #C0C0C0
-!Emacs*Foreground:    #000000
+!Emacs*Background:    gray75
+!Emacs*Foreground:    black
 !! White on green
 !Emacs*Background:    #374D4E
-!Emacs*Foreground:    #FFFFFF
+!Emacs*Foreground:    white
 !! Grey on white
-!Emacs*Background:    #000000
-!Emacs*Foreground:    #C0C0C0
+!Emacs*Background:    white
+!Emacs*Foreground:    gray75
 !! Light grey on dark
-Emacs*Background:    #333333
-Emacs*Foreground:    #D0D0D0
+Emacs*Background:    gray20
+Emacs*Foreground:    gray81
 Emacs*toolbar:       0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Annoying hack for Emacs-24.4
-Emacs.default.attributeBackground:      #333333
-Emacs.default.attributeForeground:      #D0D0D0
+Emacs.default.attributeBackground:      gray20
+Emacs.default.attributeForeground:      gray81
 
 !! Now in lower case, for some reason...
 emacs*geometry:      81x60
@@ -80,8 +83,8 @@ emacs*geometry:      81x60
 !emacs*Font:          Nimbus Mono L 10
 emacs*Font:          DejaVu Sans Mono 9
 !emacs*Font:          FreeMono 10
-emacs*Background:    #333333
-emacs*Foreground:    #D0D0D0
+emacs*Background:    gray20
+emacs*Foreground:    gray81
 emacs*toolbar:       0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
