@@ -108,6 +108,10 @@
   ;; Show selected marked area
   (transient-mark-mode -1)
 
+  ;; I really don't get what all the hubub is about...
+  (put 'downcase-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
+
   ;; Some additional major customizations based on display capabilities:
   (if (not terminal-frame)
       (custom-configure-for-xwindows)
