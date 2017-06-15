@@ -41,6 +41,9 @@ elif [ ! "${ignore_compiz}" ] && [ -x "${using_x_dir}/beryl-xgl" ] ; then
     "${using_x_dir}/beryl-xgl" --replace  >> ${log_file} 2>&1 &
     exec "${using_x_dir}/beryl-manager" >> ${log_file} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ -x "${using_x_dir}/fvwm" ] ; then
+    if [ -x "${using_x_dir}/xscreensaver" ] ; then
+        "${using_x_dir}/xscreensaver" >> ${log_file} 2>&1 &
+    fi
     exec "${using_x_dir}/fvwm" >> ${log_file} 2>&1
 elif [ -x "${using_x_dir}/twm" ] ; then
     twm_wallpaper="${HOME}/doc/twm.wallpaper.jpg"
@@ -58,6 +61,11 @@ elif [ -x "${using_x_dir}/twm" ] ; then
         else
             echo "Not able to find a way to set twm wallpaper." >> ${log_file}
         fi
+    fi
+
+    # Start the screen saver daemon if it exists on the system.
+    if [ -x "${using_x_dir}/xscreensaver" ] ; then
+        "${using_x_dir}/xscreensaver" >> ${log_file} 2>&1 &
     fi
 
     "${using_x_dir}/xclock" -geometry 100x100-0+0  >> ${log_file} 2>&1 &
