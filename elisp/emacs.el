@@ -275,7 +275,9 @@
 (defun command-line-instance-id (switch)
   "Allows us to 'name' our Emacs instance.
 
-This is not strict, nor does it need to be unique.  The main purpose of this is for when I have more than one Emacs environment running.  This way, I can put a friendly name in the title for easy identification."
+  This is not strict, nor does it need to be unique.  The main   purpose of
+  this is for when I have more than one Emacs   environment running.  This way,
+  I can put a friendly name in the title for easy identification."
 
   (let ((emacs-instance-id (pop command-line-args-left)))
     (set-emacs-title-format (if emacs-instance-id
@@ -632,9 +634,11 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
   (menu-bar-mode -1)
 
-  ;; I just find syntax highlighting annoying on the terminal
+  ;; I just find syntax highlighting annoying on the Windows terminal, so
+  ;; disable it by default there.
   ;; TODO: XEmacs?!?
-  (if (not running-xemacs) (global-font-lock-mode -1)))
+  (if (not running-xemacs)
+      (global-font-lock-mode (if (eq system-type 'windows-nt) -1 1))))
 
 (defun custom-configure-for-xwindows ()
   "Configure settings that only apply to Emacs when run in (X) Windows."
@@ -645,45 +649,55 @@ This is not strict, nor does it need to be unique.  The main purpose of this is 
 
    ;; Quite an assumption, but there's really no uniform way to tell (even the
    ;; Emacs docs say this).
-   focus-follows-mouse          (eq system-type 'windows-nt)
+   focus-follows-mouse          (or (eq system-type 'windows-nt)
+                                    (eq system-type 'darwin))
 
    ;; Let's set up some universal window (frame) attributes.
    default-frame-alist
    (cons
     (cons 'cursor-type 'box)
 
-    (if (eq system-type 'windows-nt)
-        (list
-         ;; Preserve the background at configuration time for future
-         ;; frames.  Because there's no .Xdefaults, we rely on
-         ;; command-line arguments.
-         (cons 'background-color
-               (frame-parameter (selected-frame) 'background-color))
+    (cond
+     ((eq system-type 'windows-nt)
+      (list
+       ;; Preserve the background at configuration time for future frames.
+       ;; Because there's no .Xdefaults, we rely on command-line arguments.
+       (cons 'background-color
+             (frame-parameter (selected-frame) 'background-color))
 
-         ;; Determine the font we can use somewhat dynamically by falling
-         ;; through until we find one that exists on our system.
+       ;; Determine the font we can use somewhat dynamically by falling through
+       ;; until we find one that exists on our system.
+       (cons 'font
+             (find-first-defined-font
+              "8x13"
+              '(;; Consolas 11
+                "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
+                ;; Lucida Console 8 (thinner)
+                "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
+       (cons 'height 70)
+       (cons 'width  81)))
+     ((eq system-type 'darwin)
+      (list
+       (cons 'font
+             (find-first-defined-font
+              "Menlo 12"
+              '("DejaVu Sans Mono 9")))
+       (cons 'height 50)
+       (cons 'width  81)))
+     (t
+      (list
+       (if (eq system-type 'cygwin)
+           (cons 'font (find-first-defined-font "8x13" '("Consolas 9")) )
          (cons 'font
-          (find-first-defined-font
-           "8x13"
-           '(;; Consolas 11
-             "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
-             ;; Lucida Console 8 (thinner)
-             "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
-         (cons 'height 70)
-         (cons 'width  81))
-        (list
-         (if (eq system-type 'cygwin)
-             (cons 'font (find-first-defined-font "8x13" '("Consolas 9")) )
-             (cons 'font
-              (find-first-defined-font
-               "8x13"
-               '("DejaVu Sans Mono 9"; 10"
-                 "FreeMono 10"
-                 "Nimbus Mono L 10"
-                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
-              ))
-         (cons 'height (frame-parameter (selected-frame) 'height))
-         (cons 'width  (frame-parameter (selected-frame) 'width))))))
+               (find-first-defined-font
+                "8x13"
+                '("DejaVu Sans Mono 9"; 10"
+                  "FreeMono 10"
+                  "Nimbus Mono L 10"
+                  "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
+               ))
+       (cons 'height (frame-parameter (selected-frame) 'height))
+       (cons 'width  (frame-parameter (selected-frame) 'width)))))))
 
   ;; Print the name of the visited file in the title of the window...
   (set-emacs-title-format "%b")
