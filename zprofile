@@ -669,7 +669,7 @@ if [ -x /usr/bin/emacs ] ; then
     export WINEDITOR='emacs'
 fi
 
-export ENV='~/.profile'
+export ENV='~/.zprofile'
 
 export ENSCRIPT='-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15:15 --mark-wrapped-lines=arrow'
 
