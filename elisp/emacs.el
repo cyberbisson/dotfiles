@@ -453,6 +453,10 @@
   (if (file-exists-p "~/elisp/media-wiki.elc")
       (load-file "~/elisp/media-wiki.elc"))
 
+  ;; Get fancy with wiki content
+  (if (file-exists-p "~/elisp/markdown-mode.elc")
+      (load-file "~/elisp/markdown-mode.elc"))
+
   ;; Perforce is a horrible version control system -- it has an Emacs mode
   (if (file-exists-p "~/elisp/p4.elc") (load-file "~/elisp/p4.elc"))) ;; 2 slow
 
