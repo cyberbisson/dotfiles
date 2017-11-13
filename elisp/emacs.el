@@ -257,6 +257,8 @@
 
 (defun bg-light-font-lock-faces-25 ()
   "Set font-lock faces for Emacs 25+ when the background is light."
+  (make-face 'whitespace-line)
+  (modify-face 'whitespace-line    "Violet" nil nil nil nil nil)
   (modify-face 'ebrowse-root-class "Maroon" nil nil nil nil nil))
 
 ;; -----------------------------------------------------------------------------
