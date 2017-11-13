@@ -42,7 +42,7 @@ elif [ ! "${ignore_compiz}" ] && [ -x "${using_x_dir}/beryl-xgl" ] ; then
     exec "${using_x_dir}/beryl-manager" >> ${log_file} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ -x "${using_x_dir}/fvwm" ] ; then
     if [ -x "${using_x_dir}/xscreensaver" ] ; then
-        "${using_x_dir}/xscreensaver" >> ${log_file} 2>&1 &
+        "${using_x_dir}/xscreensaver" -nosplash >> ${log_file} 2>&1 &
     fi
     exec "${using_x_dir}/fvwm" >> ${log_file} 2>&1
 elif [ -x "${using_x_dir}/twm" ] ; then
@@ -65,7 +65,7 @@ elif [ -x "${using_x_dir}/twm" ] ; then
 
     # Start the screen saver daemon if it exists on the system.
     if [ -x "${using_x_dir}/xscreensaver" ] ; then
-        "${using_x_dir}/xscreensaver" >> ${log_file} 2>&1 &
+        "${using_x_dir}/xscreensaver" -nosplash >> ${log_file} 2>&1 &
     fi
 
     "${using_x_dir}/xclock" -geometry 100x100-0+0  >> ${log_file} 2>&1 &
