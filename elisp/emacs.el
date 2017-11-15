@@ -512,7 +512,10 @@
   (global-set-key "\C-c\C-r" 'recompile)
 
   ;; It helps to go backwards sometimes.
-  (global-set-key "\C-xp" (lambda () (interactive) (other-window -1)))
+  (global-set-key "\C-xp"
+   (lambda (&optional count)
+     (interactive "p")
+     (other-window (- (if (null count) 1 count)))))
   (global-set-key "\C-x9" 'delete-other-windows-vertically)
 
   (global-set-key "\C-c\C-v"
