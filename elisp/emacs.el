@@ -89,6 +89,12 @@
   ;; default.  Set the tab stop to something reasonable.
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
 
+  ;; There is not a great way to paste into the term-mode buffer by default.
+  (add-hook 'term-mode-hook
+   (lambda ()
+     (define-key term-raw-map (kbd "C-c C-y") 'yank)
+     (define-key term-raw-map (kbd "C-c M-y") 'yank-pop)))
+
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
   (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
   (add-to-list 'command-switch-alist '("--merge" . command-line-merge))
@@ -514,6 +520,7 @@
   ;; It helps to go backwards sometimes.
   (global-set-key "\C-xp"
    (lambda (&optional count)
+     "Select another window in reverse cyclic ordering of windows."
      (interactive "p")
      (other-window (- (if (null count) 1 count)))))
   (global-set-key "\C-x9" 'delete-other-windows-vertically)
