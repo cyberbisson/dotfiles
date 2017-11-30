@@ -517,6 +517,18 @@
 
   (global-set-key "\C-c\C-r" 'recompile)
 
+  ;; It's really annoying to have 10 windows open and fat-finger C-x 1, closing
+  ;; them all.  Changing this behavior to ask for confirmation if there are four
+  ;; windows or more.
+  (global-set-key "\C-x1"
+   (lambda (&optional confirmed)
+     "Asks for confirmation before running `delete-other-windows' if there are
+     four windows or more."
+     (interactive (list (if (< 3 (count-windows))
+                            (y-or-n-p "Really close all windows? ")
+                          t)))
+     (when confirmed (delete-other-windows))))
+
   ;; It helps to go backwards sometimes.
   (global-set-key "\C-xp"
    (lambda (&optional count)
