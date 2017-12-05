@@ -149,7 +149,8 @@
       (custom-set-variables '(indent-tabs-mode nil)))
 
   (if (< 20 emacs-major-version)
-      (custom-configure-emacs-21)
+      (progn (eval-when-compile (declare-function display-battery ()))
+             (custom-configure-emacs-21))
       (display-battery)))
 
 (defun custom-configure-emacs-21 ()
@@ -308,6 +309,9 @@
 (defun configure-ccs-dev-env ()
   "Look for Northeastern CCS Emacs environment and configure accordingly."
 
+  ;; The CCS .emacs file defines this, but Emacs whines when byte-compiling.
+  (eval-when-compile (defvar ps-printer-name))
+
   (load-file "/ccs/etc/dotfiles/.emacs")
   (setq inferior-lisp-program "acl")
   (setq printer-name          "escher")
@@ -318,6 +322,12 @@
 
 (defun configure-palm-dev-env ()
   "Configure Emacs to develop for Palm Hollywood (Foleo)."
+
+  (require 'gud)
+
+  ;; xcscope-mode is conditionally included, so silence the errors for when it's
+  ;; not present.
+  (eval-when-compile (defvar cscope-database-file))
 
   (setq cscope-database-file "/home/mbisson/ws/src/cscope.out")
   (setq compile-command      "make -k -j3 -C /home/mbisson/ws/mail/main")
@@ -392,11 +402,22 @@
     (if (and srcdir (file-exists-p srcdir))
         (setq compile-command (concat "make -C " srcdir " server")))))
 
+(or (fboundp 'declare-function)
+    ;; taken from Emacs 22.2, not present in 22.1:
+    (defmacro declare-function (&rest args)
+      "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler
+warnings.
+
+This definition is so that packages may take advantage of the
+Emacs 23 feature and still remain compatible with Emacs 22."
+      nil))
+
+;; TODO: This should do different things based on the prog-mode of the buffer.
 (defun vmware-insert-file-header ()
   "Provides a boiler-plate C/C++ file header for VMware sources."
 
   (interactive)
-  (insert-string (concat "\
+  (insert (concat "\
 /* *****************************************************************************
  * Copyright (c) " (int-to-string (nth 5 (decode-time)))
  " VMware, Inc.  All rights reserved. -- VMware Confidential.
@@ -447,6 +468,10 @@
 
   (if (file-exists-p "~/elisp/xgtags.elc")
       (progn
+        ;; Silence compiler warnings when using a conditionally-included
+        ;; function.
+        (eval-when-compile (declare-function xgtags-mode (on)))
+
         (load-file "~/elisp/xgtags.elc")
         (add-hook    'c-mode-common-hook (lambda () (xgtags-mode 1)))
         (remove-hook 'c-mode-hook        'cscope:hook)
@@ -481,6 +506,9 @@
 
   (if (file-exists-p "~/elisp/undo-tree.elc")
       (progn
+        ;; Otherwise, Emacs complains on conditional inclusion:
+        (eval-when-compile (declare-function global-undo-tree-mode ()))
+
         (load-file "~/elisp/undo-tree.elc")
         (global-undo-tree-mode))))
 
@@ -491,6 +519,9 @@
 
   (if (file-exists-p "~/elisp/clang-format.elc")
       (progn
+        ;; Otherwise, Emacs complains on conditional inclusion:
+        (eval-when-compile (defvar clang-format-executable))
+
         (load-file "~/elisp/clang-format.elc")
         (global-set-key (kbd "C-M-i") 'clang-format-region)
         (global-set-key (kbd "C-c d") 'clang-format)
@@ -822,7 +853,28 @@ uniform 80 column width"
   (interactive)
   (dolist (cur (buffer-list-sorted-by-path))
     (bury-buffer cur))
-  (if (interactive-p) (list-buffers)))
+  (if (called-interactively-p 'interactive) (list-buffers)))
+
+(defun term-named (program name-prefix)
+  "Start a terminal-emulator in a new buffer, prefixed by
+NAME-PREFIX.  The buffer is in Term mode; see `term-mode' for the
+commands to use in that buffer.
+
+\\<term-raw-map>Type \\[switch-to-buffer] to switch to another buffer."
+  (interactive (list (read-from-minibuffer "Run program: "
+                                           (or explicit-shell-file-name
+                                               (getenv "ESHELL")
+                                               (getenv "SHELL")
+                                               "/bin/sh"))
+                     (read-from-minibuffer "Prefix (may be empty): ")))
+  (let ((term-name
+         (if (string= "" name-prefix)
+             "terminal"
+           (format "%s-terminal" name-prefix))))
+    (set-buffer (make-term term-name program))
+    (term-mode)
+    (term-char-mode)
+    (switch-to-buffer (format "*%s*" term-name))))
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
