@@ -92,6 +92,7 @@
   ;; There is not a great way to paste into the term-mode buffer by default.
   (add-hook 'term-mode-hook
    (lambda ()
+     (require 'term)
      (define-key term-raw-map (kbd "C-c C-y") 'yank)
      (define-key term-raw-map (kbd "C-c M-y") 'yank-pop)))
 
@@ -832,13 +833,14 @@ my file."
   (setq frame-title-format title-format
         icon-title-format  title-format))
 
-;; TODO: Instead of requiring C-u, this should ask the user for input.  There's
-;;       also no validation...
 (defun set-active-frame-width-for-parallel-windows (window-count)
   "Set the width of the frame to allow WINDOW-COUNT parallel windows to have a
 uniform 80 column width"
 
-  (interactive "p")
+  (interactive "nEnter desired width (in 80 column windows): ")
+  (when (> 1 window-count) (user-error "Window count less than 1"))
+  ; Note: ignoring "too many windows" problems for now.
+
   (set-frame-size
    (selected-frame)
    (+ (* 80 window-count)           ; Column count could be configurable...
