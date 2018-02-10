@@ -189,7 +189,6 @@
   "Set font-lock faces for Emacs when the background is dark."
 
   ;;           'face                         fg              bg  st  b   i   u
-  (modify-face 'minibuffer-prompt            "DodgerBlue"    nil nil t   nil nil)
   (modify-face 'font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
   (modify-face 'font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
   (modify-face 'font-lock-type-face          "Violet"        nil nil nil nil nil)
@@ -217,7 +216,8 @@
 (defun bg-dark-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is dark."
 
-  (modify-face 'font-lock-doc-face "LightBlue" nil nil nil t nil)
+  (modify-face 'font-lock-doc-face "LightBlue"  nil nil nil t   nil)
+  (modify-face 'minibuffer-prompt  "DodgerBlue" nil nil t   nil nil)
   (if (< 24 emacs-major-version) (bg-dark-font-lock-faces-25)))
 
 (defun bg-dark-font-lock-faces-25 ()
@@ -232,7 +232,6 @@
   "Set font-lock faces for Emacs when the background is light."
 
   ;;           'face                         fg            bg  st  b   i   u
-  (modify-face 'minibuffer-prompt            "DodgerBlue4" nil nil t   nil nil)
   (modify-face 'font-lock-comment-face       "DarkGreen"   nil nil nil t   nil)
   (modify-face 'font-lock-keyword-face       "FireBrick"   nil nil t   nil nil)
   (modify-face 'font-lock-type-face          "Maroon"      nil nil nil nil nil)
@@ -260,7 +259,8 @@
 (defun bg-light-font-lock-faces-21 ()
   "Set font-lock faces for Emacs 21+ when the background is light."
 
-  (modify-face 'font-lock-doc-face "DarkGreen" nil nil nil t nil)
+  (modify-face 'font-lock-doc-face "DarkGreen"   nil nil nil t   nil)
+  (modify-face 'minibuffer-prompt  "DodgerBlue4" nil nil t   nil nil)
   (if (< 24 emacs-major-version) (bg-light-font-lock-faces-25)))
 
 (defun bg-light-font-lock-faces-25 ()
@@ -668,6 +668,15 @@ Emacs 23 feature and still remain compatible with Emacs 22."
                        ((null buf-file2) t)
                        (t (string< buf-file1 buf-file2))))))))
 
+(defun compat-font-exists-p (font-name)
+  "Determines if a font exists by its name.  This function does so in a way that
+is compatible with all versions of Emacs.  Before version 21, the font system
+had a different set of APIs."
+
+  (if (< 20 emacs-major-version)
+      (find-font (font-spec :name font-name))
+    (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
+
 (defun custom-configure-backups (custom-backup-dir)
   "Configure the Emacs backup settings."
 
@@ -729,9 +738,11 @@ Emacs 23 feature and still remain compatible with Emacs 22."
        ;; until we find one that exists on our system.
        (cons 'font
              (find-first-defined-font
-              "8x13"
+              "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
               '(;; Consolas 11
-                "-*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1"
+                "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
+                ;; Liberation Mono 9
+                "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
                 ;; Lucida Console 8 (thinner)
                 "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
        (cons 'height 70)
@@ -809,8 +820,8 @@ the default-font-name."
 
     (let ((font-name       (car font-names))
           (rest-font-names (cdr font-names)))
-      (if (find-font (font-spec :name font-name)) font-name ;; <- Found it.
-        (if (null rest-font-names) default-font-name     ;; <- Found nothing...
+      (if (compat-font-exists-p font-name) font-name ;; <- Found it.
+        (if (null rest-font-names) default-font-name ;; <- Found nothing...
           ;; Keep searching...
           (find-first-defined-font default-font-name rest-font-names))))))
 
