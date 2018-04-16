@@ -93,8 +93,8 @@
   (add-hook 'term-mode-hook
    (lambda ()
      (require 'term)
-     (define-key term-raw-map (kbd "C-c C-y") 'yank)
-     (define-key term-raw-map (kbd "C-c M-y") 'yank-pop)))
+     (define-key term-raw-map (kbd "C-c C-y") 'term-paste)
+     (define-key term-raw-map (kbd "C-c M-y") 'yank-pop))) ;; Doesn't work.
 
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
   (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
@@ -118,6 +118,8 @@
   ;; I really don't get what all the hubub is about...
   (put 'downcase-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
+  (put 'scroll-left 'disabled nil)
+  (put 'scroll-right 'disabled nil)
 
   ;; Some additional major customizations based on display capabilities:
   (if (not terminal-frame)
@@ -419,6 +421,15 @@ FACES-ALIST.  In this case, the function ignores the key."
    (lambda ()
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
+  (if (file-exists-p "~/elisp/vmw-c-dev.elc")
+      (progn
+        (load-file "~/elisp/vmw-c-dev.elc")
+        (condition-case err (vmw-update-cpp-and-flags)
+          (error (message "Cannot use C++ preprocessor (yet): %s"
+                          (error-message-string err))))
+        (add-hook 'c-mode-hook 'vmw-set-cmacexp-data)
+        (add-hook 'c-mode-hook 'vmw-set-cmacexp-data)))
+
   (let ((srcdir (getenv "RP_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
         (setq compile-command
@@ -571,6 +582,11 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 
   (global-set-key [end]  'end-of-buffer)
   (global-set-key [home] 'beginning-of-buffer)
+
+  ;; Horizontal scroll by page is nice, but some finer-grained control is
+  ;; better.
+  (global-set-key [C-S-next] (lambda () (interactive) (scroll-left 1 t)))
+  (global-set-key [C-S-prior] (lambda () (interactive) (scroll-right 1 t)))
 
   (global-set-key "\C-c\C-r" 'recompile)
 
