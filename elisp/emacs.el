@@ -182,92 +182,111 @@
   (setq whitespace-style '(face trailing table lines empty tab-mark)))
 
 ;; -----------------------------------------------------------------------------
-;; Font coloring for dark Emacs backgrounds:
+;; Font coloring configuration:
 ;; -----------------------------------------------------------------------------
 
-(defun bg-dark-font-lock-faces ()
-  "Set font-lock faces for Emacs when the background is dark."
+(defconst bg-dark-faces
+  ;; face                         fg              bg  st  b   i   u
+  '((ebrowse-root-class           "Violet"        nil nil nil nil nil)
+    (font-lock-builtin-face       "LightSalmon"   nil nil t   nil nil)
+    (font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
+    (font-lock-constant-face      "Coral"         nil nil nil nil nil)
+    (font-lock-doc-face           "LightBlue"     nil nil nil t   nil)
+    (font-lock-function-name-face "Aquamarine"    nil nil nil t   nil)
+    (font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
+    (font-lock-string-face        "LightSkyBlue"  nil nil nil nil nil)
+    (font-lock-type-face          "Violet"        nil nil nil nil nil)
+    (font-lock-variable-name-face "Turquoise"     nil nil nil nil nil)
+    (minibuffer-prompt            "DodgerBlue"    nil nil t   nil nil)
+    (sh-heredoc                   "Chocolate"     nil nil nil nil nil)
 
-  ;;           'face                         fg              bg  st  b   i   u
-  (modify-face 'font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
-  (modify-face 'font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
-  (modify-face 'font-lock-type-face          "Violet"        nil nil nil nil nil)
-  (modify-face 'font-lock-variable-name-face "Turquoise"     nil nil nil nil nil)
+    ;; Changing the background here:
+    (gdb-selection                nil "MidnightBlue"  nil nil nil nil)
+    (highlight                    nil "CadetBlue"     nil nil nil nil)
+    (region                       nil "Firebrick"     nil nil nil nil))
+  "The complete set of `font-lock-mode' faces for Emacs used when the background
+is dark.")
 
-  (if (< 19 emacs-major-version) (bg-dark-font-lock-faces-20)))
+(defconst bg-light-faces
+  ;; face                         fg                 bg  st  b   i   u
+  '((ebrowse-root-class           "Maroon"           nil nil nil nil nil)
+    (font-lock-builtin-face       "DodgerBlue4"      nil nil t   nil nil)
+    (font-lock-comment-face       "DarkGreen"        nil nil nil t   nil)
+    (font-lock-constant-face      "Burlywood4"       nil nil nil nil nil)
+    (font-lock-doc-face           "DarkGreen"        nil nil nil t   nil)
+    (font-lock-function-name-face "OrangeRed2"       nil nil nil t   nil)
+    (font-lock-keyword-face       "FireBrick"        nil nil t   nil nil)
+    (font-lock-string-face        "Chocolate"        nil nil nil nil nil)
+    (font-lock-type-face          "Maroon"           nil nil nil nil nil)
+    (font-lock-variable-name-face "SteelBlue"        nil nil nil nil nil)
+    (minibuffer-prompt            "DodgerBlue4"      nil nil t   nil nil)
+    (sh-heredoc                   "Chocolate"        nil nil nil nil nil)
+    (whitespace-line              "Red1"             nil nil   t nil nil)
 
-(defun bg-dark-font-lock-faces-20 ()
-  "Set font-lock faces for Emacs 20+ when the background is dark."
+    ;; Changing the background here:
+    (gdb-selection                 nil "DarkSeaGreen3"   nil nil nil nil)
+    (highlight                     nil "CadetBlue"       nil nil nil nil)
+    (region                        nil "LightSteelBlue3" nil nil nil nil))
+  "The complete set of `font-lock-mode' faces for Emacs used when the background
+is light.")
 
-  (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-      (modify-face 'font-lock-constant-face "Coral"     nil nil nil nil nil)
-      (modify-face 'sh-heredoc              "Chocolate" nil nil nil nil nil))
+(defconst faces-all-version
+  '(font-lock-comment-face
+    font-lock-keyword-face
+    font-lock-type-face
+    font-lock-variable-name-face)
+  "Faces known to all versions of Emacs with `font-lock-mode'.")
 
-  (modify-face 'font-lock-builtin-face       "LightSalmon"  nil nil t   nil nil)
-  (modify-face 'font-lock-function-name-face "Aquamarine"   nil nil nil t   nil)
-  (modify-face 'font-lock-string-face        "LightSkyBlue" nil nil nil nil nil)
+(defconst faces-version-20
+  '(font-lock-builtin-face
+    font-lock-function-name-face
+    font-lock-string-face
+    gdb-selection
+    highlight
+    region)
+  "Faces introduced in Emacs v20.")
 
-  (modify-face 'gdb-selection nil "MidnightBlue" nil nil nil nil)
-  (modify-face 'highlight     nil "CadetBlue"    nil nil nil nil)
-  (modify-face 'region        nil "Firebrick"    nil nil nil nil)
+(defconst faces-version-20-2 '(font-lock-constant-face sh-heredoc)
+  "Faces that only exist from Emacs 20.0 and were removed in 20.2.")
 
-  (if (< 20 emacs-major-version) (bg-dark-font-lock-faces-21)))
+(defconst faces-version-21 '(font-lock-doc-face minibuffer-prompt)
+  "Faces introduced in Emacs v21.")
 
-(defun bg-dark-font-lock-faces-21 ()
-  "Set font-lock faces for Emacs 21+ when the background is dark."
+(defconst faces-version-25 '(ebrowse-root-class whitespace-line)
+  "Faces introduced in Emacs v25.")
 
-  (modify-face 'font-lock-doc-face "LightBlue"  nil nil nil t   nil)
-  (modify-face 'minibuffer-prompt  "DodgerBlue" nil nil t   nil nil)
-  (if (< 24 emacs-major-version) (bg-dark-font-lock-faces-25)))
+(defun modify-font-lock-faces (faces-alist faces-to-modify)
+  "Runs `modify-faces' on all FACES-TO-MODIFY using the FACES-ALIST.  It is safe
+for a key to be specified in FACES-TO-MODIFY that is not present in the
+FACES-ALIST.  In this case, the function ignores the key."
 
-(defun bg-dark-font-lock-faces-25 ()
-  "Set font-lock faces for Emacs 25+ when the background is light."
-  (modify-face 'ebrowse-root-class "Violet" nil nil nil nil nil))
+  (mapcar (lambda (face-to-modify)
+            (let ((params-for-modify-face (assq face-to-modify faces-alist)))
+              (unless (null params-for-modify-face)
+                (apply 'modify-face params-for-modify-face))))
+          faces-to-modify))
+
+(defun update-emacs-font-lock-faces (faces-alist)
+  "Given a color scheme defined by FACES-ALIST (see `bg-dark-faces' and
+`bg-light-faces' for examples), update the colors used across Emacs."
+
+  (modify-font-lock-faces faces-alist faces-all-version)
+
+  (when (< 19 emacs-major-version)
+    (modify-font-lock-faces faces-alist faces-version-20)
+    (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
+        (modify-font-lock-faces faces-alist faces-version-20-2))
+    (when (< 20 emacs-major-version)
+      (modify-font-lock-faces faces-alist faces-version-21)
+      (when (< 24 emacs-major-version)
+        ;; Face will not take effect w/o loading the mode first.
+        (require 'whitespace)
+        (modify-font-lock-faces faces-alist faces-version-25)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Font coloring for light Emacs backgrounds:
 ;; -----------------------------------------------------------------------------
 
-(defun bg-light-font-lock-faces ()
-  "Set font-lock faces for Emacs when the background is light."
-
-  ;;           'face                         fg            bg  st  b   i   u
-  (modify-face 'font-lock-comment-face       "DarkGreen"   nil nil nil t   nil)
-  (modify-face 'font-lock-keyword-face       "FireBrick"   nil nil t   nil nil)
-  (modify-face 'font-lock-type-face          "Maroon"      nil nil nil nil nil)
-  (modify-face 'font-lock-variable-name-face "SteelBlue"   nil nil nil nil nil)
-
-  (if (< 19 emacs-major-version) (bg-light-font-lock-faces-20)))
-
-(defun bg-light-font-lock-faces-20 ()
-  "Set font-lock faces for Emacs 20+ when the background is light."
-
-  (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-      (modify-face 'font-lock-constant-face "Burlywood4" nil nil nil nil nil)
-      (modify-face 'sh-heredoc              "Chocolate"  nil nil nil nil nil))
-
-  (modify-face 'font-lock-builtin-face       "DodgerBlue4" nil nil t   nil nil)
-  (modify-face 'font-lock-function-name-face "OrangeRed2"  nil nil nil t   nil)
-  (modify-face 'font-lock-string-face        "Chocolate"   nil nil nil nil nil)
-
-  (modify-face 'gdb-selection nil "DarkSeaGreen3"   nil nil nil nil)
-  (modify-face 'highlight     nil "CadetBlue"       nil nil nil nil)
-  (modify-face 'region        nil "LightSteelBlue3" nil nil nil nil)
-
-  (if (< 20 emacs-major-version) (bg-light-font-lock-faces-21)))
-
-(defun bg-light-font-lock-faces-21 ()
-  "Set font-lock faces for Emacs 21+ when the background is light."
-
-  (modify-face 'font-lock-doc-face "DarkGreen"   nil nil nil t   nil)
-  (modify-face 'minibuffer-prompt  "DodgerBlue4" nil nil t   nil nil)
-  (if (< 24 emacs-major-version) (bg-light-font-lock-faces-25)))
-
-(defun bg-light-font-lock-faces-25 ()
-  "Set font-lock faces for Emacs 25+ when the background is light."
-  (require 'whitespace) ; Face will not take effect w/o loading the mode first.
-  (modify-face 'whitespace-line    "Red1"   nil nil   t nil nil)
-  (modify-face 'ebrowse-root-class "Maroon" nil nil nil nil nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions used for command-line control:
@@ -806,10 +825,8 @@ had a different set of APIs."
 
   ;; Give me some nice pretty colors...
   (if (not terminal-frame)
-      (if (eq 'light
-              (cdr (assq 'background-mode (frame-parameters (selected-frame)))))
-          (bg-light-font-lock-faces)
-        (bg-dark-font-lock-faces))))
+      (update-emacs-font-lock-faces
+       (if (light-background-p) bg-light-faces bg-dark-faces))))
 
 (defun find-first-defined-font (default-font-name font-names)
   "Searches the provided list of font name (strings), returning the name of the
@@ -837,6 +854,12 @@ my file."
 
   (interactive "P")
   (insert (format-time-string "%A, %e %B %Y" (current-time))))
+
+(defun light-background-p ()
+  "Determines if Emacs considers the background color to be 'light'."
+
+  (eq 'light
+      (cdr (assq 'background-mode (frame-parameters (selected-frame))))))
 
 (defun set-emacs-title-format (title-format)
   "Set the title for Emacs frames (iconized or not)."
