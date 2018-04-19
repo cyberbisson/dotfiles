@@ -721,12 +721,14 @@ had a different set of APIs."
   "Configure setting that only apply to Emacs when run in a terminal."
 
   (menu-bar-mode -1)
+  (set-bg-mode-from-colorfgbg)
 
-  ;; I just find syntax highlighting annoying on the Windows terminal, so
-  ;; disable it by default there.
-  ;; TODO: XEmacs?!?
-  (if (not running-xemacs)
-      (global-font-lock-mode (if (eq system-type 'windows-nt) -1 1))))
+  ;; Can't customize font lock until we load the libary (and faces) first
+  (load-library "font-lock")
+
+  ;; On the terminal, Emacs does not reliably detect the color scheme until late
+  ;; in the initialization, causing us to potentially put in the wrong colors.
+  (add-hook 'window-setup-hook 'customize-font-lock))
 
 (defun custom-configure-for-xwindows ()
   "Configure settings that only apply to Emacs when run in (X) Windows."
@@ -743,7 +745,7 @@ had a different set of APIs."
    ;; Let's set up some universal window (frame) attributes.
    default-frame-alist
    (cons
-    (cons 'cursor-type 'box)
+    '(cursor-type . box)
 
     (cond
      ((eq system-type 'windows-nt)
@@ -764,16 +766,19 @@ had a different set of APIs."
                 "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
                 ;; Lucida Console 8 (thinner)
                 "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
-       (cons 'height 70)
-       (cons 'width  81)))
+
+       ;; TODO: Perhaps this hard coded value should be given in a hook, or in
+       ;; initial-frame-alist?
+       '(height . 70)
+       '(width  . 81)))
      ((eq system-type 'darwin)
       (list
        (cons 'font
              (find-first-defined-font
               "Menlo 12"
               '("DejaVu Sans Mono 9")))
-       (cons 'height 50)
-       (cons 'width  81)))
+       '(height . 50)
+       '(width  . 81)))
      (t
       (list
        (if (eq system-type 'cygwin)
@@ -807,26 +812,31 @@ had a different set of APIs."
 (defun customize-font-lock ()
   "Set up syntax highlighting."
 
-  ;; Add color to the current GUD line
-  (make-face 'gdb-selection)
+  (let ((should-customize-faces (< 255 (display-color-cells))))
+    (when should-customize-faces
+      ;; Add color to the current GUD line
+      (make-face 'gdb-selection)
 
-  ;; By default, this face is UNREADABLE.
-  (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-          (< 20 emacs-major-version))
-      (make-face 'sh-heredoc)
-      (make-face 'font-lock-doc-face))
+      ;; By default, this face is UNREADABLE.
+      (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
+              (< 20 emacs-major-version))
+          (make-face 'sh-heredoc)
+        (make-face 'font-lock-doc-face)))
 
-  ;; Go all out with the font colors
-  (setq font-lock-maximum-decoration t)
+    ;; Go all out with the font colors
+    (setq font-lock-maximum-decoration t)
 
-  ;; Syntax highlighting
-  ;; TODO: XEmacs?!?
-  (if (not running-xemacs) (global-font-lock-mode 1))
+    ;; Syntax highlighting -- I just find syntax highlighting annoying on the
+    ;; Windows terminal, so disable it by default there.
+    ;; TODO: XEmacs?!?
+    (if (not running-xemacs)
+        (global-font-lock-mode
+         (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
 
-  ;; Give me some nice pretty colors...
-  (if (not terminal-frame)
-      (update-emacs-font-lock-faces
-       (if (light-background-p) bg-light-faces bg-dark-faces))))
+    ;; Give me some nice pretty colors...
+    (if should-customize-faces
+        (update-emacs-font-lock-faces
+         (if (dark-background-p) bg-dark-faces bg-light-faces)))))
 
 (defun find-first-defined-font (default-font-name font-names)
   "Searches the provided list of font name (strings), returning the name of the
@@ -855,11 +865,21 @@ my file."
   (interactive "P")
   (insert (format-time-string "%A, %e %B %Y" (current-time))))
 
-(defun light-background-p ()
-  "Determines if Emacs considers the background color to be 'light'."
+(defun dark-background-p ()
+  "Determines if Emacs considers the background color to be 'dark'."
+  (eq 'dark (cdr (assq 'background-mode (frame-parameters (selected-frame))))))
 
-  (eq 'light
-      (cdr (assq 'background-mode (frame-parameters (selected-frame))))))
+(defun set-bg-mode-from-colorfgbg ()
+  "Only XTerm seems to properly inform Emacs what its color scheme is.  For
+other terminals, we can check this COLORFGBG environment variable.  Using EVs
+are dicey, and a last resort."
+
+  ;; Only doing this for Konsole at the moment.
+  (if (and (not (null (getenv "COLORFGBG")))
+           (not (null (getenv "KONSOLE_PROFILE_NAME"))))
+      (let ((fg-color-16 (string-to-number
+                          (car (split-string (getenv "COLORFGBG")  ";" )))))
+        (setq frame-background-mode (if (< 8 fg-color-16) 'dark 'light)))))
 
 (defun set-emacs-title-format (title-format)
   "Set the title for Emacs frames (iconized or not)."
