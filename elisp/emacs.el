@@ -696,6 +696,15 @@ had a different set of APIs."
       (find-font (font-spec :name font-name))
     (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
 
+(defun compat-display-color-cells ()
+  "Returns the number of colors (color cells) that the display supports.  This
+function does so in a way that is compatible with all versions of Emacs.  Before
+version 21, the font system had a different set of APIs."
+
+  (if (< 20 emacs-major-version)
+      (display-color-cells)
+    (length (x-defined-colors)))) ; Very approximate...
+
 (defun custom-configure-backups (custom-backup-dir)
   "Configure the Emacs backup settings."
 
@@ -812,7 +821,7 @@ had a different set of APIs."
 (defun customize-font-lock ()
   "Set up syntax highlighting."
 
-  (let ((should-customize-faces (< 255 (display-color-cells))))
+  (let ((should-customize-faces (< 255 (compat-display-color-cells))))
     (when should-customize-faces
       ;; Add color to the current GUD line
       (make-face 'gdb-selection)
