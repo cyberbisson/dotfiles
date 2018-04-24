@@ -406,6 +406,12 @@ FACES-ALIST.  In this case, the function ignores the key."
     (add-hook 'java-mode-hook
               (function (lambda ()(setq c-basic-offset 3)))))
 
+  ;; Git mode is slow when loading up a desktop with a hundred files, and I
+  ;; never use it.  Also, the space it consumes in the mode-line generally hides
+  ;; the clock.
+  (setq vc-ignore-dir-regexp
+        (format "\\(?:%s\\)\\|\\(?:%s\\)" vc-ignore-dir-regexp "/dbc/"))
+
   ;; We are only using a certain few compilers, so clean this up.
   (setq compilation-error-regexp-alist '(gcc-include gnu msft))
   (add-hook
