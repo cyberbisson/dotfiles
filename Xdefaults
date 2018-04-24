@@ -15,6 +15,7 @@ xterm*font:        7x13
 xterm*borderColor: white
 xterm*fullCursor:  true
 xterm*geometry:    128x45
+xterm*metaSendsEscape: true
 xterm*saveLines:   2048
 xterm*scrollBar:   true
 xterm*termName:    xterm-256color
@@ -41,6 +42,7 @@ aixterm*fullCursor:  true
 aixterm*cursorColor: white
 aixterm*foreground:  lightgray
 aixterm*geometry:    128x45
+aixterm*metaSendsEscape: true
 aixterm*saveLines:   2048
 aixterm*scrollBar:   true
 !aixterm*termName:   aixterm
@@ -54,6 +56,7 @@ sshxterm*font:        7x13
 sshxterm*borderColor: gray81
 sshxterm*fullCursor:  true
 sshxterm*geometry:    128x45
+sshxterm*metaSendsEscape: true
 sshxterm*saveLines:   2048
 sshxterm*scrollBar:   true
 sshxterm*termName:    xterm-256color
