@@ -10,11 +10,11 @@ defaults delete org.gnu.Emacs
 # Disable this behavior that doesn't seem to work in Emacs 25.3.
 defaults write org.gnu.Emacs ApplePressAndHoldEnabled NO
 
-#defaults write org.gnu.Emacs Background gray20
-defaults write org.gnu.Emacs Background "#D8D0C8"
+defaults write org.gnu.Emacs Background gray20
+#defaults write org.gnu.Emacs Background "#D8D0C8"
 defaults write org.gnu.Emacs Font "Menlo 12"
-#defaults write org.gnu.Emacs Foreground gray81
-defaults write org.gnu.Emacs Foreground black
+defaults write org.gnu.Emacs Foreground gray81
+#defaults write org.gnu.Emacs Foreground black
 defaults write org.gnu.Emacs ToolBar 0
 
 # This doesn't work -- I don't know why.  The invocation of (x-parse-geometry
