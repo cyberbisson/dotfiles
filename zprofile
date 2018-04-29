@@ -264,6 +264,7 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
         CPU=`machine`
     fi
     machtype='osx_'${CPU}
+    machdirs=( '/Library/TeX/texbin' )
     unset CPU
     ;;
 
