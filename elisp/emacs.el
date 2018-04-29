@@ -752,7 +752,11 @@ version 21, the font system had a different set of APIs."
   "Configure setting that only apply to Emacs when run in a terminal."
 
   (menu-bar-mode -1)
-  (set-bg-mode-from-colorfgbg)
+
+  ;; TODO: Should probably consolodate all this into dark-background-p.
+  (if (eq system-type 'darwin)
+      (setq frame-background-mode (get-macos-terminal-bg-mode))
+    (set-bg-mode-from-colorfgbg))
 
   ;; Can't customize font lock until we load the libary (and faces) first
   (load-library "font-lock")
@@ -899,6 +903,23 @@ my file."
 (defun dark-background-p ()
   "Determines if Emacs considers the background color to be 'dark'."
   (eq 'dark (cdr (assq 'background-mode (frame-parameters (selected-frame))))))
+
+(defun get-macos-terminal-bg-mode ()
+  "Retrieves the background 'mode' for the Terminal application on MacOS."
+
+  ;; Note: "window 1" is merely the Terminal window closest to the foreground.
+  ;; There is a chance, I suppose, that Emacs could start up, move to the
+  ;; background, and analyze the wrong window (also only a problem if the other
+  ;; terminal is a different color).
+  (let* ((osascript
+          (concat "osascript -e "
+                  "'Tell application \"Terminal\" to get background color of "
+                  "window 1'"))
+         (rgb-list (mapcar
+                    'string-to-number
+                    (split-string (shell-command-to-string osascript) ","))))
+    ;; Assuming 65536 values per R, G, and B, this is 98304=(R+B+G)/2.
+    (if (< (apply '+ rgb-list) 98304) 'dark 'light)))
 
 (defun set-bg-mode-from-colorfgbg ()
   "Only XTerm seems to properly inform Emacs what its color scheme is.  For
