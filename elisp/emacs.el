@@ -610,6 +610,13 @@ Emacs 23 feature and still remain compatible with Emacs 22."
      (other-window (- (if (null count) 1 count)))))
   (global-set-key "\C-x9" 'delete-other-windows-vertically)
 
+  ;; Frames too!
+  (define-key ctl-x-5-map "p"
+    (lambda (&optional count)
+      "Select another frame in reverse cyclic ordering of windows."
+      (interactive "p")
+      (other-frame (- (if (null count) 1 count)))))
+
   (global-set-key "\C-c\C-v"
    (function (lambda ()
      "Copy the buffer's full path into the kill-ring."
