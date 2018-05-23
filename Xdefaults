@@ -33,6 +33,21 @@ rxvt.geometry:    128x40
 rxvt.saveLines:   2048
 rxvt.scrollBar:   true
 
+!! Set up rxvt-unicode (URxvt)
+urxvt.background:  gray20
+urxvt.cursorColor: gray81
+urxvt.foreground:  gray81
+urxvt.font:        xft:DejaVu Sans Mono:size=9
+urxvt.borderColor: white
+urxvt.altSendsEscape: true
+urxvt.fullCursor:  true
+urxvt.geometry:    128x40
+urxvt.letterSpace: -2
+urxvt.saveLines:   2048
+!! By default, my font choice comes out super wide...
+urxvt.scrollBar:   true
+urxvt.title:       RXVT (Unicode)
+
 !! Set up a cool AIX term
 aixterm*background:  purple4
 !aixterm*font:        -*-Lucida Console-normal-r-*-*-11-82-96-96-c-69-iso8859-1

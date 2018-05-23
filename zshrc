@@ -37,14 +37,35 @@ fi
 ################################################################################
 
 case ${TERM} in
-cygwin | dtterm | eterm-color | linux | rxvt | xterm | xterm-*color | \
-xterm-xfree86)
+cygwin | dtterm | eterm-color | linux | rxvt | rxvt-*color | xterm | \
+xterm-*color | xterm-xfree86)
     PROMPT=%{$'\e[01;39m'%}${BASE_PROMPT}%{$'\e[00m'%}' '
     ;;
 *)
     PROMPT=${BASE_PROMPT}' '
     ;;
 esac
+
+# For terminal emulators that advertize their color scheme with $COLORFGBG
+# (rxvt, for one), having a value of "default" means it cannot represent the
+# background color from 0-15.  This will be a problem for (terminal) Emacs and
+# friends.
+if [[ "${COLORFGBG}" =~ "default" ]] ; then
+    stty -icanon -echo min 0 time 1 ; printf '\e]11;?\e\\' ; read tmp_bg
+    tmp_bg_avg=`echo $tmp_bg | cat -A | \
+                sed 's/.*rgb:\([a-f0-9]*\)\/\([a-f0-9]*\)\/\([a-f0-9]*\).*/0x\1 0x\2 0x\3/' | \
+                awk -n '{print ($1+$2+$3)/3 }'`
+    if [ $? -eq 0 ] ; then
+        if [ $tmp_bg_avg -gt 32784 ] ; then
+            COLORFGBG='0;15'
+        else
+            COLORFGBG='15;0'
+        fi
+    fi
+
+    unset tmp_bg
+    unset tmp_bg_avg
+fi
 
 ################################################################################
 # Miscellaneous settings
@@ -78,6 +99,9 @@ bindkey -e
 # Ctrl+LEFT / Ctrl+RIGHT move entire words
 bindkey ';5C' forward-word
 bindkey ';5D' backward-word
+# RXVT versions here, as well.
+bindkey '^[Oc' forward-word
+bindkey '^[Od' backward-word
 
 # Delete ahead with delete key
 bindkey '\e[3~' delete-char
