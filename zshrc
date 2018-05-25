@@ -50,16 +50,17 @@ esac
 # (rxvt, for one), having a value of "default" means it cannot represent the
 # background color from 0-15.  This will be a problem for (terminal) Emacs and
 # friends.
-if [[ "${COLORFGBG}" =~ "default" ]] ; then
+if ([ ${+COLORFGBG} -eq 0 ] && [[ ${TERM} =~ "rxvt" ]]) ||
+       [[ "${COLORFGBG}" =~ "default" ]] ; then
     stty -icanon -echo min 0 time 1 ; printf '\e]11;?\e\\' ; read tmp_bg
     tmp_bg_avg=`echo $tmp_bg | cat -A | \
                 sed 's/.*rgb:\([a-f0-9]*\)\/\([a-f0-9]*\)\/\([a-f0-9]*\).*/0x\1 0x\2 0x\3/' | \
-                awk -n '{print ($1+$2+$3)/3 }'`
+                awk '{ print (strtonum($1)+strtonum($2)+strtonum($3))/3 }'`
     if [ $? -eq 0 ] ; then
         if [ $tmp_bg_avg -gt 32784 ] ; then
-            COLORFGBG='0;15'
+            export COLORFGBG='0;15'
         else
-            COLORFGBG='15;0'
+            export COLORFGBG='15;0'
         fi
     fi
 
