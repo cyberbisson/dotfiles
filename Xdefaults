@@ -42,7 +42,7 @@ urxvt.borderColor: white
 urxvt.altSendsEscape: true
 urxvt.fullCursor:  true
 urxvt.geometry:    128x40
-urxvt.letterSpace: -2
+urxvt.letterSpace: -1
 urxvt.saveLines:   2048
 !! By default, my font choice comes out super wide...
 urxvt.scrollBar:   true
