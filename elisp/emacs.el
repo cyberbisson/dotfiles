@@ -48,7 +48,7 @@
 ;  display-time-24hr-format     t
 ;  display-time-day-and-date    t
 ;  display-time-format          "%a-%Y/%m/%d-%H:%M"
-   display-time-format          "%a/%H:%M"
+   display-time-format          "%H:%M/%a"
 
    ;; I've already read it
    inhibit-startup-message      t
