@@ -42,7 +42,7 @@
    comint-prompt-read-only      t
 
    ;; By default, I'll want to wrap my lines at 80 columns
-   default-fill-column          80
+   default-fill-column          ideal-window-columns
 
    ;; Longer selections tend to make the mode-line too long (with battery)
 ;  display-time-24hr-format     t
@@ -652,6 +652,10 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 ;; Misc. hooks and functions:
 ;; -----------------------------------------------------------------------------
 
+(defconst ideal-window-columns 80
+  "I think all source code should be 80 columns, and that's how large I like my
+windows.")
+
 (defun associate-file-types ()
   "Set up associations between file types and Emacs major modes."
 
@@ -900,6 +904,20 @@ GDB buffer goes away."
 
   (if (eq major-mode 'gud-mode) (delete-overlay gud-overlay)))
 
+(defun ideal-frame-width (window-count)
+  "Computes the width in 'columns' that a frame must be to accommodate
+WINDOW-COUNT windows horizontally.  Note that on a TTY, columns is exact, but
+on a GUI, the columns is whatever number it takes to make the actual windows
+inside the frame be the correct width."
+
+  ;; We compute the number of chars for all columns, plus one "\" column for
+  ;; when lines wrap, plus window-count columns (minus one) for the divider
+  ;; between windows.  On a GUI, this divider collumn is given an approximate
+  ;; value (5), and on TTY, it's always a single character.
+  (+ (* ideal-window-columns window-count)
+     window-count
+     (* (if terminal-frame 1 5) (- window-count 1))))
+
 (defun insert-date (&optional arg)
   "This function exists because I want to map M-+ so that it enters a time into
 my file."
@@ -928,6 +946,49 @@ my file."
     ;; Assuming 65536 values per R, G, and B, this is 98304=(R+B+G)/2.
     (if (< (apply '+ rgb-list) 98304) 'dark 'light)))
 
+(defun make-cli-frame ()
+  "Creates a new frame to have one large window, covering 2/3 of the frame
+width, with 2 smaller windows (stacked vertically) to the right of it.  The idea
+is to have a large space for a CLI, with two smaller windows for notes, etc."
+  (interactive)
+  (reset-to-cli-frame t))
+
+(defun reset-to-cli-frame (&optional make-new-frame tgt-frame-width)
+  "Re-organizes a frame to have one large window, covering 2/3 of the frame
+width, with 2 smaller windows (stacked vertically) to the right of it.  The idea
+is to have a large space for a CLI, with two smaller windows for notes, etc.
+
+If MAKE-NEW-FRAME is unset, the currently selected frame will be reorganized.
+If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
+ used."
+
+  (interactive)
+
+  (when (not tgt-frame-width)
+    (setq tgt-frame-width (ideal-frame-width 3)))
+
+  (when terminal-frame
+    (when (/= tgt-frame-width (frame-parameter (selected-frame) 'width))
+      (user-error
+       (format "Frame width must be %d on TTY to use this layout"
+               tgt-frame-width))))
+
+  (let ((frame (if make-new-frame (make-frame) (selected-frame))))
+    (when (not terminal-frame)
+      (set-frame-size frame tgt-frame-width (frame-parameter frame 'height)))
+
+    (if make-new-frame (select-frame frame) (delete-other-windows))
+
+    ;; Split-window takes the scrollbar (etc) into account (only on the GUI??),
+    ;; so we must as well.  Use a negative number to explicitly specify the
+    ;; right side window's size.
+    (split-window (selected-window)
+                  (* -1 (+ ideal-window-columns 1 (if terminal-frame 0 5)))
+                  t nil)
+
+    (other-window 1) ;; Split the smaller window vertically.
+    (split-window)))
+
 (defun set-bg-mode-from-colorfgbg ()
   "Only XTerm seems to properly inform Emacs what its color scheme is.  For
 other terminals, we can check this COLORFGBG environment variable.  Using EVs
@@ -948,17 +1009,19 @@ are dicey, and a last resort."
 
 (defun set-active-frame-width-for-parallel-windows (window-count)
   "Set the width of the frame to allow WINDOW-COUNT parallel windows to have a
-uniform 80 column width"
+uniform `ideal-window-columns' column width"
 
-  (interactive "nEnter desired width (in 80 column windows): ")
+  (interactive
+   (list (read-number
+          (format "Enter desired width (in %d column windows): "
+                  ideal-window-columns))))
+
   (when (> 1 window-count) (user-error "Window count less than 1"))
   ; Note: ignoring "too many windows" problems for now.
 
   (set-frame-size
    (selected-frame)
-   (+ (* 80 window-count)           ; Column count could be configurable...
-      window-count                  ; One extra letter so cursor sits on the end
-      (* 5 (- window-count 1)))     ; Ballpark scroll-bar width
+   (ideal-frame-width window-count)
    (frame-parameter (selected-frame) 'height))
   (balance-windows))
 
