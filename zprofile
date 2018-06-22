@@ -83,6 +83,14 @@ case `uname -s` in
             unset gcc_config
         fi
 
+        # Don't have a clever script for LLVM, but here's where it should be.
+        if [ -d /usr/lib/llvm ] ; then
+            clang_dir=/usr/lib/llvm/`ls /usr/lib/llvm | sort -V -r | head -1`
+            machdirs=( ${machdirs} ${clang_dir}/bin )
+            machman=( ${machman} ${clang_dir}/share/man )
+            unset clang_dir
+        fi
+
     elif [ -f '/etc/redhat-release' ] ; then
         grep -q 'Enterprise' '/etc/redhat-release'
         if [ 0 -eq $? ] ; then
