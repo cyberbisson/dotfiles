@@ -36,9 +36,10 @@ fi
 ################################################################################
 
 hwclass=`uname -m`
+sysname=`uname -s`
 OSrelease=`uname -r`
 
-case `uname -s` in
+case ${sysname} in
 
 ########################################
 ## Linux
@@ -327,7 +328,7 @@ unset userid
 ########################################
 ## I want these dirs in the path even if they don't exist
 ########################################
-basedirs=( ~/bin ~/bin/Linux ~/bin/scripts )
+basedirs=( ~/bin ~/bin/${sysname} ~/bin/scripts )
 baseman=( ~/man )
 
 for dir in ${basedirs} ; do
@@ -657,6 +658,7 @@ export BASE_PROMPT="${machprompt}${hostprompt}%#"
 unset hostprompt
 unset machprompt
 unset machtype
+unset sysname
 
 ################################################################################
 # Miscellaneous settings
