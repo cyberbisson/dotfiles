@@ -356,17 +356,16 @@ FACES-ALIST.  In this case, the function ignores the key."
   (setenv "HM_DEBUG_LEVEL" "0")
 
   ;; Shell environment crap
-  (if (string= (getenv "HOLLY_ARCH") "i386-linux")
-      ;; We might need this for debugging (only on Intel simulator)...
-      (progn
-        (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
-        (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT")
-                                         "/sams"))
-        (setenv "LD_LIBRARY_PATH"
-                (concat (getenv "LD_LIBRARY_PATH")                       ":"
-                        (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
-                        (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
-                        (concat (getenv "HOLLY_RESULT_ROOT") "/lib"))))
+  (when (string= (getenv "HOLLY_ARCH") "i386-linux")
+    ;; We might need this for debugging (only on Intel simulator)...
+    (setenv "HX_APP_PATH"    (getenv "HOLLY_RESULT_ROOT"))
+    (setenv "HM_SAMSDIR"     (concat (getenv "HOLLY_RESULT_ROOT")
+                                     "/sams"))
+    (setenv "LD_LIBRARY_PATH"
+            (concat (getenv "LD_LIBRARY_PATH")                       ":"
+                    (concat (getenv "HOLLY_SYSTEM_ROOT") "/usr/lib") ":"
+                    (concat (getenv "HOLLY_RESULT_ROOT") "/fpi")     ":"
+                    (concat (getenv "HOLLY_RESULT_ROOT") "/lib")))
 
     ;; We're debugging on the device.
     (setq gud-gdb-command-name
@@ -421,14 +420,13 @@ FACES-ALIST.  In this case, the function ignores the key."
    (lambda ()
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
-  (if (file-exists-p "~/elisp/vmw-c-dev.elc")
-      (progn
-        (load-file "~/elisp/vmw-c-dev.elc")
-        (condition-case err (vmw-update-cpp-and-flags)
-          (error (message "Cannot use C++ preprocessor (yet): %s"
-                          (error-message-string err))))
-        (add-hook 'c-mode-hook 'vmw-set-cmacexp-data)
-        (add-hook 'c-mode-hook 'vmw-set-cmacexp-data)))
+  (when (file-exists-p "~/elisp/vmw-c-dev.elc")
+    (load-file "~/elisp/vmw-c-dev.elc")
+    (condition-case err (vmw-update-cpp-and-flags)
+      (error (message "Cannot use C++ preprocessor (yet): %s"
+                      (error-message-string err))))
+    (add-hook 'c-mode-hook   'vmw-set-cmacexp-data)
+    (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data))
 
   (let ((srcdir (getenv "RP_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
@@ -503,16 +501,15 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   ;; Load GTAGS stuff
   (if (file-exists-p "~/elisp/gtags.elc") (load-file "~/elisp/gtags.elc"))
 
-  (if (file-exists-p "~/elisp/xgtags.elc")
-      (progn
-        ;; Silence compiler warnings when using a conditionally-included
-        ;; function.
-        (eval-when-compile (declare-function xgtags-mode (on)))
+  (when (file-exists-p "~/elisp/xgtags.elc")
+    ;; Silence compiler warnings when using a conditionally-included
+    ;; function.
+    (eval-when-compile (declare-function xgtags-mode (on)))
 
-        (load-file "~/elisp/xgtags.elc")
-        (add-hook    'c-mode-common-hook (lambda () (xgtags-mode 1)))
-        (remove-hook 'c-mode-hook        'cscope:hook)
-        (remove-hook 'c++-mode-hook      'cscope:hook)))
+    (load-file "~/elisp/xgtags.elc")
+    (add-hook    'c-mode-common-hook (lambda () (xgtags-mode 1)))
+    (remove-hook 'c-mode-hook        'cscope:hook)
+    (remove-hook 'c++-mode-hook      'cscope:hook))
 
   ;; I customized SQL mode
   (if (file-exists-p "~/elisp/sql.elc") (load-file "~/elisp/sql.elc"))
@@ -541,28 +538,26 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 
   (if (< 23 emacs-major-version) (provide-customized-features-24))
 
-  (if (file-exists-p "~/elisp/undo-tree.elc")
-      (progn
-        ;; Otherwise, Emacs complains on conditional inclusion:
-        (eval-when-compile (declare-function global-undo-tree-mode ()))
+  (when (file-exists-p "~/elisp/undo-tree.elc")
+    ;; Otherwise, Emacs complains on conditional inclusion:
+    (eval-when-compile (declare-function global-undo-tree-mode ()))
 
-        (load-file "~/elisp/undo-tree.elc")
-        (global-undo-tree-mode))))
+    (load-file "~/elisp/undo-tree.elc")
+    (global-undo-tree-mode)))
 
 (defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
 
   (if (< 24 emacs-major-version) (provide-customized-features-25))
 
-  (if (file-exists-p "~/elisp/clang-format.elc")
-      (progn
-        ;; Otherwise, Emacs complains on conditional inclusion:
-        (eval-when-compile (defvar clang-format-executable))
+  (when (file-exists-p "~/elisp/clang-format.elc")
+    ;; Otherwise, Emacs complains on conditional inclusion:
+    (eval-when-compile (defvar clang-format-executable))
 
-        (load-file "~/elisp/clang-format.elc")
-        (global-set-key (kbd "C-M-i") 'clang-format-region)
-        (global-set-key (kbd "C-c d") 'clang-format)
-        (setq clang-format-executable "~/bin/clang-format"))))
+    (load-file "~/elisp/clang-format.elc")
+    (global-set-key (kbd "C-M-i") 'clang-format-region)
+    (global-set-key (kbd "C-c d") 'clang-format)
+    (setq clang-format-executable "~/bin/clang-format")))
 
 (defun provide-customized-features-25 ()
   "Load features that only work with Emacs 25 and above."
