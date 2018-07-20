@@ -29,6 +29,12 @@
   ;; Add some file types to interpret
   (associate-file-types)
 
+  ;; Set "defaults" for buffer-local variables in all buffers.
+  (setq-default
+   ;; By default, I'll want to wrap my lines at 80 columns (default-fill-column
+   ;; was deprecated fully by Emacs 26).
+   fill-column                  ideal-window-columns)
+
   ;; Set some configuration variables
   (setq
    ;; Some C specific modes
@@ -40,9 +46,6 @@
 
    ;; I don't like that I can delete the prompt in the shell.
    comint-prompt-read-only      t
-
-   ;; By default, I'll want to wrap my lines at 80 columns
-   default-fill-column          ideal-window-columns
 
    ;; Longer selections tend to make the mode-line too long (with battery)
 ;  display-time-24hr-format     t
