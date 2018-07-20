@@ -33,6 +33,10 @@ for dir in ${possible_x_dirs} ; do
     fi
 done
 
+# TODO: This logic can be factored out a bit to conditionally run common
+# services (read: URxvtd and Xscreensaver), and have a single "exec" line at the
+# end of this conditional code that runs the desired DM.
+
 # Try a number of window managers until finally falling back to twm.
 if [ ! "${ignore_openwin}" ] && [ -x "${using_x_dir}/olwm" ] ; then
     exec "${using_x_dir}/olwm" >> ${log_file} 2>&1
@@ -41,6 +45,11 @@ elif [ ! "${ignore_compiz}" ] && [ -x "${using_x_dir}/beryl-xgl" ] ; then
     "${using_x_dir}/beryl-xgl" --replace  >> ${log_file} 2>&1 &
     exec "${using_x_dir}/beryl-manager" >> ${log_file} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ -x "${using_x_dir}/fvwm" ] ; then
+    # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
+    # or else, what's the point?
+    if [ -x "${using_x_dir}/urxvtd" ] ; then
+        "${using_x_dir}/urxvtd" -o -f >> ${log_file} 2>&1
+    fi
     if [ -x "${using_x_dir}/xscreensaver" ] ; then
         "${using_x_dir}/xscreensaver" -nosplash >> ${log_file} 2>&1 &
     fi
