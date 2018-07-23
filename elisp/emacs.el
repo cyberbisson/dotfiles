@@ -69,11 +69,13 @@
    ;; Only Enter and C-g exit the search
    search-exit-option           nil
 
-   ;; It's stupid that this is not the default behavior
-   server-name                  (getenv "EMACS_SERVER_FILE")
-
    ;; Get rid of shift moving the mark around...
    shift-select-mode            nil)
+
+  ;; It's stupid that this is not the default behavior
+  (let ((ev-server-name (getenv "EMACS_SERVER_FILE")))
+    (if (not (null ev-server-name))
+        (setq server-name ev-server-name)))
 
   ;; If we have a backup drop-zone, customize it to use versions, etc...
   (let* ((backup-dir   "~/.emacs.bak")
