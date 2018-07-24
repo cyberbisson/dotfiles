@@ -77,6 +77,19 @@
     (if (not (null ev-server-name))
         (setq server-name ev-server-name)))
 
+  ;; When the server is running, check that the user really wants to exit, as
+  ;; C-x/C-c can sometimes be inadvertent.  Only do this check, however, when
+  ;; there is no desktop, as a persistent desktop state can be restored in short
+  ;; order.  This function is trying to guard against losing a large number of
+  ;; docuements that is not meant to persist across sessions."
+  (add-hook 'kill-emacs-query-functions
+            (lambda ()
+              (require 'desktop) ;; TODO: Find a way to do this lazily!
+              (require 'server)
+              (if (and server-process (null desktop-dirname))
+                  (y-or-n-p "Really close all windows? ")
+                t)))
+
   ;; If we have a backup drop-zone, customize it to use versions, etc...
   (let* ((backup-dir   "~/.emacs.bak")
          (attributes   (file-attributes backup-dir))
