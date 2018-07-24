@@ -153,10 +153,11 @@
   ;; desktop.  Otherwise, we get things like whitespace-mode with all the
   ;; settings we don't want to have enabled.
   (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
-    (if (and env-dt-dir
-             (file-exists-p env-dt-dir)
-             (not (member "--no-desktop" command-line-args)))
-        (desktop-change-dir env-dt-dir))))
+    (when (and env-dt-dir
+               (file-exists-p env-dt-dir)
+               (not (member "--no-desktop" command-line-args)))
+      (setq desktop-path (list env-dt-dir))
+      (desktop-read))))
 
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
@@ -784,6 +785,24 @@ version 21, the font system had a different set of APIs."
 
   ;; Can't customize font lock until we load the libary (and faces) first
   (load-library "font-lock")
+
+  ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore the
+  ;; frameset that was saved in the desktop, it must call
+  ;; `desktop-restoring-frameset-p', which in turn checks the function
+  ;; `display-graphic-p'.  This essentially means that, even though restoring
+  ;; the frameset works on the TTY (providing `desktop-restore-forces-onscreen'
+  ;; is NIL), it NEVER runs.  So we get the full desktop, but none of the
+  ;; frames.  FIXING THIS NOW.
+  (setq desktop-restore-forces-onscreen nil)
+  (add-hook 'desktop-after-read-hook
+   (lambda ()
+     (frameset-restore
+      desktop-saved-frameset
+      :reuse-frames (eq desktop-restore-reuses-frames t)
+      :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
+      :force-display desktop-restore-in-current-display
+      :force-onscreen desktop-restore-forces-onscreen)))
+
 
   ;; On the terminal, Emacs does not reliably detect the color scheme until late
   ;; in the initialization, causing us to potentially put in the wrong colors.
