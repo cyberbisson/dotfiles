@@ -25,6 +25,10 @@ if [ -d ${CARBON_EMACS_DIR} ] ; then
     alias emacs="${CARBON_EMACS_DIR}/Emacs"
 fi
 
+# Make shorter names for Emacs client/server commands.
+alias emacss="emacs -f server-start"
+alias emacsc="emacsclient"
+
 # A convenience macro for the Mickey Mouse Cicso VPN client
 VPNDIR="/etc/CiscoSystemsVPNClient/Profiles"
 if [ -d ${VPNDIR} ] ; then
