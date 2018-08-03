@@ -199,6 +199,7 @@
    org-startup-truncated nil)
 
   ;; Show me a small set of extraneous bits of whitespace.
+  (setq whitespace-global-modes '(not text-mode org-mode))
   (global-whitespace-mode 1)
   (setq whitespace-style '(face trailing table lines empty tab-mark)))
 
