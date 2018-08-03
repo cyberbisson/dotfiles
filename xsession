@@ -7,12 +7,21 @@
 # do so) when an X console log-in succeed.  This file then explicitly kicks off
 # the window manager for my session.  Typically, the file permissions must be
 # set to "rwx" for the user creating the session.
+#
+# It may be neccessary to create a symlink from .xsession to .xinitrc.  The
+# purpose of .xsession is to combine a .profile type of initialization with X
+# Windows initialization.
+#
+# TODO: This file really should detect my shell and run the appropriate login
+# script, that way it doesn't have to do all this funny business about looking
+# for X executables.
 ###############################################################################
 # Matt Bisson
 
 log_file="${HOME}/tmp/Xsession.log"
 
 echo '--------Session started: '`date`'--------' >> ${log_file}
+chmod 600 ${log_file}
 
 # Not the most flexible way to do this, but it will work for now.  Define
 # "ignore" variables to skip WMs that you don't want to use.

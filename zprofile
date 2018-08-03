@@ -9,10 +9,12 @@
 ################################################################################
 # Matt Bisson
 
+#echo '******** IN      zprofile '`date '+%M:%S.%N'`
 if [ ${+SAW_ZPROFILE_SCRIPT} -ne 0 ] && [ ${SAW_ZPROFILE_SCRIPT} -ne 0 ] ; then
     return
 fi
 
+#echo '******** RUNNING zprofile '`date '+%M:%S.%N'`
 export SAW_ZPROFILE_SCRIPT=1
 
 ################################################################################
@@ -479,6 +481,9 @@ if [ -d '/usr/bin/X11' ] ; then
 
     unset xdirs
 fi
+if [ -d '/usr/X11/bin' ] ; then
+    _path="${_path}:/usr/X11/bin"
+fi
 
 ########################################
 ## Any GNU stuff that's been broken out...
@@ -742,3 +747,4 @@ ulimit -c unlimited                     # Core file size (blocks)
 if [ -f "${HOME}/.zprofile.${HOSTNAME}" ] ; then
     source "${HOME}/.zprofile.${HOSTNAME}"
 fi
+#echo '******** DONE    zprofile '`date '+%M:%S.%N'`

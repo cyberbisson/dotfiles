@@ -9,6 +9,8 @@
 ################################################################################
 # Matt Bisson
 
+#echo '******** RUNNING zshrc    '`date '+%M:%S.%N'`
+
 # If we've not seen the login script, we need to load it.  Also, if we have
 # seen the thing, but were configured for a different shell, we need to
 # reload it.
@@ -113,3 +115,4 @@ zstyle :compinstall filename "${HOME}/.zshrc"
 
 # Set up command completions
 autoload -Uz compinit && compinit
+#echo '******** DONE    zshrc    '`date '+%M:%S.%N'`
