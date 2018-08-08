@@ -21,6 +21,8 @@
 ;;
 ;; Matt Bisson	4/13/2018
 
+(eval-when-compile (require 'cmacexp))
+
 ;; -----------------------------------------------------------------------------
 ;; Variables and constants:
 ;; -----------------------------------------------------------------------------
@@ -174,6 +176,23 @@ components mapped to their ID."
 ;; -----------------------------------------------------------------------------
 ;; "Public" functions:
 ;; -----------------------------------------------------------------------------
+
+;; TODO: This should do different things based on the prog-mode of the buffer.
+(defun vmw-insert-file-header ()
+  "Provides a boiler-plate C/C++ file header for VMware sources."
+
+  (interactive)
+  (insert (concat "\
+/* *****************************************************************************
+ * Copyright (c) " (int-to-string (nth 5 (decode-time)))
+ " VMware, Inc.  All rights reserved. -- VMware Confidential.
+ * ****************************************************************************/
+
+/**
+ * @file
+ *    TODO: Brief description of this file.
+ */
+")))
 
 (defun vmw-set-cmacexp-data ()
   "Updates the configuration settings used by `c-macro-expand' based on valued

@@ -13,7 +13,56 @@
 ;; - --instance-id command line gives emacs a name (good for keeping track).
 ;; - Different customized syntax coloration based on dark or light background.
 ;;
-;; Matt Bisson	4/13/2017
+;; Matt Bisson	08/08/2018
+
+;; Listing the dependencies up front for compilation.  At run time, everything
+;; should be loaded lazily.
+(eval-when-compile
+  (require 'battery)
+  (require 'cc-vars)
+  (require 'desktop)
+  (require 'inf-lisp)
+  (require 'server)
+  (require 'term)
+  (require 'time))
+
+(eval-when-compile
+  (when (< 20 emacs-major-version)
+    (require 'emacs)
+    (require 'org)))
+
+(eval-when-compile
+  (when (< 22 emacs-major-version)
+    (require 'whitespace)))
+
+(eval-when-compile
+  (when (< 23 emacs-major-version)
+    (require 'gdb-mi)))
+
+;; -----------------------------------------------------------------------------
+;; Global variables:
+;; -----------------------------------------------------------------------------
+
+(defvar gud-overlay
+  (let* ((ov (make-overlay (point-min) (point-min))))
+    (overlay-put ov 'face 'gdb-selection)
+    ov)
+
+  "Overlay variable for GUD highlighting."
+)
+
+;; Are we running XEmacs or Emacs?
+;; TODO Test against XEmacs.  This will be a problem...
+(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
+  "Evaluates to t if this is the (obviously inferior) XEmacs."
+)
+
+;; TODO: Why bother?
+(defalias 'run-lisp 'inferior-lisp)
+
+(defconst ideal-window-columns 80
+  "I think all source code should be 80 columns, and that's how large I like my
+windows.")
 
 ;; -----------------------------------------------------------------------------
 ;; Top-level configuration routines:
@@ -81,12 +130,11 @@
   ;; C-x/C-c can sometimes be inadvertent.  Only do this check, however, when
   ;; there is no desktop, as a persistent desktop state can be restored in short
   ;; order.  This function is trying to guard against losing a large number of
-  ;; docuements that is not meant to persist across sessions."
+  ;; documents that is not meant to persist across sessions."
   (add-hook 'kill-emacs-query-functions
             (lambda ()
-              (require 'desktop) ;; TODO: Find a way to do this lazily!
-              (require 'server)
-              (if (and server-process (null desktop-dirname))
+              (if (and (and (featurep 'server) server-process)
+                       (or (not (featurep 'desktop)) (null desktop-dirname)))
                   (y-or-n-p "Really close all windows? ")
                 t)))
 
@@ -171,8 +219,9 @@
       (custom-set-variables '(indent-tabs-mode nil)))
 
   (if (< 20 emacs-major-version)
-      (progn (eval-when-compile (declare-function display-battery ()))
-             (custom-configure-emacs-21))
+      (progn
+        (declare-function display-battery ())
+        (custom-configure-emacs-21))
       (display-battery)))
 
 (defun custom-configure-emacs-21 ()
@@ -441,6 +490,7 @@ FACES-ALIST.  In this case, the function ignores the key."
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
   (when (file-exists-p "~/elisp/vmw-c-dev.elc")
+    (eval-when-compile (declare-function vmw-update-cpp-and-flags ()))
     (load-file "~/elisp/vmw-c-dev.elc")
     (condition-case err (vmw-update-cpp-and-flags)
       (error (message "Cannot use C++ preprocessor (yet): %s"
@@ -466,23 +516,6 @@ warnings.
 This definition is so that packages may take advantage of the
 Emacs 23 feature and still remain compatible with Emacs 22."
       nil))
-
-;; TODO: This should do different things based on the prog-mode of the buffer.
-(defun vmware-insert-file-header ()
-  "Provides a boiler-plate C/C++ file header for VMware sources."
-
-  (interactive)
-  (insert (concat "\
-/* *****************************************************************************
- * Copyright (c) " (int-to-string (nth 5 (decode-time)))
- " VMware, Inc.  All rights reserved. -- VMware Confidential.
- * ****************************************************************************/
-
-/**
- * @file
- *    TODO: Brief description of this file.
- */
-")))
 
 ;; -----------------------------------------------------------------------------
 ;; External package loaders:
@@ -647,7 +680,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   "Set key bindings to make Emacs work well on the terminal."
 
   ;; TODO: These used to be required, but now Emacs and the console have figured
-  ;; out how to place nice.  Re-enable these (with an appropriate conditional)
+  ;; out how to play nice.  Re-enable these (with an appropriate conditional)
   ;; when we encounter another terminal / keyboard issue.
 ; (global-set-key "\C-h" 'delete-backward-char)
 ; (global-set-key "\C-?" 'delete-char)
@@ -667,27 +700,21 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 ;; Misc. hooks and functions:
 ;; -----------------------------------------------------------------------------
 
-(defconst ideal-window-columns 80
-  "I think all source code should be 80 columns, and that's how large I like my
-windows.")
-
 (defun associate-file-types ()
   "Set up associations between file types and Emacs major modes."
 
   ;; There are no hooks for fundamental mode...
-  (setq
-   default-major-mode 'text-mode
-   initial-major-mode 'text-mode
-   startup-major-mode 'text-mode)
+  (setq-default major-mode 'text-mode)
+  (setq initial-major-mode 'text-mode)
 
-  (if (member 'mediawiki features)
+  (if (featurep 'mediawiki)
       (setq auto-mode-alist
             (append '(("\\.wiki$" . mediawiki-mode)) auto-mode-alist)))
 
   (setq
    auto-mode-alist
    (append
-    (if (member 'dos features)
+    (if (featurep 'dos)
         '(("\\.bat$" . dos-mode) ("\\.cmd$" . dos-mode))
         '(("\\.bat$" . sh-mode)  ("\\.cmd$" . sh-mode)))
     auto-mode-alist))
@@ -737,10 +764,10 @@ windows.")
 
 (defun compat-font-exists-p (font-name)
   "Determines if a font exists by its name.  This function does so in a way that
-is compatible with all versions of Emacs.  Before version 21, the font system
+is compatible with all versions of Emacs.  Before version 22, the font system
 had a different set of APIs."
 
-  (if (< 20 emacs-major-version)
+  (if (< 22 emacs-major-version)
       (find-font (font-spec :name font-name))
     (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
 
@@ -1072,12 +1099,16 @@ NAME-PREFIX.  The buffer is in Term mode; see `term-mode' for the
 commands to use in that buffer.
 
 \\<term-raw-map>Type \\[switch-to-buffer] to switch to another buffer."
-  (interactive (list (read-from-minibuffer "Run program: "
-                                           (or explicit-shell-file-name
-                                               (getenv "ESHELL")
-                                               (getenv "SHELL")
-                                               "/bin/sh"))
-                     (read-from-minibuffer "Prefix (may be empty): ")))
+  (interactive
+   (progn
+     (require 'term)
+     (list (read-from-minibuffer "Run program: "
+                                 (or explicit-shell-file-name
+                                     (getenv "ESHELL")
+                                     (getenv "SHELL")
+                                     "/bin/sh"))
+           (read-from-minibuffer "Prefix (may be empty): "))))
+
   (let ((term-name
          (if (string= "" name-prefix)
              "terminal"
@@ -1086,27 +1117,6 @@ commands to use in that buffer.
     (term-mode)
     (term-char-mode)
     (switch-to-buffer (format "*%s*" term-name))))
-
-;; -----------------------------------------------------------------------------
-;; Global variables:
-;; -----------------------------------------------------------------------------
-
-(defvar gud-overlay
-  (let* ((ov (make-overlay (point-min) (point-min))))
-    (overlay-put ov 'face 'gdb-selection)
-    ov)
-
-  "Overlay variable for GUD highlighting."
-)
-
-;; Are we running XEmacs or Emacs?
-;; TODO Test against XEmacs.  This will be a problem...
-(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
-  "Evaluates to t if this is the (obviously inferior) XEmacs."
-)
-
-;; TODO: Why bother?
-(defalias 'run-lisp 'inferior-lisp)
 
 ;; -----------------------------------------------------------------------------
 ;; "Advice" for existing functions:
