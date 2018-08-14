@@ -642,6 +642,12 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 ;; Functions for keyboard macros:
 ;; -----------------------------------------------------------------------------
 
+(defun backward-other-frame (&optional count)
+  "Select another frame in reverse cyclic ordering of windows.  Optionally,
+COUNT may be given to skip more than one frame at a time."
+  (interactive "p")
+  (other-frame (- (if (null count) 1 count))))
+
 (defun set-key-bindings ()
   "Bind various useful function to various key sequences."
 
@@ -681,11 +687,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   (global-set-key "\C-x9" 'delete-other-windows-vertically)
 
   ;; Frames too!
-  (define-key ctl-x-5-map "p"
-    (lambda (&optional count)
-      "Select another frame in reverse cyclic ordering of windows."
-      (interactive "p")
-      (other-frame (- (if (null count) 1 count)))))
+  (define-key ctl-x-5-map "p" 'backward-other-frame)
 
   (global-set-key "\C-c\C-v"
    (function (lambda ()
@@ -700,6 +702,10 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 
 (defun set-key-bindings-term ()
   "Set key bindings to make Emacs work well on the terminal."
+
+  ;; Intuitively, frame swtiching seems backwards on the terminal to me.
+  (define-key ctl-x-5-map "o" 'backward-other-frame)
+  (define-key ctl-x-5-map "p" 'other-frame)
 
   ;; TODO: These used to be required, but now Emacs and the console have figured
   ;; out how to play nice.  Re-enable these (with an appropriate conditional)
@@ -854,7 +860,6 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
       :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
       :force-display desktop-restore-in-current-display
       :force-onscreen desktop-restore-forces-onscreen)))
-
 
   ;; On the terminal, Emacs does not reliably detect the color scheme until late
   ;; in the initialization, causing us to potentially put in the wrong colors.
