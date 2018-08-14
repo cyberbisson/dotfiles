@@ -297,7 +297,12 @@ is dark.")
     ;; Changing the background here:
     (gdb-selection                 nil "DarkSeaGreen3"   nil nil nil nil)
     (highlight                     nil "CadetBlue"       nil nil nil nil)
-    (region                        nil "LightSteelBlue3" nil nil nil nil))
+    (region                        nil "LightSteelBlue3" nil nil nil nil)
+
+    ;; On light colored terminals, the mode-line can sometimes be annoyingly
+    ;; similar between active and inactive windows.
+    (mode-line                     "Black"  "Grey70" nil nil nil nil)
+    (mode-line-inactive            "Grey40" "Grey80" nil nil nil nil))
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is light.")
 
@@ -305,7 +310,9 @@ is light.")
   '(font-lock-comment-face
     font-lock-keyword-face
     font-lock-type-face
-    font-lock-variable-name-face)
+    font-lock-variable-name-face
+    mode-line
+    mode-line-inactive)
   "Faces known to all versions of Emacs with `font-lock-mode'.")
 
 (defconst faces-version-20
@@ -353,11 +360,6 @@ FACES-ALIST.  In this case, the function ignores the key."
         ;; Face will not take effect w/o loading the mode first.
         (require 'whitespace)
         (modify-font-lock-faces faces-alist faces-version-25)))))
-
-;; -----------------------------------------------------------------------------
-;; Font coloring for light Emacs backgrounds:
-;; -----------------------------------------------------------------------------
-
 
 ;; -----------------------------------------------------------------------------
 ;; Functions used for command-line control:
