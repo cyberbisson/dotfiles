@@ -1,5 +1,12 @@
-;; vmw-c-dev.el
-;;
+;;; vmw-c-dev.el --- VMware-specific tooling          -*- lexical-binding: t -*-
+
+;; Matt Bisson <mbisson@ccs.neu.edu>
+;; Homepage:		https://cyberbisson.com/
+;; Keywords:		initialization
+;; Last Major Edit:	08/14/2018
+
+;;; Commentary:
+
 ;; This (Emacs Lisp) module contains utilities that are useful for C/C++
 ;; software development at VMware.
 ;;
@@ -8,20 +15,18 @@
 ;;   (vmw-update-cpp-and-flags)
 ;;   (add-hook 'c-mode-hook   'vmw-set-cmacexp-data)
 ;;   (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data)
-;;
-;; BUGS:
+
+;;; BUGS:
 ;; - Currently $RP_SRCDIR has to be defined as the path where your source
 ;;   tree begins (i.e., bora is found under it)!!
-;;
-;; - Currently, this does not work on files with quoted includes, because it
-;;   does a "cd" to the "bora" parent directory.  This is what SCons does.  It's
-;;   so we don't have full paths in the -I list.  Since Emacs passes the source
-;;   file through STDIN, though, it doesn't understand where the #include "foo"
-;;   files are supposed to come from.
-;;
-;; Matt Bisson	4/13/2018
+;; - `vmw-insert-file-header' should do different things based on the
+;;   prog-mode of the buffer.
 
-(eval-when-compile (require 'cmacexp))
+;;; Code:
+
+(eval-when-compile
+  (require 'cc-mode)
+  (require 'cmacexp))
 
 ;; -----------------------------------------------------------------------------
 ;; Variables and constants:
@@ -60,6 +65,9 @@ preprocess VMware code.")
     "_XOPEN_SOURCE=600"
     "linux")
   "The list of VMware preprocessor definitions.")
+
+(defvar vmw-added-cc-mode-hooks nil
+  "Ensures hooks for `cc-mode' are only added once.")
 
 ;; -----------------------------------------------------------------------------
 ;; Utility functions
@@ -130,7 +138,7 @@ components mapped to their ID."
            (vmw-preproc-includes-list compcache-map))))
 
 (defun vmw-preproc-includes-list (compcache-map)
-  "Returns the list of VMware preprocessor include directories.
+  "Return the list of VMware preprocessor include directories.
 
 COMPCACHE-MAP must be in the form of an alist with the required 'compcache'
 components mapped to their ID."
@@ -177,7 +185,22 @@ components mapped to their ID."
 ;; "Public" functions:
 ;; -----------------------------------------------------------------------------
 
-;; TODO: This should do different things based on the prog-mode of the buffer.
+(defun vmw-c-macro-expand (start end subst)
+  "Expand C macros in the region, using the C preprocessor as is done with
+c-macro-expand'.
+
+The only difference between this function and the default is that this function
+adds the current directory of the buffer being examined to the include path.
+This allows the function to operate successfully on files that use quoted
+include directives, relying on local header files.
+
+Noninteractive args are START, END, SUBST.  See also `c-macro-expansion'."
+
+  (interactive "r\nP")
+
+  (let ((c-macro-cppflags (concat c-macro-cppflags " -I" default-directory)))
+    (c-macro-expand start end subst)))
+
 (defun vmw-insert-file-header ()
   "Provides a boiler-plate C/C++ file header for VMware sources."
 
@@ -195,7 +218,7 @@ components mapped to their ID."
 ")))
 
 (defun vmw-set-cmacexp-data ()
-  "Updates the configuration settings used by `c-macro-expand' based on valued
+  "Update the configuration settings used by `c-macro-expand' based on valued
 cached by the `vmw-update-cpp-and-flags' function."
   (interactive)
 
@@ -213,6 +236,16 @@ This information is left in the variables, `vmw-cached-cpp-file' and
   (let ((generated-data (vmw-generate-cpp-and-flags)))
     (setq vmw-cached-cpp-file (car generated-data)
           vmw-cached-cpp-flags (mapconcat 'identity (cdr generated-data) " ")))
+
+  (when (not vmw-added-cc-mode-hooks)
+    (add-hook 'c-initialization-hook
+	      (lambda ()
+		(define-key c-mode-map   "\C-c\C-e" 'vmw-c-macro-expand)
+		(define-key c++-mode-map "\C-c\C-e" 'vmw-c-macro-expand)))
+    (setq vmw-added-cc-mode-hooks t))
+
   t)
 
 (provide 'vmw-c-dev)
+
+;;; vmw-c-dev.el ends here
