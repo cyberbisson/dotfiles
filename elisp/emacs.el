@@ -1,4 +1,12 @@
-;; emacs.el
+;;; emacs.el --- My Emacs initialization script -*- lexical-binding: t -*-
+
+;; Matt Bisson <mbisson@ccs.neu.edu>
+;; Homepage:		https://cyberbisson.com/
+;; Keywords:		initialization
+;; Last Major Edit:	08/08/2018
+
+;;; Commentary:
+
 ;; This is my Emacs initialization script.  It works with Emacs 19-25
 ;; and greater.
 ;;
@@ -10,13 +18,21 @@
 ;; - --merge and --diff command-line options (suitable for Perforce, et al.).
 ;; - Automatic load of desktop when $EMACS_SERVER_FILE is defined in the env.
 ;; - Versioned backup away from local directory when ~/.emacs.bak exists.
-;; - --instance-id command line gives emacs a name (good for keeping track).
+;; - --instance-id command line gives Emacs a name (good for keeping track).
 ;; - Different customized syntax coloration based on dark or light background.
-;;
-;; Matt Bisson	08/08/2018
+
+;;; To-do:
+;; - Can `font-lock-function' customization optimize font-lock coloration?
+;; - Test `running-xemacs' against XEmacs.  This will be a problem...
+;; - `pop' doesn't exist in older Emacs, so command-line function should change!
+;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
+;; - Consolodate various background-color detection functionality.
+
+;;; Code:
 
 ;; Listing the dependencies up front for compilation.  At run time, everything
 ;; should be loaded lazily.
+
 (eval-when-compile
   (require 'battery)
   (require 'cc-vars)
@@ -44,7 +60,7 @@
 ;; -----------------------------------------------------------------------------
 
 (defvar gud-overlay
-  (let* ((ov (make-overlay (point-min) (point-min))))
+  (let ((ov (make-overlay (point-min) (point-min))))
     (overlay-put ov 'face 'gdb-selection)
     ov)
 
@@ -52,13 +68,11 @@
 )
 
 ;; Are we running XEmacs or Emacs?
-;; TODO Test against XEmacs.  This will be a problem...
 (defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
   "Evaluates to t if this is the (obviously inferior) XEmacs."
 )
 
-;; TODO: Why bother?
-(defalias 'run-lisp 'inferior-lisp)
+(defalias 'run-lisp 'inferior-lisp) ;; TODO: Why bother?
 
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
@@ -365,29 +379,36 @@ FACES-ALIST.  In this case, the function ignores the key."
 ;; Functions used for command-line control:
 ;; -----------------------------------------------------------------------------
 
-;; TODO: POP DOESN'T EXIST IN OLDER EMACS!!
+(defun command-line-diff (_switch)
+  "Enter a graphical ediff from the command-line.
 
-(defun command-line-diff (switch)
-  "Enter a graphical ediff from the command-line"
+_SWITCH contains the switch string that invoked this function if it was called
+from the command-line switch handler."
 
   (let ((file1 (pop command-line-args-left))
         (file2 (pop command-line-args-left)))
     (ediff file1 file2)))
 
-(defun command-line-instance-id (switch)
-  "Allows us to 'name' our Emacs instance.
+(defun command-line-instance-id (_switch)
+  "Allow us to 'name' our Emacs instance.
 
-  This is not strict, nor does it need to be unique.  The main   purpose of
-  this is for when I have more than one Emacs   environment running.  This way,
-  I can put a friendly name in the title for easy identification."
+This is not strict, nor does it need to be unique.  The main   purpose of this
+is for when I have more than one Emacs   environment running.  This way, I can
+put a friendly name in the title for easy identification.
+
+_SWITCH contains the switch string that invoked this function if it was called
+from the command-line switch handler."
 
   (let ((emacs-instance-id (pop command-line-args-left)))
     (set-emacs-title-format (if emacs-instance-id
                                 (concat "(" emacs-instance-id ") %b")
                                 "%b"))))
 
-(defun command-line-merge (switch)
-  "Enter a graphical ediff merge (with ancestor) from the command line"
+(defun command-line-merge (_switch)
+  "Enter a graphical ediff merge (with ancestor) from the command line.
+
+_SWITCH contains the switch string that invoked this function if it was called
+from the command-line switch handler."
 
   (let ((base (pop command-line-args-left))
         (sccs (pop command-line-args-left))
@@ -511,7 +532,7 @@ FACES-ALIST.  In this case, the function ignores the key."
 
 (or (fboundp 'declare-function)
     ;; taken from Emacs 22.2, not present in 22.1:
-    (defmacro declare-function (&rest args)
+    (defmacro declare-function (&rest _args)
       "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler
 warnings.
 
@@ -531,7 +552,6 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   ;; All this ccs stuff happens if the dotfile exists...
   (if (file-exists-p "/ccs/etc/dotfiles/.emacs")
       (configure-ccs-dev-env)
-      ;; TODO: Illogical location for this...
       (setq inferior-lisp-program "sbcl --noinform"))
 
   ;; Set up my Palm development environment
@@ -749,7 +769,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
            auto-mode-alist)))
 
 (defun buffer-list-sorted-by-path ()
-  "Gathers a list of buffers, ordered by their file name (see sort-buffers)."
+  "Gather a list of buffers, ordered by their file name (see ‘sort-buffers’)."
 
   (sort (buffer-list)
         (function (lambda (o1 o2)
@@ -765,7 +785,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
                        (t (string< buf-file1 buf-file2))))))))
 
 (defun compat-font-exists-p (font-name)
-  "Determines if a font exists by its name.  This function does so in a way that
+  "Determine if a font exists by its name.  This function does so in a way that
 is compatible with all versions of Emacs.  Before version 22, the font system
 had a different set of APIs."
 
@@ -774,7 +794,7 @@ had a different set of APIs."
     (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
 
 (defun compat-display-color-cells ()
-  "Returns the number of colors (color cells) that the display supports.  This
+  "Return the number of colors (color cells) that the display supports.  This
 function does so in a way that is compatible with all versions of Emacs.  Before
 version 21, the font system had a different set of APIs."
 
@@ -783,7 +803,9 @@ version 21, the font system had a different set of APIs."
     (length (x-defined-colors)))) ; Very approximate...
 
 (defun custom-configure-backups (custom-backup-dir)
-  "Configure the Emacs backup settings."
+  "Configure the Emacs backup settings.
+
+Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
   (setq
    ;; Send backups to a local directory.  This must exist and be writable.
@@ -885,7 +907,7 @@ version 21, the font system had a different set of APIs."
              (find-first-defined-font
               "Menlo 12"
               '("DejaVu Sans Mono 9")))
-       '(height . 50)
+       '(height . 60)
        '(width  . 81)))
      (t
       (list
@@ -936,7 +958,6 @@ version 21, the font system had a different set of APIs."
 
     ;; Syntax highlighting -- I just find syntax highlighting annoying on the
     ;; Windows terminal, so disable it by default there.
-    ;; TODO: XEmacs?!?
     (if (not running-xemacs)
         (global-font-lock-mode
          (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
@@ -947,9 +968,9 @@ version 21, the font system had a different set of APIs."
          (if (dark-background-p) bg-dark-faces bg-light-faces)))))
 
 (defun find-first-defined-font (default-font-name font-names)
-  "Searches the provided list of font name (strings), returning the name of the
-first font that Emacs can find on this system.  If it finds no fonts, it uses
-the default-font-name."
+  "Search the provided list of font name (strings, named in FONT-NAMES),
+returning the name of the first font that Emacs can find on this system.  If it
+finds no fonts, it uses the DEFAULT-FONT-NAME."
 
   (if (null font-names) default-font-name
 
@@ -980,7 +1001,7 @@ inside the frame be the correct width."
      window-count
      (* (if terminal-frame 1 5) (- window-count 1))))
 
-(defun insert-date (&optional arg)
+(defun insert-date (&optional _arg)
   "This function exists because I want to map M-+ so that it enters a time into
 my file."
 
@@ -1064,7 +1085,9 @@ are dicey, and a last resort."
         (setq frame-background-mode (if (< 8 fg-color-16) 'dark 'light)))))
 
 (defun set-emacs-title-format (title-format)
-  "Set the title for Emacs frames (iconized or not)."
+  "Set the title for Emacs frames (iconized or not).
+
+The parameter TITLE-FORMAT should be specified as in `frame-title-format`."
 
   (setq frame-title-format title-format
         icon-title-format  title-format))
@@ -1141,3 +1164,5 @@ commands to use in that buffer.
 ;; -----------------------------------------------------------------------------
 
 (custom-configure-emacs)
+
+;;; emacs.el ends here
