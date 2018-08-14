@@ -666,6 +666,9 @@ COUNT may be given to skip more than one frame at a time."
 
   (global-set-key "\C-c\C-r" 'recompile)
 
+  ;; I use this function often, and not all terminals allow C-M-%.
+  (define-key ctl-x-5-map "%" 'query-replace-regexp)
+
   ;; It's really annoying to have 10 windows open and fat-finger C-x 1, closing
   ;; them all.  Changing this behavior to ask for confirmation if there are four
   ;; windows or more.
