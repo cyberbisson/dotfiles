@@ -1126,7 +1126,7 @@ uniform `ideal-window-columns' column width"
     (bury-buffer cur))
   (if (called-interactively-p 'interactive) (list-buffers)))
 
-(defun term-named (program name-prefix)
+(defun term-named (name-prefix program)
   "Start a terminal-emulator in a new buffer, prefixed by
 NAME-PREFIX.  The buffer is in Term mode; see `term-mode' for the
 commands to use in that buffer.
@@ -1135,17 +1135,17 @@ commands to use in that buffer.
   (interactive
    (progn
      (require 'term)
-     (list (read-from-minibuffer "Run program: "
+     (list (read-from-minibuffer "Prefix (may be empty): ")
+           (read-from-minibuffer "Run program: "
                                  (or explicit-shell-file-name
                                      (getenv "ESHELL")
                                      (getenv "SHELL")
-                                     "/bin/sh"))
-           (read-from-minibuffer "Prefix (may be empty): "))))
+                                     "/bin/sh")))))
 
   (let ((term-name
          (if (string= "" name-prefix)
              "terminal"
-           (format "%s-terminal" name-prefix))))
+           (format "terminal-%s" name-prefix))))
     (set-buffer (make-term term-name program))
     (term-mode)
     (term-char-mode)
