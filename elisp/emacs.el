@@ -1171,6 +1171,17 @@ commands to use in that buffer.
 ;; GO CONFIGURE!!
 ;; -----------------------------------------------------------------------------
 
-(custom-configure-emacs)
+;; Setting `file-name-handler-alist' to NIL seems to shave about 500ms of init
+;; times (average, where dot-files are over NFS across the USA).  This is
+;; because every .el/.elc file load will have to run through these regular
+;; expressions.  I have disabled this in the start-up environment for some
+;; optimization.
+;;
+;; Setting `gc-cons-threshold' prevents GC from happening very often during
+;; start-up.  The default is 800,000 bytes, and I've set it to 16MB before GC
+;; occurs.
+(let ((file-name-handler-alist nil)
+      (gc-cons-threshold (* 16 1024 1024)))
+  (custom-configure-emacs))
 
 ;;; emacs.el ends here
