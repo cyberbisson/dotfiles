@@ -187,7 +187,7 @@ components mapped to their ID."
 
 (defun vmw-c-macro-expand (start end subst)
   "Expand C macros in the region, using the C preprocessor as is done with
-c-macro-expand'.
+`c-macro-expand'.
 
 The only difference between this function and the default is that this function
 adds the current directory of the buffer being examined to the include path.
@@ -239,9 +239,9 @@ This information is left in the variables, `vmw-cached-cpp-file' and
 
   (when (not vmw-added-cc-mode-hooks)
     (add-hook 'c-initialization-hook
-	      (lambda ()
-		(define-key c-mode-map   "\C-c\C-e" 'vmw-c-macro-expand)
-		(define-key c++-mode-map "\C-c\C-e" 'vmw-c-macro-expand)))
+              (lambda ()
+                (define-key c-mode-map   "\C-c\C-e" 'vmw-c-macro-expand)
+                (define-key c++-mode-map "\C-c\C-e" 'vmw-c-macro-expand)))
     (setq vmw-added-cc-mode-hooks t))
 
   t)
