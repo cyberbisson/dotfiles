@@ -644,6 +644,8 @@ fi
 curuser=`${WHOAMI} | sed 's/\\\\/\\//g'`
 host=`uname -n | awk -F. '{print $1}'`
 
+# Why is there whitespace in $LOGNAME??
+export LOGNAME=`echo $LOGNAME | sed 's/^[ \t]*\(.*\)[ \t]*$/\1/'`
 if [ "${LOGNAME}" != "${curuser}" ] ; then
     hostprompt="${curuser}@${host}"
 else
@@ -674,6 +676,15 @@ if [ ${+USER} -eq 0 ] && [ ${+LOGNAME} -ne 0 ] ; then
 fi
 
 umask 022
+
+# Less IS more...
+if [ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ] ; then
+    export PAGER=less
+
+    # -X tends to needlessly clear the screen, so add -F to allow a single
+    # -screenful print and quit...
+    export LESS="${LESS} -F -M -R -X"
+fi
 
 # Only set Emacs as the editor when we find it in /usr/bin.  This is a
 # simplification because (at least) Git on Cygwin doesn't like to use the
