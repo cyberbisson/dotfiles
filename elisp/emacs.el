@@ -497,6 +497,8 @@ from the command-line switch handler."
     (add-hook 'c-mode-hook   vmware-style-hook)
     (add-hook 'c++-mode-hook vmware-style-hook)
     (add-hook 'java-mode-hook
+              (function (lambda ()(setq c-basic-offset 3))))
+    (add-hook 'protobuf-mode-hook
               (function (lambda ()(setq c-basic-offset 3)))))
 
   ;; Git mode is slow when loading up a desktop with a hundred files, and I
