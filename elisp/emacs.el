@@ -523,10 +523,10 @@ from the command-line switch handler."
     (add-hook 'c-mode-hook   'vmw-set-cmacexp-data)
     (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data))
 
-  (let ((srcdir (getenv "RP_SRCDIR")))
+  (let ((srcdir (getenv "VMWARE_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
         (setq compile-command
-              (concat "cd " srcdir " && iscons PRODUCT=vsanrp vsanrp-all"))))
+              (concat "cd " srcdir " && iscons PRODUCT=esx esx-all"))))
 
   (let ((srcdir (getenv "DR_SRCDIR_UNIX")))
     (if (and srcdir (file-exists-p srcdir))

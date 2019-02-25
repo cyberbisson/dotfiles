@@ -25,13 +25,8 @@ if [ -f "${HOME}/.alias.zsh" ] ; then
 fi
 
 # Add special environment for VMware development if desired
-if [ ${+VMWARE_BRANCH} -ne 0 ] ; then
-    if [ -f "${HOME}/.zshrc.${VMWARE_BRANCH}" ] ; then
-        source "${HOME}/.zshrc.${VMWARE_BRANCH}"
-    else
-        echo ".zshrc: No loadable profile for VMware branch: '${VMWARE_BRANCH}'." \
-        > /dev/stderr
-    fi
+if [ ${+VMWARE_PROFILE} -ne 0 ] ; then
+    source "${HOME}/sb/dotfiles/scripts/use_devprofile.zsh"
 fi
 
 ################################################################################
