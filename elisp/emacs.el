@@ -110,6 +110,9 @@ windows.")
    ;; I don't like that I can delete the prompt in the shell.
    comint-prompt-read-only      t
 
+   ;; I've always prefered the -F postfixes in ls output.
+   dired-listing-switches       "-aDFhlv"
+
    ;; Longer selections tend to make the mode-line too long (with battery)
 ;  display-time-24hr-format     t
 ;  display-time-day-and-date    t
@@ -262,7 +265,7 @@ windows.")
    org-startup-truncated nil)
 
   ;; Show me a small set of extraneous bits of whitespace.
-  (setq whitespace-global-modes '(not text-mode org-mode))
+  (setq whitespace-global-modes '(not dired-mode org-mode text-mode))
   (global-whitespace-mode 1)
   (setq whitespace-style '(face trailing table lines empty tab-mark)))
 
