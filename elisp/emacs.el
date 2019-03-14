@@ -111,7 +111,9 @@ windows.")
    comint-prompt-read-only      t
 
    ;; I've always prefered the -F postfixes in ls output.
-   dired-listing-switches       "-aDFhlv"
+   dired-listing-switches       (if (eq system-type 'darwin)
+                                    "-aFhlv" "-aDFhlv")
+   dired-ls-F-marks-symlinks    (eq system-type 'darwin)
 
    ;; Longer selections tend to make the mode-line too long (with battery)
 ;  display-time-24hr-format     t
