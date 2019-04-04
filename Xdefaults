@@ -47,6 +47,14 @@ urxvt.saveLines:   2048
 !! By default, my font choice comes out super wide...
 urxvt.scrollBar:   true
 urxvt.title:       RXVT (Unicode)
+!! Trying to make the color palate match XTerm.  One might do this if, say, a
+!! (terminal) Emacs session is shared between two computers, one of which runs
+!! XTerm.  It's probably easier to set the URxvt colors here, than it is to set
+!! every terminal emulator's settings to look like URxvt, even though I like the
+!! URxvt ones better.
+!urxvt.color4:      rgb:00/00/ee
+!urxvt.color8:      rgb:7f/7f/7f
+!urxvt.color12:     rgb:5c/5c/ff
 
 !! Set up a cool AIX term
 aixterm*background:  purple4
