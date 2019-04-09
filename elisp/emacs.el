@@ -280,7 +280,7 @@ windows.")
   '((ebrowse-root-class           "Violet"        nil nil nil nil nil)
     (font-lock-builtin-face       "LightSalmon"   nil nil t   nil nil)
     (font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
-    (font-lock-constant-face      "Coral"         nil nil nil nil nil)
+    (font-lock-constant-face      "Aquamarine2"   nil nil nil nil nil)
     (font-lock-doc-face           "LightBlue"     nil nil nil t   nil)
     (font-lock-function-name-face "Aquamarine"    nil nil nil t   nil)
     (font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
@@ -349,7 +349,8 @@ is light.")
 (defconst faces-version-21 '(font-lock-doc-face minibuffer-prompt)
   "Faces introduced in Emacs v21.")
 
-(defconst faces-version-25 '(ebrowse-root-class whitespace-line)
+(defconst faces-version-25
+  '(ebrowse-root-class font-lock-constant-face whitespace-line)
   "Faces introduced in Emacs v25.")
 
 (defun modify-font-lock-faces (faces-alist faces-to-modify)
@@ -600,10 +601,6 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   (if (file-exists-p "~/elisp/media-wiki.elc")
       (load-file "~/elisp/media-wiki.elc"))
 
-  ;; Get fancy with wiki content
-  (if (file-exists-p "~/elisp/markdown-mode.elc")
-      (load-file "~/elisp/markdown-mode.elc"))
-
   ;; Perforce is a horrible version control system -- it has an Emacs mode
   (if (file-exists-p "~/elisp/p4.elc") (load-file "~/elisp/p4.elc"))) ;; 2 slow
 
@@ -631,6 +628,10 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   "Load features that only work with Emacs 24 and above."
 
   (if (< 24 emacs-major-version) (provide-customized-features-25))
+
+  ;; Get fancy with wiki content
+  (if (file-exists-p "~/elisp/markdown-mode.elc")
+      (load-file "~/elisp/markdown-mode.elc"))
 
   (when (file-exists-p "~/elisp/clang-format.elc")
     ;; Otherwise, Emacs complains on conditional inclusion:
