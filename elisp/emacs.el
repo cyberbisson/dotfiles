@@ -3,12 +3,12 @@
 ;; Matt Bisson <mbisson@ccs.neu.edu>
 ;; Homepage:		https://cyberbisson.com/
 ;; Keywords:		initialization
-;; Last Major Edit:	08/08/2018
+;; Last Major Edit:	09/04/2019
 
 ;;; Commentary:
 
-;; This is my Emacs initialization script.  It works with Emacs 19-25
-;; and greater.
+;; This is my Emacs initialization script.  It works with Emacs 19-26 and
+;; greater.
 ;;
 ;; Features:
 ;; - Fully compatible with Emacs v19 to current, for X, Windows, and shell.
@@ -20,6 +20,8 @@
 ;; - Versioned backup away from local directory when ~/.emacs.bak exists.
 ;; - --instance-id command line gives Emacs a name (good for keeping track).
 ;; - Different customized syntax coloration based on dark or light background.
+;;   The background can be different with different frames, and still receive
+;;   the correct treatment.
 
 ;;; To-do:
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
@@ -27,6 +29,9 @@
 ;; - `pop' doesn't exist in older Emacs, so command-line function should change!
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
 ;; - Consolodate various background-color detection functionality.
+;; - Some bits of `customize-font-lock' make global changes based on what
+;;   happens to be the current frame.  The same goes for toolbar and menu
+;;   alterations.  !!!THIS IS NOT WORKING ON FRAMES LOADED FROM A DESKTOP!!!
 
 ;;; Code:
 
@@ -37,6 +42,7 @@
   (require 'battery)
   (require 'cc-vars)
   (require 'desktop)
+  (require 'dired)
   (require 'inf-lisp)
   (require 'server)
   (require 'term)
@@ -120,6 +126,11 @@ windows.")
 ;  display-time-day-and-date    t
 ;  display-time-format          "%a-%Y/%m/%d-%H:%M"
    display-time-format          "%H:%M/%a"
+
+   ;; So you're not supposed to make this longer than 65 because it looks better
+   ;; in apropos for documentation, but I really haven't noticed anything odd in
+   ;; the help text for my own functions here...
+   emacs-lisp-docstring-fill-column ideal-window-columns
 
    ;; I've already read it
    inhibit-startup-message      t
@@ -302,7 +313,7 @@ is dark.")
   '((ebrowse-root-class           "Maroon"           nil nil nil nil nil)
     (font-lock-builtin-face       "DodgerBlue4"      nil nil t   nil nil)
     (font-lock-comment-face       "DarkGreen"        nil nil nil t   nil)
-    (font-lock-constant-face      "Burlywood4"       nil nil nil nil nil)
+    (font-lock-constant-face      "CadetBlue"        nil nil nil nil nil)
     (font-lock-doc-face           "DarkGreen"        nil nil nil t   nil)
     (font-lock-function-name-face "OrangeRed2"       nil nil nil t   nil)
     (font-lock-keyword-face       "FireBrick"        nil nil t   nil nil)
@@ -329,9 +340,7 @@ is light.")
   '(font-lock-comment-face
     font-lock-keyword-face
     font-lock-type-face
-    font-lock-variable-name-face
-    mode-line
-    mode-line-inactive)
+    font-lock-variable-name-face)
   "Faces known to all versions of Emacs with `font-lock-mode'.")
 
 (defconst faces-version-20
@@ -346,47 +355,57 @@ is light.")
 (defconst faces-version-20-2 '(font-lock-constant-face sh-heredoc)
   "Faces that only exist from Emacs 20.0 and were removed in 20.2.")
 
-(defconst faces-version-21 '(font-lock-doc-face minibuffer-prompt)
+(defconst faces-version-21
+  ;; Note: mode-line was "modeline" in Emacs 20, and there was no "inactive."
+  ;; Not worth bothering with it, since an inverse color modeline is just fine
+  ;; there.
+  '(font-lock-doc-face minibuffer-prompt mode-line mode-line-inactive)
   "Faces introduced in Emacs v21.")
 
 (defconst faces-version-25
   '(ebrowse-root-class font-lock-constant-face whitespace-line)
   "Faces introduced in Emacs v25.")
 
-(defun modify-font-lock-faces (faces-alist faces-to-modify)
-  "Runs `modify-faces' on all FACES-TO-MODIFY using the FACES-ALIST.  It is safe
-for a key to be specified in FACES-TO-MODIFY that is not present in the
-FACES-ALIST.  In this case, the function ignores the key."
+(defun modify-font-lock-faces (faces-alist faces-to-modify which-frame)
+  "Run `modify-faces' on all FACES-TO-MODIFY using the FACES-ALIST.
+
+It is safe for a key to be specified in FACES-TO-MODIFY that is not present in
+the FACES-ALIST.  In this case, the function ignores the key.  The WHICH-FRAME
+parameter specifies the frame whose faces will be altered."
 
   (mapcar (lambda (face-to-modify)
             (let ((params-for-modify-face (assq face-to-modify faces-alist)))
               (unless (null params-for-modify-face)
-                (apply 'modify-face params-for-modify-face))))
+                (apply 'modify-face
+                       (append params-for-modify-face
+                              ; Add INVERSE-P so FRAME can be set.
+                              (list nil which-frame))))))
           faces-to-modify))
 
-(defun update-emacs-font-lock-faces (faces-alist)
+(defun update-emacs-font-lock-faces (faces-alist which-frame)
   "Given a color scheme defined by FACES-ALIST (see `bg-dark-faces' and
-`bg-light-faces' for examples), update the colors used across Emacs."
+`bg-light-faces' for examples), update the colors used across Emacs.  The
+WHICH-FRAME parameter specifies the frame whose faces will be altered."
 
-  (modify-font-lock-faces faces-alist faces-all-version)
+  (modify-font-lock-faces faces-alist faces-all-version which-frame)
 
   (when (< 19 emacs-major-version)
-    (modify-font-lock-faces faces-alist faces-version-20)
+    (modify-font-lock-faces faces-alist faces-version-20 which-frame)
     (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-        (modify-font-lock-faces faces-alist faces-version-20-2))
+        (modify-font-lock-faces faces-alist faces-version-20-2 which-frame))
     (when (< 20 emacs-major-version)
-      (modify-font-lock-faces faces-alist faces-version-21)
+      (modify-font-lock-faces faces-alist faces-version-21 which-frame)
       (when (< 24 emacs-major-version)
         ;; Face will not take effect w/o loading the mode first.
         (require 'whitespace)
-        (modify-font-lock-faces faces-alist faces-version-25)))))
+        (modify-font-lock-faces faces-alist faces-version-25 which-frame)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Functions used for command-line control:
 ;; -----------------------------------------------------------------------------
 
 (defun command-line-diff (_switch)
-  "Enter a graphical ediff from the command-line.
+  "Enter (the more graphical) `ediff' from the command-line.
 
 _SWITCH contains the switch string that invoked this function if it was called
 from the command-line switch handler."
@@ -411,7 +430,7 @@ from the command-line switch handler."
                                 "%b"))))
 
 (defun command-line-merge (_switch)
-  "Enter a graphical ediff merge (with ancestor) from the command line.
+  "Enter a graphical `ediff' merge (with ancestor) from the command line.
 
 _SWITCH contains the switch string that invoked this function if it was called
 from the command-line switch handler."
@@ -634,13 +653,11 @@ Emacs 23 feature and still remain compatible with Emacs 22."
       (load-file "~/elisp/markdown-mode.elc"))
 
   (when (file-exists-p "~/elisp/clang-format.elc")
-    ;; Otherwise, Emacs complains on conditional inclusion:
-    (eval-when-compile (defvar clang-format-executable))
-
     (load-file "~/elisp/clang-format.elc")
-    (global-set-key (kbd "C-M-i") 'clang-format-region)
-    (global-set-key (kbd "C-c d") 'clang-format)
-    (setq clang-format-executable "~/bin/clang-format")))
+    (add-hook 'c-mode-common-hook
+              (lambda ()
+                (global-set-key (kbd "C-c \\") 'clang-format-region)
+                (global-set-key (kbd "C-c d") 'clang-format)))))
 
 (defun provide-customized-features-25 ()
   "Load features that only work with Emacs 25 and above."
@@ -651,8 +668,9 @@ Emacs 23 feature and still remain compatible with Emacs 22."
 ;; -----------------------------------------------------------------------------
 
 (defun backward-other-frame (&optional count)
-  "Select another frame in reverse cyclic ordering of windows.  Optionally,
-COUNT may be given to skip more than one frame at a time."
+  "Select another frame in reverse cyclic ordering of windows.
+
+Optionally, COUNT may be given to skip more than one frame at a time."
   (interactive "p")
   (other-frame (- (if (null count) 1 count))))
 
@@ -802,18 +820,20 @@ COUNT may be given to skip more than one frame at a time."
                        (t (string< buf-file1 buf-file2))))))))
 
 (defun compat-font-exists-p (font-name)
-  "Determine if a font exists by its name.  This function does so in a way that
-is compatible with all versions of Emacs.  Before version 22, the font system
-had a different set of APIs."
+  "Determine if a font (given by FONT-NAME) exists by its name.
+
+This function does so in a way that is compatible with all versions of Emacs.
+Before version 22, the font system had a different set of APIs."
 
   (if (< 22 emacs-major-version)
       (find-font (font-spec :name font-name))
     (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
 
 (defun compat-display-color-cells ()
-  "Return the number of colors (color cells) that the display supports.  This
-function does so in a way that is compatible with all versions of Emacs.  Before
-version 21, the font system had a different set of APIs."
+  "Return the number of colors (color cells) that the display supports.
+
+This function does so in a way that is compatible with all versions of Emacs.
+Before version 21, the font system had a different set of APIs."
 
   (if (< 20 emacs-major-version)
       (display-color-cells)
@@ -851,9 +871,6 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   (if (eq system-type 'darwin)
       (setq frame-background-mode (get-macos-terminal-bg-mode))
     (set-bg-mode-from-colorfgbg))
-
-  ;; Can't customize font lock until we load the libary (and faces) first
-  (load-library "font-lock")
 
   ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore the
   ;; frameset that was saved in the desktop, it must call
@@ -952,36 +969,45 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
           (set-mouse-color  fg-color))))
 
   ;; Can't customize font lock until we load the libary (and faces) first
-  (load-library "font-lock")
-  (customize-font-lock))
+  (add-hook 'window-setup-hook 'customize-font-lock))
 
 (defun customize-font-lock ()
   "Set up syntax highlighting."
 
-  (let ((should-customize-faces (< 255 (compat-display-color-cells))))
-    (when should-customize-faces
-      ;; Add color to the current GUD line
-      (make-face 'gdb-selection)
+  (load-library "font-lock")
 
-      ;; By default, this face is UNREADABLE.
-      (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-              (< 20 emacs-major-version))
-          (make-face 'sh-heredoc)
-        (make-face 'font-lock-doc-face)))
+  ;; Add color to the current GUD line
+  (make-face 'gdb-selection)
 
-    ;; Go all out with the font colors
-    (setq font-lock-maximum-decoration t)
+  ;; By default, this face is UNREADABLE.
+  (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
+          (< 20 emacs-major-version))
+      (make-face 'sh-heredoc)
+    (make-face 'font-lock-doc-face))
 
-    ;; Syntax highlighting -- I just find syntax highlighting annoying on the
-    ;; Windows terminal, so disable it by default there.
-    (if (not running-xemacs)
-        (global-font-lock-mode
-         (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
+  ;; Go all out with the font colors
+  (setq font-lock-maximum-decoration t)
 
-    ;; Give me some nice pretty colors...
-    (if should-customize-faces
-        (update-emacs-font-lock-faces
-         (if (dark-background-p) bg-dark-faces bg-light-faces)))))
+  ;; Syntax highlighting -- I just find syntax highlighting annoying on the
+  ;; Windows terminal, so disable it by default there.
+  ;;
+  ;; NOTE: This is kind of a bug in that global-font-lock mode will not be
+  ;; enabled on Windows Emacs GUIs because we've already disabled it on the TTY.
+  (if (not running-xemacs)
+      (global-font-lock-mode
+       (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
+
+  (customize-font-lock-on-frame (selected-frame))
+  (add-hook 'after-make-frame-functions 'customize-font-lock-on-frame))
+
+(defun customize-font-lock-on-frame (frame)
+  "Customize the color settings on a per-frame basis.
+
+The FRAME parameter specifies which frame will be altered."
+  (if (< 255 (compat-display-color-cells))
+      ;; Give me some nice pretty colors...
+      (update-emacs-font-lock-faces
+       (if (dark-background-p frame) bg-dark-faces bg-light-faces) frame)))
 
 (defun find-first-defined-font (default-font-name font-names)
   "Search the provided list of font name (strings, named in FONT-NAMES),
@@ -998,16 +1024,19 @@ finds no fonts, it uses the DEFAULT-FONT-NAME."
           (find-first-defined-font default-font-name rest-font-names))))))
 
 (defun gud-kill-buffer ()
-  "Get rid of the GDB highlight.  This should be added as a hook for when the
-GDB buffer goes away."
+  "Get rid of the GDB highlight.
+
+This should be added as a hook for when the GDB buffer goes away."
 
   (if (eq major-mode 'gud-mode) (delete-overlay gud-overlay)))
 
 (defun ideal-frame-width (window-count)
   "Computes the width in 'columns' that a frame must be to accommodate
-WINDOW-COUNT windows horizontally.  Note that on a TTY, columns is exact, but
-on a GUI, the columns is whatever number it takes to make the actual windows
-inside the frame be the correct width."
+WINDOW-COUNT windows horizontally.
+
+Note that on a TTY, columns is exact, but on a GUI, the columns is whatever
+number it takes to make the actual windows inside the frame be the correct
+width."
 
   ;; We compute the number of chars for all columns, plus one "\" column for
   ;; when lines wrap, plus window-count columns (minus one) for the divider
@@ -1018,15 +1047,19 @@ inside the frame be the correct width."
      (* (if terminal-frame 1 5) (- window-count 1))))
 
 (defun insert-date (&optional _arg)
-  "This function exists because I want to map M-+ so that it enters a time into
-my file."
+  "Insert a date as Matt likes into a file."
 
+  ;; This function exists because I want to map M-+ so that it enters a time
+  ;; into my file.
   (interactive "P")
   (insert (format-time-string "%A, %e %B %Y" (current-time))))
 
-(defun dark-background-p ()
-  "Determines if Emacs considers the background color to be 'dark'."
-  (eq 'dark (cdr (assq 'background-mode (frame-parameters (selected-frame))))))
+(defun dark-background-p (frame)
+  "Determine if Emacs considers the background color to be 'dark'.
+
+As different frames have different backgrounds, the FRAME parameter specifies
+which frame to check."
+  (eq 'dark (cdr (assq 'background-mode (frame-parameters frame)))))
 
 (defun get-macos-terminal-bg-mode ()
   "Retrieves the background 'mode' for the Terminal application on MacOS."
@@ -1089,9 +1122,10 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
     (split-window)))
 
 (defun set-bg-mode-from-colorfgbg ()
-  "Only XTerm seems to properly inform Emacs what its color scheme is.  For
-other terminals, we can check this COLORFGBG environment variable.  Using EVs
-are dicey, and a last resort."
+  "Only XTerm seems to properly inform Emacs what its color scheme is.
+
+For other terminals, we can check this COLORFGBG environment variable.  Using
+EVs are dicey, and a last resort."
 
   ;; Only doing this for Konsole at the moment.
   (if (and (not (null (getenv "COLORFGBG")))
