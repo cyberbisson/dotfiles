@@ -222,20 +222,7 @@ windows.")
       (custom-configure-for-xwindows)
       (custom-configure-for-terminal))
 
-  (if (< 19 emacs-major-version) (custom-configure-emacs-20))
-
-  ;; Set everything up for us to use a desktop (saved session) if asked.
-  ;;
-  ;; This should be the last thing the init-file does so that all modes are
-  ;; fully configured prior to resurrecting any stateful buffers from the
-  ;; desktop.  Otherwise, we get things like whitespace-mode with all the
-  ;; settings we don't want to have enabled.
-  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
-    (when (and env-dt-dir
-               (file-exists-p env-dt-dir)
-               (not (member "--no-desktop" command-line-args)))
-      (setq desktop-path (list env-dt-dir))
-      (desktop-read))))
+  (if (< 19 emacs-major-version) (custom-configure-emacs-20)))
 
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
@@ -998,7 +985,23 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
        (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
 
   (customize-font-lock-on-frame (selected-frame))
-  (add-hook 'after-make-frame-functions 'customize-font-lock-on-frame))
+  (add-hook 'after-make-frame-functions 'customize-font-lock-on-frame)
+
+  ;; Set everything up for us to use a desktop (saved session) if asked.
+  ;;
+  ;; This should be the last thing the init-file does so that all modes are
+  ;; fully configured prior to resurrecting any stateful buffers from the
+  ;; desktop.  Otherwise, we get things like whitespace-mode with all the
+  ;; settings we don't want to have enabled.
+  ;;
+  ;; It is also important to have this run after the hooks are installed for
+  ;; `customize-font-lock-on-frame', or else the colors will look right on the
+  ;; first frame, but none of the subsequent frames will be right.
+  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
+    (when (and env-dt-dir
+               (file-exists-p env-dt-dir)
+               (not (member "--no-desktop" command-line-args)))
+      (setq desktop-path (list env-dt-dir)) (desktop-read))))
 
 (defun customize-font-lock-on-frame (frame)
   "Customize the color settings on a per-frame basis.
