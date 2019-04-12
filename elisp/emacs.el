@@ -185,6 +185,18 @@ windows.")
   ;; default.  Set the tab stop to something reasonable.
   (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
 
+  ;; For whatever reason, the lambda keyword no longer gets highlighted when
+  ;; using the #' shorthand.  Fixing this here.  Note that this is going before
+  ;; the `customize-font-lock' function because it runs on the
+  ;; `window-setup-hook', which is too late to change the highlights on buffers
+  ;; that load at start-up (e.g., .el files specified on the command line).
+  (add-hook
+   'emacs-lisp-mode-hook
+   #'(lambda ()
+       (if (featurep 'font-lock) ; Just in case font-lock doesn't exist!
+           (font-lock-add-keywords
+            nil '(("#'(\\(lambda\\)\\b" 1 'font-lock-keyword-face))))))
+
   ;; There is not a great way to paste into the term-mode buffer by default.
   (add-hook 'term-mode-hook
    (lambda ()
