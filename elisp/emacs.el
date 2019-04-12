@@ -78,7 +78,7 @@
   "Evaluates to t if this is the (obviously inferior) XEmacs."
 )
 
-(defalias 'run-lisp 'inferior-lisp) ;; TODO: Why bother?
+(defalias 'run-lisp #'inferior-lisp) ;; TODO: Why bother?
 
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
@@ -162,7 +162,7 @@ windows.")
   ;; order.  This function is trying to guard against losing a large number of
   ;; documents that is not meant to persist across sessions."
   (add-hook 'kill-emacs-query-functions
-            (lambda ()
+            #'(lambda ()
               (if (and (and (featurep 'server) server-process)
                        (or (not (featurep 'desktop)) (null desktop-dirname)))
                   (y-or-n-p "Really close all windows? ")
@@ -179,11 +179,11 @@ windows.")
         (custom-configure-backups backup-dir)))
 
   ;; Clear out the "current" line when GDB quits
-  (add-hook 'kill-buffer-hook 'gud-kill-buffer)
+  (add-hook 'kill-buffer-hook #'gud-kill-buffer)
 
   ;; If and when we use Google Go, the language relies on TAB indentation by
   ;; default.  Set the tab stop to something reasonable.
-  (add-hook 'go-mode-hook (lambda () (setq tab-width 4)))
+  (add-hook 'go-mode-hook #'(lambda () (setq tab-width 4)))
 
   ;; For whatever reason, the lambda keyword no longer gets highlighted when
   ;; using the #' shorthand.  Fixing this here.  Note that this is going before
@@ -199,10 +199,10 @@ windows.")
 
   ;; There is not a great way to paste into the term-mode buffer by default.
   (add-hook 'term-mode-hook
-   (lambda ()
+   #'(lambda ()
      (require 'term)
-     (define-key term-raw-map (kbd "C-c C-y") 'term-paste)
-     (define-key term-raw-map (kbd "C-c M-y") 'yank-pop))) ;; Doesn't work.
+     (define-key term-raw-map (kbd "C-c C-y") #'term-paste)
+     (define-key term-raw-map (kbd "C-c M-y") #'yank-pop))) ;; Doesn't work.
 
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
   (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
@@ -372,10 +372,10 @@ It is safe for a key to be specified in FACES-TO-MODIFY that is not present in
 the FACES-ALIST.  In this case, the function ignores the key.  The WHICH-FRAME
 parameter specifies the frame whose faces will be altered."
 
-  (mapcar (lambda (face-to-modify)
+  (mapcar #'(lambda (face-to-modify)
             (let ((params-for-modify-face (assq face-to-modify faces-alist)))
               (unless (null params-for-modify-face)
-                (apply 'modify-face
+                (apply #'modify-face
                        (append params-for-modify-face
                               ; Add INVERSE-P so FRAME can be set.
                               (list nil which-frame))))))
@@ -517,13 +517,13 @@ from the command-line switch handler."
   "Configure Emacs to develop VMware code."
 
   (let ((vmware-style-hook
-         (lambda () (c-set-style "vmware-c-c++-engineering-manual"))))
+         #'(lambda () (c-set-style "vmware-c-c++-engineering-manual"))))
     (add-hook 'c-mode-hook   vmware-style-hook)
     (add-hook 'c++-mode-hook vmware-style-hook)
     (add-hook 'java-mode-hook
-              (function (lambda ()(setq c-basic-offset 3))))
+              #'(lambda () (setq c-basic-offset 3)))
     (add-hook 'protobuf-mode-hook
-              (function (lambda ()(setq c-basic-offset 3)))))
+              #'(lambda () (setq c-basic-offset 3))))
 
   ;; Git mode is slow when loading up a desktop with a hundred files, and I
   ;; never use it.  Also, the space it consumes in the mode-line generally hides
@@ -535,7 +535,7 @@ from the command-line switch handler."
   (setq compilation-error-regexp-alist '(gcc-include gnu msft))
   (add-hook
    'compilation-filter-hook
-   (lambda ()
+   #'(lambda ()
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
   (when (file-exists-p "~/elisp/vmw-c-dev.elc")
@@ -544,8 +544,8 @@ from the command-line switch handler."
     (condition-case err (vmw-update-cpp-and-flags)
       (error (message "Cannot use C++ preprocessor (yet): %s"
                       (error-message-string err))))
-    (add-hook 'c-mode-hook   'vmw-set-cmacexp-data)
-    (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data))
+    (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
+    (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data))
 
   (let ((srcdir (getenv "VMWARE_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
@@ -608,7 +608,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
     (eval-when-compile (declare-function xgtags-mode (on)))
 
     (load-file "~/elisp/xgtags.elc")
-    (add-hook    'c-mode-common-hook (lambda () (xgtags-mode 1)))
+    (add-hook    'c-mode-common-hook #'(lambda () (xgtags-mode 1)))
     (remove-hook 'c-mode-hook        'cscope:hook)
     (remove-hook 'c++-mode-hook      'cscope:hook))
 
@@ -654,9 +654,8 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   (when (file-exists-p "~/elisp/clang-format.elc")
     (load-file "~/elisp/clang-format.elc")
     (add-hook 'c-mode-common-hook
-              (lambda ()
-                (global-set-key (kbd "C-c \\") 'clang-format-region)
-                (global-set-key (kbd "C-c d") 'clang-format)))))
+              #'(lambda ()
+                (global-set-key (kbd "C-c \\") #'clang-format-region)))))
 
 (defun provide-customized-features-25 ()
   "Load features that only work with Emacs 25 and above."
@@ -676,29 +675,29 @@ Optionally, COUNT may be given to skip more than one frame at a time."
 (defun set-key-bindings ()
   "Bind various useful function to various key sequences."
 
-  (global-set-key "\M-+" 'insert-date)
+  (global-set-key "\M-+" #'insert-date)
 
   ;; I can't believe this isn't mapped by default, but...
-  (global-set-key "\M-p" 'goto-line)
+  (global-set-key "\M-p" #'goto-line)
 
-  (global-set-key [end]  'end-of-buffer)
-  (global-set-key [home] 'beginning-of-buffer)
+  (global-set-key [end]  #'end-of-buffer)
+  (global-set-key [home] #'beginning-of-buffer)
 
   ;; Horizontal scroll by page is nice, but some finer-grained control is
   ;; better.
-  (global-set-key [C-S-next] (lambda () (interactive) (scroll-left 1 t)))
-  (global-set-key [C-S-prior] (lambda () (interactive) (scroll-right 1 t)))
+  (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
+  (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t)))
 
-  (global-set-key "\C-c\C-r" 'recompile)
+  (global-set-key "\C-c\C-r" #'recompile)
 
   ;; I use this function often, and not all terminals allow C-M-%.
-  (define-key ctl-x-5-map "%" 'query-replace-regexp)
+  (define-key ctl-x-5-map "%" #'query-replace-regexp)
 
   ;; It's really annoying to have 10 windows open and fat-finger C-x 1, closing
   ;; them all.  Changing this behavior to ask for confirmation if there are four
   ;; windows or more.
   (global-set-key "\C-x1"
-   (lambda (&optional confirmed)
+   #'(lambda (&optional confirmed)
      "Asks for confirmation before running `delete-other-windows' if there are
      four windows or more."
      (interactive (list (if (< 3 (count-windows))
@@ -708,20 +707,20 @@ Optionally, COUNT may be given to skip more than one frame at a time."
 
   ;; It helps to go backwards sometimes.
   (global-set-key "\C-xp"
-   (lambda (&optional count)
+   #'(lambda (&optional count)
      "Select another window in reverse cyclic ordering of windows."
      (interactive "p")
      (other-window (- (if (null count) 1 count)))))
-  (global-set-key "\C-x9" 'delete-other-windows-vertically)
+  (global-set-key "\C-x9" #'delete-other-windows-vertically)
 
   ;; Frames too!
-  (define-key ctl-x-5-map "p" 'backward-other-frame)
+  (define-key ctl-x-5-map "p" #'backward-other-frame)
 
   (global-set-key "\C-c\C-v"
-   (function (lambda ()
+   #'(lambda ()
      "Copy the buffer's full path into the kill-ring."
      (interactive)
-     (when buffer-file-name (kill-new (file-truename buffer-file-name))))))
+     (when buffer-file-name (kill-new (file-truename buffer-file-name)))))
 
   ;; Make sure there is no confusion about delete characters
   (if terminal-frame
@@ -732,25 +731,25 @@ Optionally, COUNT may be given to skip more than one frame at a time."
   "Set key bindings to make Emacs work well on the terminal."
 
   ;; Intuitively, frame swtiching seems backwards on the terminal to me.
-  (define-key ctl-x-5-map "o" 'backward-other-frame)
-  (define-key ctl-x-5-map "p" 'other-frame)
+  (define-key ctl-x-5-map "o" #'backward-other-frame)
+  (define-key ctl-x-5-map "p" #'other-frame)
 
   ;; TODO: These used to be required, but now Emacs and the console have figured
   ;; out how to play nice.  Re-enable these (with an appropriate conditional)
   ;; when we encounter another terminal / keyboard issue.
-; (global-set-key "\C-h" 'delete-backward-char)
-; (global-set-key "\C-?" 'delete-char)
+; (global-set-key "\C-h" #'delete-backward-char)
+; (global-set-key "\C-?" #'delete-char)
 )
 
 (defun set-key-bindings-xwin ()
   "Set key bindings that are specific to graphical Emacs instances."
 
-  (global-set-key [delete]      'delete-char)
-  (global-set-key [kp-delete]   'delete-char)
-  (global-set-key [C-delete]    'kill-word)
-  (global-set-key [C-kp-delete] 'kill-word)
-  (global-set-key [C-tab]       'other-frame)
-  (global-set-key [C-S-tab]     (lambda () (interactive) (other-frame -1))))
+  (global-set-key [delete]      #'delete-char)
+  (global-set-key [kp-delete]   #'delete-char)
+  (global-set-key [C-delete]    #'kill-word)
+  (global-set-key [C-kp-delete] #'kill-word)
+  (global-set-key [C-tab]       #'other-frame)
+  (global-set-key [C-S-tab]     #'(lambda () (interactive) (other-frame -1))))
 
 ;; -----------------------------------------------------------------------------
 ;; Misc. hooks and functions:
@@ -806,17 +805,17 @@ Optionally, COUNT may be given to skip more than one frame at a time."
   "Gather a list of buffers, ordered by their file name (see ‘sort-buffers’)."
 
   (sort (buffer-list)
-        (function (lambda (o1 o2)
-                    (let ((buf-file1 (buffer-file-name o1))
-                          (buf-file2 (buffer-file-name o2)))
-                      (cond
-                       ((and (null buf-file1) (null buf-file2))
-                        (string<
-                         (downcase (buffer-name o1))
-                         (downcase (buffer-name o2))))
-                       ((null buf-file1) nil)
-                       ((null buf-file2) t)
-                       (t (string< buf-file1 buf-file2))))))))
+        #'(lambda (o1 o2)
+            (let ((buf-file1 (buffer-file-name o1))
+                  (buf-file2 (buffer-file-name o2)))
+              (cond
+               ((and (null buf-file1) (null buf-file2))
+                (string<
+                 (downcase (buffer-name o1))
+                 (downcase (buffer-name o2))))
+               ((null buf-file1) nil)
+               ((null buf-file2) t)
+               (t (string< buf-file1 buf-file2)))))))
 
 (defun compat-font-exists-p (font-name)
   "Determine if a font (given by FONT-NAME) exists by its name.
@@ -880,7 +879,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   ;; frames.  FIXING THIS NOW.
   (setq desktop-restore-forces-onscreen nil)
   (add-hook 'desktop-after-read-hook
-   (lambda ()
+   #'(lambda ()
      (frameset-restore
       desktop-saved-frameset
       :reuse-frames (eq desktop-restore-reuses-frames t)
@@ -890,7 +889,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
   ;; On the terminal, Emacs does not reliably detect the color scheme until late
   ;; in the initialization, causing us to potentially put in the wrong colors.
-  (add-hook 'window-setup-hook 'customize-font-lock))
+  (add-hook 'window-setup-hook #'customize-font-lock))
 
 (defun custom-configure-for-xwindows ()
   "Configure settings that only apply to Emacs when run in (X) Windows."
@@ -968,7 +967,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
           (set-mouse-color  fg-color))))
 
   ;; Can't customize font lock until we load the libary (and faces) first
-  (add-hook 'window-setup-hook 'customize-font-lock))
+  (add-hook 'window-setup-hook #'customize-font-lock))
 
 (defun customize-font-lock ()
   "Set up syntax highlighting."
@@ -997,7 +996,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
        (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
 
   (customize-font-lock-on-frame (selected-frame))
-  (add-hook 'after-make-frame-functions 'customize-font-lock-on-frame)
+  (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
   ;; Set everything up for us to use a desktop (saved session) if asked.
   ;;

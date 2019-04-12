@@ -100,7 +100,7 @@ arguments required to preprocess VMware sources."
 
   (let ((compcache-map
          (mapcar
-          (lambda (pair-in)
+         #'(lambda (pair-in)
             (cons (car pair-in) (vmw-find-first-ob (cdr pair-in))))
           '(;; Shared components
             (boost . "/build/mts/sharedcompcache/cayman_boost")
@@ -119,23 +119,6 @@ arguments required to preprocess VMware sources."
       "/linux64/usr/bin/x86_64-vmk-linux-gnu-g++ "
       "-x c++ -std=c++14 -O1 -E -C -o - -")
      (vmw-generate-cpp-flags-list compcache-map))))
-
-(defun vmw-generate-cpp-flags-list (compcache-map)
-  "Generates the full list of data that should be passed to the preprocessor for
-VMware sources.
-
-COMPCACHE-MAP must be in the form of an alist with the required 'compcache'
-components mapped to their ID."
-
-  (append
-   (mapcar (lambda (def) (concat "-D" def)) vmw-preproc-defs-list)
-   (list
-    (concat "--sysroot=" (alist-get 'glibc compcache-map) "/linux64/sysroot")
-    (concat "-include " (getenv "RP_SRCDIR") "/bora/public/vm_cpp11.h")
-    (concat "-isystem " (alist-get 'toolchain compcache-map)
-            "/linux64/usr/lib/gcc/x86_64-vmk-linux-gnu/6.4.0/include"))
-   (mapcar (lambda (inc) (concat "-I" inc))
-           (vmw-preproc-includes-list compcache-map))))
 
 (defun vmw-preproc-includes-list (compcache-map)
   "Return the list of VMware preprocessor include directories.
@@ -180,6 +163,23 @@ components mapped to their ID."
    "bora/vsan/lib/hostctl/include"
    "bora/public"
    "bora/build/build/HEADERS/rpIpcProtoDir/uw64/obj"))
+
+(defun vmw-generate-cpp-flags-list (compcache-map)
+  "Generates the full list of data that should be passed to the preprocessor for
+VMware sources.
+
+COMPCACHE-MAP must be in the form of an alist with the required 'compcache'
+components mapped to their ID."
+
+  (append
+   (mapcar #'(lambda (def) (concat "-D" def)) vmw-preproc-defs-list)
+   (list
+    (concat "--sysroot=" (alist-get 'glibc compcache-map) "/linux64/sysroot")
+    (concat "-include " (getenv "RP_SRCDIR") "/bora/public/vm_cpp11.h")
+    (concat "-isystem " (alist-get 'toolchain compcache-map)
+            "/linux64/usr/lib/gcc/x86_64-vmk-linux-gnu/6.4.0/include"))
+   (mapcar #'(lambda (inc) (concat "-I" inc))
+           (vmw-preproc-includes-list compcache-map))))
 
 ;; -----------------------------------------------------------------------------
 ;; "Public" functions:
@@ -235,13 +235,13 @@ This information is left in the variables, `vmw-cached-cpp-file' and
 
   (let ((generated-data (vmw-generate-cpp-and-flags)))
     (setq vmw-cached-cpp-file (car generated-data)
-          vmw-cached-cpp-flags (mapconcat 'identity (cdr generated-data) " ")))
+          vmw-cached-cpp-flags (mapconcat #'identity (cdr generated-data) " ")))
 
   (when (not vmw-added-cc-mode-hooks)
     (add-hook 'c-initialization-hook
-              (lambda ()
-                (define-key c-mode-map   "\C-c\C-e" 'vmw-c-macro-expand)
-                (define-key c++-mode-map "\C-c\C-e" 'vmw-c-macro-expand)))
+              #'(lambda ()
+                (define-key c-mode-map   "\C-c\C-e" #'vmw-c-macro-expand)
+                (define-key c++-mode-map "\C-c\C-e" #'vmw-c-macro-expand)))
     (setq vmw-added-cc-mode-hooks t))
 
   t)
