@@ -179,7 +179,9 @@ windows.")
         (custom-configure-backups backup-dir)))
 
   ;; Clear out the "current" line when GDB quits
-  (add-hook 'kill-buffer-hook #'gud-kill-buffer)
+  (add-hook 'gud-mode-hook
+            #'(lambda ()
+                (add-hook 'kill-buffer-hook #'gud-kill-buffer nil t)))
 
   ;; If and when we use Google Go, the language relies on TAB indentation by
   ;; default.  Set the tab stop to something reasonable.
@@ -1042,7 +1044,7 @@ finds no fonts, it uses the DEFAULT-FONT-NAME."
 
 This should be added as a hook for when the GDB buffer goes away."
 
-  (if (eq major-mode 'gud-mode) (delete-overlay gud-overlay)))
+  (delete-overlay gud-overlay))
 
 (defun ideal-frame-width (window-count)
   "Computes the width in 'columns' that a frame must be to accommodate
