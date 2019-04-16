@@ -657,7 +657,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
     (load-file "~/elisp/clang-format.elc")
     (add-hook 'c-mode-common-hook
               #'(lambda ()
-                (global-set-key (kbd "C-c \\") #'clang-format-region)))))
+                (local-set-key (kbd "C-c \\") #'clang-format-region)))))
 
 (defun provide-customized-features-25 ()
   "Load features that only work with Emacs 25 and above."
