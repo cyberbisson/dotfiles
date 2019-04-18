@@ -17,7 +17,7 @@
 ;;   (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data)
 
 ;;; BUGS:
-;; - Currently $RP_SRCDIR has to be defined as the path where your source
+;; - Currently $VMWARE_SRCDIR has to be defined as the path where your source
 ;;   tree begins (i.e., bora is found under it)!!
 ;; - `vmw-insert-file-header' should do different things based on the
 ;;   prog-mode of the buffer.
@@ -80,16 +80,28 @@ name, which would require parsing build files.  The hope is that this is close
 enough.
 
 If the supplied directory is not an absolute path, the function looks for the
-$RP_SRCDIR variable, and appends that to the beginning to construct a local
+$VMWARE_SRCDIR variable, and appends that to the beginning to construct a local
 component cache directory."
 
   (let ((my-dirname
          (if (file-name-absolute-p directory-name) directory-name
-           (concat (getenv "RP_SRCDIR")
+           (concat (getenv "VMWARE_SRCDIR")
                    "/bora/build/package/COMPONENTS/" directory-name))))
     (if (not (file-exists-p my-dirname))
         (concat "/DUMMY/NOT/FOUND" my-dirname)
-      (car (reverse (directory-files my-dirname t "ob-[0-9]+"))))))
+      (car (sort
+            ;; Find a list of the directories with "ob-" and a bunch of numbers.
+            ;; Then flip through that list, replacing all elements that do not
+            ;; have a (non-dot) file within them with NIL.  Lastly, `delq'
+            ;; deletes the NIL entries.
+            (delq nil
+                  (mapcar #'(lambda (nested-file)
+                              (if (directory-files nested-file nil "^[^.]")
+                                  nested-file
+                                nil))
+                          (directory-files my-dirname t "ob-[0-9]+")))
+            ;; Reverse "version-order" sort of the found directories...
+            #'(lambda (a b) (string-version-lessp b a)))))))
 
 (defun vmw-generate-cpp-and-flags ()
   "Creates a list that contains the C/C++ preprocessor command along with all
@@ -114,7 +126,7 @@ arguments required to preprocess VMware sources."
             (zlib . "cayman_zlib")))))
     (cons
      (concat
-      "cd " (getenv "RP_SRCDIR") " && "
+      "cd " (getenv "VMWARE_SRCDIR") " && "
       (alist-get 'toolchain compcache-map)
       "/linux64/usr/bin/x86_64-vmk-linux-gnu-g++ "
       "-x c++ -std=c++14 -O1 -E -C -o - -")
@@ -175,7 +187,7 @@ components mapped to their ID."
    (mapcar #'(lambda (def) (concat "-D" def)) vmw-preproc-defs-list)
    (list
     (concat "--sysroot=" (alist-get 'glibc compcache-map) "/linux64/sysroot")
-    (concat "-include " (getenv "RP_SRCDIR") "/bora/public/vm_cpp11.h")
+    (concat "-include " (getenv "VMWARE_SRCDIR") "/bora/public/vm_cpp11.h")
     (concat "-isystem " (alist-get 'toolchain compcache-map)
             "/linux64/usr/lib/gcc/x86_64-vmk-linux-gnu/6.4.0/include"))
    (mapcar #'(lambda (inc) (concat "-I" inc))
@@ -218,7 +230,7 @@ Noninteractive args are START, END, SUBST.  See also `c-macro-expansion'."
 ")))
 
 (defun vmw-set-cmacexp-data ()
-  "Update the configuration settings used by `c-macro-expand' based on valued
+  "Update the configuration settings used by `c-macro-expand' based on values
 cached by the `vmw-update-cpp-and-flags' function."
   (interactive)
 
