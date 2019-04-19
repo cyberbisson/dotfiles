@@ -155,8 +155,6 @@ components mapped to their ID."
    "bora/vmx/public"
    "bora/build/build/HEADERS/vmkapi-current-all/generic/obj"
    "bora/build/build/HEADERS/lib-vmksysinfo-headers/uw64/obj"
-   "bora/public"
-   "bora/lib/public"
    "bora/build/build/LIBRARIES/vmodl/generic/obj"
    "bora/vim/lib/public"
    (concat (alist-get 'zlib compcache-map) "/linux64/esx64+gcc6/usr/include")
@@ -167,13 +165,22 @@ components mapped to their ID."
    (concat (alist-get 'googletest compcache-map) "/linux64/esx64+gcc6/include")
    (concat (alist-get 'protobuf compcache-map) "/linux64/esx64-cayman/include")
    (concat (alist-get 'sqlite compcache-map) "/linux64/esx64+gcc6/include")
-   "bora/vim/lib/public"
    "bora/vsan/lib/dp/include"
    "bora/vsan/dp/rpd/include"
    "bora/vsan/lib/dp/include"
    "bora/modules/vmkernel/vsan/include"
    "bora/vsan/lib/hostctl/include"
-   "bora/public"
+   ;; TODO: Adding DPD headers here.  There should be a way to more dynamically
+   ;; look for include paths so the CPP result more accurately reflects the code
+   ;; being processed.
+   "bora/vsan/dp/dpd/src"
+   "bora/vsan/lib/vmkctl/include"
+   "bora/lib/vsan/tracing"
+   ;; Now ObjLib stuff...
+   "bora/lib/shared"
+   "bora/lib/objlib"
+   "bora/public/osfs"
+
    "bora/build/build/HEADERS/rpIpcProtoDir/uw64/obj"))
 
 (defun vmw-generate-cpp-flags-list (compcache-map)
