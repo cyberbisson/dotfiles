@@ -31,7 +31,7 @@
 ;; - Consolodate various background-color detection functionality.
 ;; - Some bits of `customize-font-lock' make global changes based on what
 ;;   happens to be the current frame.  The same goes for toolbar and menu
-;;   alterations.  !!!THIS IS NOT WORKING ON FRAMES LOADED FROM A DESKTOP!!!
+;;   alterations.
 
 ;;; Code:
 
@@ -1011,6 +1011,8 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
+  (setup-desktop-restore-transient-buffer 'compilation-mode)
+
   ;; Set everything up for us to use a desktop (saved session) if asked.
   ;;
   ;; This should be the last thing the init-file does so that all modes are
@@ -1035,6 +1037,22 @@ The FRAME parameter specifies which frame will be altered."
       ;; Give me some nice pretty colors...
       (update-emacs-font-lock-faces
        (if (dark-background-p frame) bg-dark-faces bg-light-faces) frame)))
+
+(defun desktop-restore-fileless-buffer (_buffer-filename
+                                        buffer-name
+                                        _buffer-misc)
+  "Restore a buffer to the desktop that is not backed by a file.
+
+This method is like `desktop-restore-file-buffer', and so BUFFER-FILENAME
+specifies a file (which will be ignored, and should be NIL), BUFFER-NAME
+specifies the name of the buffer that will be created, and BUFFER-MISC is any
+additional data."
+  (eval-when-compile (defvar desktop-buffer-major-mode))
+  (let ((buf (get-buffer-create buffer-name)))
+    (switch-to-buffer buf)
+    (if (not (eq major-mode desktop-buffer-major-mode))
+        (funcall desktop-buffer-major-mode))
+    buf))
 
 (defun find-first-defined-font (default-font-name font-names)
   "Search the provided list of font name (strings, named in FONT-NAMES),
@@ -1187,6 +1205,35 @@ uniform `ideal-window-columns' column width"
    (frame-parameter (selected-frame) 'height))
   (balance-windows))
 
+(defun setup-desktop-restore-transient-buffer (buf-major-mode
+                                               &optional
+                                               init-hook
+                                               desktop-restore-func)
+  "Enables `desktop-read' to restore buffers with no file.
+
+The destop restoration process does not typically save or restore buffers that
+are not associated with an underlying file.  This can be annoying for certain
+desktops where the same layout is desired, for example, if the compilation
+buffer should always be on frame 0, top left window.  This function enables such
+restoration in a generic manner, so any buffers that apply can be saved and
+restored.
+
+The BUF-MAJOR-MODE parameter should specify the major mode of the buffer being
+processed.  INIT-HOOK optionally speicifies the name of the hook that
+BUF-MAJOR-MODE runs during initialization (this is needed for the saving
+process).  If unspecified, it will be generated from BUF-MAJOR-MODE and '-hook'.
+DESKTOP-RESTORE-FUNC specifies the function that will be run during desktop
+restoration, and it is optional.  It should have the same behavior as
+`desktop-restore-file-buffer'."
+
+  (let ((mode-hook (or init-hook
+                       (intern (concat (symbol-name buf-major-mode) "-hook")))))
+    (add-hook mode-hook #'(lambda () (setq desktop-save-buffer t)))
+    (add-to-list 'desktop-buffer-mode-handlers
+                 (cons buf-major-mode
+                       (or desktop-restore-func
+                           #'desktop-restore-fileless-buffer)))))
+
 (defun sort-buffers ()
   "Re-order the buffers alphabetically by their path."
 
@@ -1229,8 +1276,7 @@ commands to use in that buffer.
 
   (let* ((ov gud-overlay)
          (bf (gud-find-file true-file)))
-    (save-excursion
-      (set-buffer bf)
+    (with-current-buffer bf ; Formerly (save-excursion (set-buffer bf) ...)
       (move-overlay ov
                     (line-beginning-position)
                     (+ (line-end-position) 1)
