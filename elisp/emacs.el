@@ -145,6 +145,10 @@ windows.")
    ;; Always making backups
    make-backup-files t
 
+   ;; Older versions of Emacs ask every time I open this file, but
+   ;; `lexical-binding' is definitely OK to be set.
+   safe-local-variable-values   '((lexical-binding . t))
+
    ;; Only Enter and C-g exit the search
    search-exit-option           nil
 
