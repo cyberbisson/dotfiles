@@ -500,34 +500,34 @@ from the command-line switch handler."
     (setq gud-gdb-command-name
           "/opt/holly/toolroot/arm-linux/bin/gdb --annotate=3")))
 
-;; VMware's coding style is sufficiently unique to warrant its own C style
-;; definition.
-(c-add-style
- "vmware-c-c++-engineering-manual"
- '((c-basic-offset . 3)         ; Three-space indent
-   (indent-tabs-mode . nil)     ; Use spaces instead of tabs
-   (comment-style . extra-line) ; Use C-style comments even in C++-mode
-   (comment-start . "/*") (comment-end . "*/")
-   (c-comment-only-line-offset . 0)
-   (c-hanging-braces-alist . ((substatement-open before after)))
-   (c-offsets-alist
-    . ((access-label         . -)
-       (cpp-macro            . [0])
-       (extern-lang-open     . 0)
-       (inclass              . +)
-       (inline-open          . 0)
-       (inextern-lang        . 0)
-       (innamespace          . 0)
-       (label                . 0)
-       (statement-case-open  . +)
-       (statement-cont       . +)
-       (substatement         . +)
-       (substatement-open    . 0)
-       (topmost-intro        . 0)
-       (topmost-intro-cont   . 0)))))
-
 (defun configure-vmware-dev-env ()
   "Configure Emacs to develop VMware code."
+
+  ;; VMware's coding style is sufficiently unique to warrant its own C style
+  ;; definition.
+  (c-add-style
+   "vmware-c-c++-engineering-manual"
+   '((c-basic-offset . 3)         ; Three-space indent
+     (indent-tabs-mode . nil)     ; Use spaces instead of tabs
+     (comment-style . extra-line) ; Use C-style comments even in C++-mode
+     (comment-start . "/*") (comment-end . "*/")
+     (c-comment-only-line-offset . 0)
+     (c-hanging-braces-alist . ((substatement-open before after)))
+     (c-offsets-alist
+      . ((access-label         . -)
+         (cpp-macro            . [0])
+         (extern-lang-open     . 0)
+         (inclass              . +)
+         (inline-open          . 0)
+         (inextern-lang        . 0)
+         (innamespace          . 0)
+         (label                . 0)
+         (statement-case-open  . +)
+         (statement-cont       . +)
+         (substatement         . +)
+         (substatement-open    . 0)
+         (topmost-intro        . 0)
+         (topmost-intro-cont   . 0)))))
 
   (let ((vmware-style-hook
          #'(lambda () (c-set-style "vmware-c-c++-engineering-manual"))))
