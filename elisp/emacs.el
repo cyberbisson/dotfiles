@@ -3,7 +3,7 @@
 ;; Matt Bisson <mbisson@ccs.neu.edu>
 ;; Homepage:		https://cyberbisson.com/
 ;; Keywords:		initialization
-;; Last Major Edit:	09/04/2019
+;; Last Major Edit:	25/04/2019
 
 ;;; Commentary:
 
@@ -11,10 +11,11 @@
 ;; greater.
 ;;
 ;; Features:
-;; - Fully compatible with Emacs v19 to current, for X, Windows, and shell.
+;; - Fully compatible with Emacs v19 to current, as well as XEmacs.  All
+;;   compatibility extends to X, Windows, MacOS, and the terminal.
 ;; - Aims to maintains basic text editing behavior of Emacs since v19.
 ;; - Minimal startup fuss (e.g., no text in *scratch*, no start-up message).
-;; - More modeline info (e.g., day of week, battery %)
+;; - More modeline info (e.g., day of week, battery %).
 ;; - --merge and --diff command-line options (suitable for Perforce, et al.).
 ;; - Automatic load of desktop when $EMACS_SERVER_FILE is defined in the env.
 ;; - Versioned backup away from local directory when ~/.emacs.bak exists.
@@ -25,68 +26,69 @@
 
 ;;; To-do:
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
-;; - Test `running-xemacs' against XEmacs.  This will be a problem...
 ;; - `pop' doesn't exist in older Emacs, so command-line function should change!
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
 ;; - Consolodate various background-color detection functionality.
 ;; - Some bits of `customize-font-lock' make global changes based on what
 ;;   happens to be the current frame.  The same goes for toolbar and menu
 ;;   alterations.
+;; - Optimize some code paths at compile time, namely those that check
+;;   `running-xemacs'.  Perhaps a macro that does some byte-compilation is in
+;;   order.
 
 ;;; Code:
 
-;; Listing the dependencies up front for compilation.  At run time, everything
-;; should be loaded lazily.
-
-(eval-when-compile
-  (require 'battery)
-  (require 'cc-vars)
-  (require 'desktop)
-  (require 'dired)
-  (require 'inf-lisp)
-  (require 'server)
-  (require 'term)
-  (require 'time))
-
-(eval-when-compile
-  (when (< 20 emacs-major-version)
-    (require 'emacs)
-    (require 'org)))
-
-(eval-when-compile
-  (when (< 22 emacs-major-version)
-    (require 'whitespace)))
-
-(eval-when-compile
-  (when (< 23 emacs-major-version)
-    (require 'gdb-mi)))
-
 ;; -----------------------------------------------------------------------------
-;; Global variables:
+;; Global constants:
 ;; -----------------------------------------------------------------------------
-
-(defvar gud-overlay
-  (let ((ov (make-overlay (point-min) (point-min))))
-    (overlay-put ov 'face 'gdb-selection)
-    ov)
-
-  "Overlay variable for GUD highlighting."
-)
-
-;; Are we running XEmacs or Emacs?
-(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
-  "Evaluates to t if this is the (obviously inferior) XEmacs."
-)
-
-(defalias 'run-lisp #'inferior-lisp) ;; TODO: Why bother?
 
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
 windows.")
 
+;; Are we running XEmacs or Emacs?
+(defconst running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
+  "Evaluates to t if this is the (obviously inferior) XEmacs.")
+
+;; -----------------------------------------------------------------------------
+;; Listing the dependencies up front for compilation.  At run time, everything
+;; should be loaded lazily.
+;; -----------------------------------------------------------------------------
+
+(when (not running-xemacs)
+  (eval-when-compile
+    (require 'battery)
+    (require 'cc-vars)
+    (require 'desktop)
+    (require 'dired)
+    (require 'inf-lisp)
+    (require 'server)
+    (require 'term)
+    (require 'time)
+
+    (when (< 20 emacs-major-version)
+      (require 'emacs)
+      (require 'org))
+    (when (< 22 emacs-major-version)
+      (require 'whitespace))
+    (when (< 23 emacs-major-version)
+      (require 'gdb-mi))))
+
+;; -----------------------------------------------------------------------------
+;; Global variables:
+;; -----------------------------------------------------------------------------
+
+(defvar gud-overlay nil
+  "Overlay variable for GUD highlighting.  It is created lazily.")
+
 ;; -----------------------------------------------------------------------------
 ;; Top-level configuration routines:
 ;; -----------------------------------------------------------------------------
+
+(defalias 'run-lisp #'inferior-lisp) ;; TODO: Why bother?
+
+;; XEmacs has a different name for this, but the same meaning.
+(when running-xemacs (defalias 'frame-parameter #'frame-property))
 
 (defun custom-configure-emacs ()
   "This is the full configuration/customization function for Emacs."
@@ -218,16 +220,17 @@ windows.")
   (add-to-list 'command-switch-alist
                '("--instance-id" . command-line-instance-id))
 
-  ;; Show me the time, so I can tell how bored I am.  Have to update the time
-  ;; _after_ changing settings.
-  (display-time)
+  (when (not running-xemacs)
+    ;; Show me the time, so I can tell how bored I am.  Have to update the time
+    ;; _after_ changing settings.
+    (display-time)
+
+    ;; Show selected marked area
+    (transient-mark-mode -1))
 
   ;; I want to know what column and line I am in
   (column-number-mode 1)
   (line-number-mode   1)
-
-  ;; Show selected marked area
-  (transient-mark-mode -1)
 
   ;; I really don't get what all the hubub is about...
   (put 'downcase-region 'disabled nil)
@@ -245,7 +248,7 @@ windows.")
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
 
-  (show-paren-mode 1)
+  (if (not running-xemacs) (show-paren-mode 1))
 
   ;; Using buffer-local variables to set defaults.  We could use setq-default
   ;; instead of custom-set-variables if we cared...
@@ -265,8 +268,14 @@ windows.")
   ;; Restore functionality s.t. down adds lines to the end of the file
   (setq next-line-add-newlines t)
 
-  (blink-cursor-mode -1)
-  (if (not terminal-frame) (tool-bar-mode -1))
+  (if (not running-xemacs) (blink-cursor-mode -1))
+  (when (not terminal-frame)
+    (eval-when-compile ; XEmacs noise...
+      (declare-function set-specifier ())
+      (defvar default-toolbar-visible-p))
+    (if running-xemacs
+        (set-specifier default-toolbar-visible-p nil)
+      (tool-bar-mode -1)))
 
   (condition-case nil
       (display-battery-mode 1)
@@ -556,7 +565,9 @@ from the command-line switch handler."
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
   (when (file-exists-p "~/elisp/vmw-c-dev.elc")
-    (eval-when-compile (declare-function vmw-update-cpp-and-flags ()))
+    (eval-when-compile
+      (declare-function vmw-set-cmacexp-data ())
+      (declare-function vmw-update-cpp-and-flags ()))
     (load-file "~/elisp/vmw-c-dev.elc")
     (condition-case err (vmw-update-cpp-and-flags)
       (error (message "Cannot use C++ preprocessor (yet): %s"
@@ -669,6 +680,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
       (load-file "~/elisp/markdown-mode.elc"))
 
   (when (file-exists-p "~/elisp/clang-format.elc")
+    (eval-when-compile (declare-function clang-format-region ()))
     (load-file "~/elisp/clang-format.elc")
     (add-hook 'c-mode-common-hook
               #'(lambda ()
@@ -702,8 +714,9 @@ Optionally, COUNT may be given to skip more than one frame at a time."
 
   ;; Horizontal scroll by page is nice, but some finer-grained control is
   ;; better.
-  (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
-  (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t)))
+  (when (not running-xemacs)
+    (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
+    (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t))))
 
   (global-set-key "\C-c\C-r" #'recompile)
 
@@ -763,10 +776,11 @@ Optionally, COUNT may be given to skip more than one frame at a time."
 
   (global-set-key [delete]      #'delete-char)
   (global-set-key [kp-delete]   #'delete-char)
-  (global-set-key [C-delete]    #'kill-word)
-  (global-set-key [C-kp-delete] #'kill-word)
-  (global-set-key [C-tab]       #'other-frame)
-  (global-set-key [C-S-tab]     #'(lambda () (interactive) (other-frame -1))))
+  (when (not running-xemacs)
+    (global-set-key [C-delete]    #'kill-word)
+    (global-set-key [C-kp-delete] #'kill-word)
+    (global-set-key [C-tab]       #'other-frame)
+    (global-set-key [C-S-tab]     #'(lambda() (interactive) (other-frame -1)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Misc. hooks and functions:
@@ -842,7 +856,9 @@ Before version 22, the font system had a different set of APIs."
 
   (if (< 22 emacs-major-version)
       (find-font (font-spec :name font-name))
-    (not (null (x-list-fonts font-name nil nil 1))))) ; Never actually fails :(
+    (not (null
+          (if running-xemacs (list-fonts font-name)
+            (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
 
 (defun compat-display-color-cells ()
   "Return the number of colors (color cells) that the display supports.
@@ -851,7 +867,7 @@ This function does so in a way that is compatible with all versions of Emacs.
 Before version 21, the font system had a different set of APIs."
 
   (if (< 20 emacs-major-version)
-      (display-color-cells)
+      (if running-xemacs 16 (display-color-cells)) ;; XEmacs is hard-coded :(
     (length (x-defined-colors)))) ; Very approximate...
 
 (defun custom-configure-backups (custom-backup-dir)
@@ -977,11 +993,12 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
   ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
   ;; unless the background is pure black.
-  (let ((frame-params (frame-parameters)))
-    (if (eq 'dark (cdr (assq 'background-mode frame-params)))
-        (let ((fg-color (cdr (assq 'foreground-color frame-params))))
-          (set-cursor-color fg-color)
-          (set-mouse-color  fg-color))))
+  (if (not running-xemacs)
+      (let ((frame-params (frame-parameters)))
+        (if (eq 'dark (cdr (assq 'background-mode frame-params)))
+            (let ((fg-color (cdr (assq 'foreground-color frame-params))))
+              (set-cursor-color fg-color)
+              (set-mouse-color  fg-color)))))
 
   ;; Can't customize font lock until we load the libary (and faces) first
   (add-hook 'window-setup-hook #'customize-font-lock))
@@ -1015,7 +1032,8 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
-  (setup-desktop-restore-transient-buffer 'compilation-mode)
+  (if (not running-xemacs) ; Not figuring out `desktop-mode' for XEmacs.
+      (setup-desktop-restore-transient-buffer 'compilation-mode))
 
   ;; Set everything up for us to use a desktop (saved session) if asked.
   ;;
@@ -1277,6 +1295,12 @@ commands to use in that buffer.
 
 (defadvice gud-display-line (after my-gud-highlight act)
   "Highlight current line."
+
+  (if (null gud-overlay)
+      ;; Lazily create this overlay.
+      (let ((ov (make-overlay (point-min) (point-min))))
+        (overlay-put ov 'face 'gdb-selection)
+        (setq gud-overlay ov)))
 
   (let* ((ov gud-overlay)
          (bf (gud-find-file true-file)))

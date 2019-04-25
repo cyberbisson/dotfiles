@@ -125,6 +125,19 @@ emacs*Foreground:    gray81
 emacs*toolbar:       0
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+!! XEmacs needs its own set of resources, or it refuses to start because you're
+!! not technically supposed to set Emacs*geometry:
+!! https://www.xemacs.org/Documentation/21.5/html/xemacs_30.html#Geometry-Resources
+XEmacs*EmacsFrame.geometry: 81x60
+XEmacs*Font:          8x13
+XEmacs*toolbar:       0
+!! Black on gray
+XEmacs*Background:    gray75
+XEmacs*Foreground:    black
+!! White on black
+!XEmacs*Background:    gray20
+!XEmacs*Foreground:    gray81
+
 !! Set up CDE terminal, since this file dates back to the mid-1990s...
 Dtterm*geometry:     128x60
 Dtterm*saveLines:    2048
