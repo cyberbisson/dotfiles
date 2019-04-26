@@ -26,6 +26,10 @@
 
 ;;; To-do:
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
+;; - Face customization should probably run more lazily.  This would not only
+;;   prevent creation of faces that aren't (yet) used, but solve issues where
+;;   the mode stomps on our preferences after loading (I'm looking at you,
+;;   ediff).
 ;; - `pop' doesn't exist in older Emacs, so command-line function should change!
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
 ;; - Consolodate various background-color detection functionality.
@@ -41,6 +45,9 @@
 ;; -----------------------------------------------------------------------------
 ;; Global constants:
 ;; -----------------------------------------------------------------------------
+
+;; Uncomment this to see what gets loaded and when in the *Messages* buffer...
+;;(setq force-load-messages t)
 
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
@@ -265,6 +272,8 @@ windows.")
 (defun custom-configure-emacs-21 ()
   "Customizations that are only applicable to Emacs 21 and above."
 
+  (require 'ediff) ; TODO: Required to work-around lazy init of faces!
+
   ;; Restore functionality s.t. down adds lines to the end of the file
   (setq next-line-add-newlines t)
 
@@ -329,7 +338,17 @@ windows.")
     ;; Changing the background here:
     (gdb-selection                nil "MidnightBlue"  nil nil nil nil)
     (highlight                    nil "CadetBlue"     nil nil nil nil)
-    (region                       nil "Firebrick"     nil nil nil nil))
+    (region                       nil "Firebrick"     nil nil nil nil)
+
+    ;; On dark colored terminals, the diff colors are purple and teal, which is
+    ;; horrible.  They look fine on X, but it's so bad on the terminal, I'm
+    ;; changing it.
+    (diff-added                   nil "DarkGreen"     nil nil nil nil)
+    (diff-removed                 nil "DarkRed"       nil nil nil nil)
+    (ediff-current-diff-A         nil "DarkRed"       nil nil nil nil)
+    (ediff-current-diff-B         nil "DarkGreen"     nil nil nil nil)
+    (ediff-current-diff-Ancestor  nil "DarkGreen"     nil nil nil nil))
+
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is dark.")
 
@@ -384,7 +403,15 @@ is light.")
   ;; Note: mode-line was "modeline" in Emacs 20, and there was no "inactive."
   ;; Not worth bothering with it, since an inverse color modeline is just fine
   ;; there.
-  '(font-lock-doc-face minibuffer-prompt mode-line mode-line-inactive)
+  '(diff-added
+    diff-removed
+    ediff-current-diff-A
+    ediff-current-diff-Ancestor
+    ediff-current-diff-B
+    font-lock-doc-face
+    minibuffer-prompt
+    mode-line
+    mode-line-inactive)
   "Faces introduced in Emacs v21.")
 
 (defconst faces-version-25
