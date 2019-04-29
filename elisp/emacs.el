@@ -1218,6 +1218,17 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
     (other-window 1) ;; Split the smaller window vertically.
     (split-window)))
 
+(defun print-features-list ()
+  "Print a sorted list of the currently loaded features.
+
+This is something that I use enough during the course of Emacs initialization
+optimization that I have implemented it as an interactive function.  Simply
+displaying `features' (by default) only shows a handful of the features, and
+they are symbols, so they are not sorted alphabetically."
+  (interactive)
+  (message "Current feature set: %s"
+           (sort (mapcar #'symbol-name features) #'string<)))
+
 (defun set-bg-mode-from-colorfgbg ()
   "Only XTerm seems to properly inform Emacs what its color scheme is.
 
