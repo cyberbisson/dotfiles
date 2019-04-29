@@ -272,7 +272,8 @@ windows.")
 (defun custom-configure-emacs-21 ()
   "Customizations that are only applicable to Emacs 21 and above."
 
-  (require 'ediff) ; TODO: Required to work-around lazy init of faces!
+  ;; TODO: Required to work-around lazy init of faces!
+  (if (not running-xemacs) (require 'ediff))
 
   ;; Restore functionality s.t. down adds lines to the end of the file
   (setq next-line-add-newlines t)
@@ -286,9 +287,11 @@ windows.")
         (set-specifier default-toolbar-visible-p nil)
       (tool-bar-mode -1)))
 
-  (condition-case nil
-      (display-battery-mode 1)
-    (error nil)) ; Ignore errors if AC powered!
+  (when (not running-xemacs)
+    (condition-case nil
+        (display-battery-mode 1)
+      (error nil)) ; Ignore errors if AC powered!
+    (if (not display-battery-mode) (unload-feature 'battery)))
 
   (if (< 21 emacs-major-version) (custom-configure-emacs-22)))
 
@@ -646,7 +649,7 @@ Emacs 23 feature and still remain compatible with Emacs 22."
   (if (< 20 emacs-major-version) (provide-customized-features-21))
 
   ;; Enable wheelmouse support by default
-  (if (not terminal-frame) (load "mwheel" t))
+  (if (not terminal-frame) (mwheel-install))
 
   ;; Load my MUD/MOO stuff
   (if (file-exists-p "~/elisp/mud.elc") (load-file "~/elisp/mud.elc"))
@@ -1033,7 +1036,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 (defun customize-font-lock ()
   "Set up syntax highlighting."
 
-  (load-library "font-lock")
+  (require 'font-lock)
 
   ;; Add color to the current GUD line
   (make-face 'gdb-selection)
