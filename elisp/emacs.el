@@ -595,15 +595,14 @@ from the command-line switch handler."
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
   (when (file-exists-p "~/elisp/vmw-c-dev.elc")
-    (eval-when-compile
-      (declare-function vmw-set-cmacexp-data ())
-      (declare-function vmw-update-cpp-and-flags ()))
-    (load-file "~/elisp/vmw-c-dev.elc")
-    (condition-case err (vmw-update-cpp-and-flags)
-      (error (message "Cannot use C++ preprocessor (yet): %s"
-                      (error-message-string err))))
-    (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
-    (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data))
+    (eval-after-load 'cc-mode
+      #'(lambda ()
+          (load-file "~/elisp/vmw-c-dev.elc")
+          (condition-case err (vmw-update-cpp-and-flags)
+            (error (message "Cannot use C++ preprocessor (yet): %s"
+                            (error-message-string err))))
+          (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
+          (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data))))
 
   (let ((srcdir (getenv "VMWARE_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
