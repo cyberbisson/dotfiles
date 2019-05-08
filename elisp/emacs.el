@@ -108,23 +108,22 @@ compatibility purposes."
       '(called-interactively-p 'interactive)
     '(called-interactively-p)))
 
-(if (not (fboundp 'declare-function))
-    ;; taken from Emacs 22.2, not present in 22.1:
-    (defmacro declare-function (&rest _args)
-      "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler
-warnings.
+(unless (fboundp 'declare-function)
+  ;; taken from Emacs 22.2, not present in 22.1:
+  (defmacro declare-function (&rest _args)
+    "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler warnings.
 
 This definition is so that packages may take advantage of the Emacs 23 feature
 and still remain compatible with Emacs 22."
-      nil))
+    nil))
 
 ;; XEmacs has a different name for this, but the same meaning.
 (if running-xemacs (defalias 'frame-parameter #'frame-property))
 
-(if (not running-xemacs)
-    (defmacro set-specifier (&rest _args)
-      "Ignore extra configuration functions from XEmacs when in GNU Emacs."
-      nil))
+(unless running-xemacs
+  (defmacro set-specifier (&rest _args)
+    "Ignore extra configuration functions from XEmacs when in GNU Emacs."
+    nil))
 
 (if (> 22 emacs-major-version)
     (defun warn (fmt-message &rest args)
@@ -134,7 +133,6 @@ This generates the message with `format', using FMT-MESSAGE and ARGS.  Warnings
 were not introduced until Emacs 22."
       (error (apply #'format fmt-message args))))
 
-
 ;; -----------------------------------------------------------------------------
 ;; Compile-time "Requirements":
 ;;
@@ -142,7 +140,7 @@ were not introduced until Emacs 22."
 ;; should be loaded lazily.
 ;; -----------------------------------------------------------------------------
 
-(when (not running-xemacs)
+(unless running-xemacs
   (eval-when-compile
     (require 'bytecomp)
 
@@ -521,8 +519,7 @@ is light.")
 
   ;; It's stupid that this is not the default behavior
   (let ((ev-server-name (getenv "EMACS_SERVER_FILE")))
-    (if (not (null ev-server-name))
-        (setq server-name ev-server-name)))
+    (unless (null ev-server-name) (setq server-name ev-server-name)))
 
   ;; When the server is running, check that the user really wants to exit, as
   ;; C-x/C-c can sometimes be inadvertent.  Only do this check, however, when
@@ -581,7 +578,7 @@ is light.")
   (add-to-list 'command-switch-alist
                '("--instance-id" . command-line-instance-id))
 
-  (when (not running-xemacs)
+  (unless running-xemacs
     ;; Show me the time, so I can tell how bored I am.  Have to update the time
     ;; _after_ changing settings.
     (display-time)
@@ -616,14 +613,13 @@ is light.")
                             (vmware-dev . ,#'configure-vmware-dev-env))))
     (mapc #'(lambda (custom-env)
               (let ((found-cust-env (assq custom-env custom-env-funcs)))
-                (if (not (null found-cust-env))
-                    (funcall (cdr found-cust-env)))))
+                (unless (null found-cust-env) (funcall (cdr found-cust-env)))))
           custom-environments)))
 
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
 
-  (if (not running-xemacs) (show-paren-mode 1))
+  (unless running-xemacs (show-paren-mode 1))
 
   (if (< 20 emacs-major-version)
       (custom-configure-emacs-21)
@@ -643,7 +639,7 @@ is light.")
   (eval-after-load 'whitespace
     #'(lambda () (merge-font-lock-settings whitespace-faces)))
 
-  (when (not terminal-frame)
+  (unless terminal-frame
     (eval-when-compile ; XEmacs noise...
       (defvar default-toolbar-visible-p))
 
@@ -654,13 +650,13 @@ is light.")
         (set-specifier default-toolbar-visible-p nil)
       (tool-bar-mode -1)))
 
-  (when (not running-xemacs)
+  (unless running-xemacs
     (blink-cursor-mode -1)
 
     (condition-case nil
         (display-battery-mode 1)
       (error nil)) ; Ignore errors if AC powered!
-    (if (not display-battery-mode) (unload-feature 'battery)))
+    (unless display-battery-mode (unload-feature 'battery)))
 
   (if (< 21 emacs-major-version) (custom-configure-emacs-22)))
 
@@ -872,12 +868,12 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
   ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
   ;; unless the background is pure black.
-  (if (not running-xemacs)
-      (let ((frame-params (frame-parameters)))
-        (if (eq 'dark (cdr (assq 'background-mode frame-params)))
-            (let ((fg-color (cdr (assq 'foreground-color frame-params))))
-              (set-cursor-color fg-color)
-              (set-mouse-color  fg-color)))))
+  (unless running-xemacs
+    (let ((frame-params (frame-parameters)))
+      (if (eq 'dark (cdr (assq 'background-mode frame-params)))
+          (let ((fg-color (cdr (assq 'foreground-color frame-params))))
+            (set-cursor-color fg-color)
+            (set-mouse-color  fg-color)))))
 
   ;; Can't customize font lock until we load the libary (and faces) first
   (add-hook 'window-setup-hook #'customize-font-lock))
@@ -921,16 +917,16 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   ;;
   ;; NOTE: This is kind of a bug in that global-font-lock mode will not be
   ;; enabled on Windows Emacs GUIs because we've already disabled it on the TTY.
-  (if (not running-xemacs)
-      (global-font-lock-mode
-       (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
+  (unless running-xemacs
+    (global-font-lock-mode
+     (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
 
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
   ;; TODO: Figure out how to move this `desktop-mode' stuff somewhere else!
-  (if (not running-xemacs) ; Not figuring out `desktop-mode' for XEmacs.
-      (setup-desktop-restore-transient-buffer 'compilation-mode))
+  (unless running-xemacs ; Not figuring out `desktop-mode' for XEmacs.
+    (setup-desktop-restore-transient-buffer 'compilation-mode))
 
   ;; Set everything up for us to use a desktop (saved session) if asked.
   ;;
@@ -1130,7 +1126,7 @@ a similar alias to avoid bucking the trend.")
 
   ;; Horizontal scroll by page is nice, but some finer-grained control is
   ;; better.
-  (when (not running-xemacs)
+  (unless running-xemacs
     (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
     (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t))))
 
@@ -1192,7 +1188,7 @@ a similar alias to avoid bucking the trend.")
 
   (global-set-key [delete]      #'delete-char)
   (global-set-key [kp-delete]   #'delete-char)
-  (when (not running-xemacs)
+  (unless running-xemacs
     (global-set-key [C-delete]    #'kill-word)
     (global-set-key [C-kp-delete] #'kill-word)
     (global-set-key [C-tab]       #'other-frame)
@@ -1306,8 +1302,7 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
 
   (interactive)
 
-  (when (not tgt-frame-width)
-    (setq tgt-frame-width (ideal-frame-width 3)))
+  (unless tgt-frame-width (setq tgt-frame-width (ideal-frame-width 3)))
 
   (when terminal-frame
     (when (/= tgt-frame-width (frame-parameter (selected-frame) 'width))
@@ -1316,7 +1311,7 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
                tgt-frame-width))))
 
   (let ((frame (if make-new-frame (make-frame) (selected-frame))))
-    (when (not terminal-frame)
+    (unless terminal-frame
       (set-frame-size frame tgt-frame-width (frame-parameter frame 'height)))
 
     (if make-new-frame (select-frame frame) (delete-other-windows))
@@ -1470,8 +1465,8 @@ specifies the name of the buffer that will be created, and BUFFER-MISC is any
 additional data."
   (let ((buf (get-buffer-create buffer-name)))
     (switch-to-buffer buf)
-    (if (not (eq major-mode desktop-buffer-major-mode))
-        (funcall desktop-buffer-major-mode))
+    (unless (eq major-mode desktop-buffer-major-mode)
+      (funcall desktop-buffer-major-mode))
     buf))
 
 (defun find-first-defined-font (default-font-name font-names)
