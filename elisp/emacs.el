@@ -543,11 +543,6 @@ is light.")
              is-directory)
         (custom-configure-backups backup-dir)))
 
-  ;; Clear out the "current" line when GDB quits
-  (add-hook 'gud-mode-hook
-            #'(lambda ()
-                (add-hook 'kill-buffer-hook #'gud-kill-buffer nil t)))
-
   ;; If and when we use Google Go, the language relies on TAB indentation by
   ;; default.  Set the tab stop to something reasonable.
   (add-hook 'go-mode-hook #'(lambda () (setq tab-width 4)))
@@ -1199,7 +1194,20 @@ a similar alias to avoid bucking the trend.")
 ;; -----------------------------------------------------------------------------
 
 (defadvice gud-display-line (after my-gud-highlight act)
-  "Highlight current line."
+  "Highlight current line.
+
+The highlight will apply to all debuggers that `gud-mode' supports.  This
+highlight is present in only one buffer at a time (naturally, as the debugger
+only looks at one stack frame in one thread at a time).  The highlight is
+defined as an overlay by `gud-overlay', which is created lazily.  The overlay
+will be removed by advising the `gud-sentinel' function, which clears out
+`gud-overlay-arrow-position' when the debugging process exits, or when the GUD
+buffer is killed.
+
+Note that all this logic will break down if GUD ever supports multiple debugging
+sessions in a single Emacs.  Currently the GUD code is written with lots of
+global variables, so you can technically start two debuggers, but there is odd
+behavior and contention around those global variables."
 
   (if (null gud-overlay)
       ;; Lazily create this overlay.
@@ -1214,6 +1222,12 @@ a similar alias to avoid bucking the trend.")
                     (line-beginning-position)
                     (+ (line-end-position) 1)
                     (current-buffer)))))
+
+(defadvice gud-sentinel (after my-gud-sentinel act)
+  "Remove the highlight when the sentinel detects a dead process."
+
+  (if (null gud-overlay-arrow-position)
+      (delete-overlay gud-overlay)))
 
 ;; -----------------------------------------------------------------------------
 ;; Misc. Hooks and Functions:
@@ -1482,13 +1496,6 @@ finds no fonts, it uses the DEFAULT-FONT-NAME."
         (if (null rest-font-names) default-font-name ;; <- Found nothing...
           ;; Keep searching...
           (find-first-defined-font default-font-name rest-font-names))))))
-
-(defun gud-kill-buffer ()
-  "Get rid of the GDB highlight.
-
-This should be added as a hook for when the GDB buffer goes away."
-
-  (delete-overlay gud-overlay))
 
 (defun ideal-frame-width (window-count)
   "Computes the width in 'columns' that a frame must be to accommodate
