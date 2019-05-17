@@ -166,6 +166,7 @@ were not introduced until Emacs 22."
         (require 'emacs)
         (require 'newcomment)
         (require 'org)
+        (require 'ox-html)
         ;; Legacy: replaced with `display-battery-mode'.
         (declare-function display-battery ()))
       (when (< 21 emacs-major-version)
@@ -507,6 +508,17 @@ is light.")
    ;; was changed in Emacs 22.
    next-line-add-newlines       t
 
+   ;; Smart quotes are just plain better than straight quotes (if I could get it
+   ;; to put in &ensp; after punctuation, so much the better).
+   org-export-with-smart-quotes t
+
+   ;; This has to be done for Confluence, because the stupid web GUI strips out
+   ;; CSS when I paste in source code snippets.
+   org-html-htmlize-output-type 'font
+
+   ;; I don't like `truncate-lines'.
+   org-startup-truncated        nil
+
    ;; Older versions of Emacs ask every time I open this file, but
    ;; `lexical-binding' is definitely OK to be set.
    safe-local-variable-values   '((lexical-binding . t))
@@ -658,11 +670,9 @@ is light.")
 (defun custom-configure-emacs-22 ()
   "Customizations that are only applicable to Emacs 22 and above."
 
-  ;; Org-mode only exists in version 22 and above.
-  (setq
-   auto-mode-alist       (append '(("\\.org$" . org-mode)) auto-mode-alist)
-   org-export-with-smart-quotes t
-   org-startup-truncated        nil)
+  ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
+  ;; the `auto-mode-alist'.
+  (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
 
   ;; The `newcomment' package only exists in Emacs 21.1 and above, but just to
   ;; keep 21.0 safe (if there was such a version?) we'll use it here.
