@@ -117,8 +117,10 @@ This definition is so that packages may take advantage of the Emacs 23 feature
 and still remain compatible with Emacs 22."
     nil))
 
-;; XEmacs has a different name for this, but the same meaning.
-(if running-xemacs (defalias 'frame-parameter #'frame-property))
+;; XEmacs has a different name for these, but the same meaning.
+(when running-xemacs
+  (defalias 'frame-parameter #'frame-property)
+  (defalias 'global-font-lock-mode #'font-lock-mode))
 
 ;; `mapc' is a built-in function only starting with Emacs 21, and we use it
 ;; extensively in this file.
@@ -246,7 +248,6 @@ the time ebeing.")
     ;; Changing the background here:
     (highlight                    nil "CadetBlue" ign ign ign)
     (region                       nil "Firebrick" ign ign ign))
-
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is dark.")
 
@@ -312,12 +313,12 @@ is light.")
   "Faces known to all versions of Emacs with `font-lock-mode'.")
 
 (defconst faces-version-20
-  '(font-lock-builtin-face
+  `(font-lock-builtin-face
     font-lock-function-name-face
     font-lock-string-face
     gdb-selection
     highlight
-    region)
+    ,(unless running-xemacs 'region))
   "Faces introduced in Emacs v20.")
 
 (defconst faces-version-20-2 '(font-lock-constant-face sh-heredoc)
@@ -327,15 +328,16 @@ is light.")
   ;; Note: mode-line was "modeline" in Emacs 20, and there was no "inactive."
   ;; Not worth bothering with it, since an inverse color modeline is just fine
   ;; there.
-  '(diff-added
+  `(diff-added
     diff-removed
     ediff-current-diff-A
     ediff-current-diff-Ancestor
     ediff-current-diff-B
-    font-lock-doc-face
-    minibuffer-prompt
-    mode-line
-    mode-line-inactive)
+    ,@(unless running-xemacs
+        '(font-lock-doc-face
+          minibuffer-prompt
+          mode-line
+          mode-line-inactive)))
   "Faces introduced in Emacs v21.")
 
 (defconst faces-version-25
@@ -936,9 +938,8 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   ;;
   ;; NOTE: This is kind of a bug in that global-font-lock mode will not be
   ;; enabled on Windows Emacs GUIs because we've already disabled it on the TTY.
-  (unless running-xemacs
-    (global-font-lock-mode
-     (if (and terminal-frame (eq system-type 'windows-nt)) -1 1)))
+  (global-font-lock-mode
+   (if (and terminal-frame (eq system-type 'windows-nt)) -1 1))
 
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
@@ -970,7 +971,11 @@ The FRAME parameter specifies which frame will be altered."
   (if (< 255 (compat-display-color-cells))
       ;; Give me some nice pretty colors...
       (update-emacs-font-lock-faces
-       (if (dark-background-p frame) bg-dark-faces bg-light-faces) frame)))
+       (if (dark-background-p frame) bg-dark-faces bg-light-faces)
+       ;; There's no good hook for frame creation in XEmacs, seemingly, so just
+       ;; set the font-lock settings universally (by passing NIL for the frame).
+       ;; For GNU Emacs, we can proceed normally.
+       (if running-xemacs nil frame))))
 
 (defun modify-face-compat (face fg bg bold-p italic-p underline-p frame)
   "Modify a face on a specific frame in a backward-compatible way.
@@ -985,9 +990,10 @@ symbol 'ign' does nothing."
 
   (when fg (set-face-foreground face fg frame))
   (when bg (set-face-background face bg frame))
-  (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
-  (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame))
-  (unless (eq underline-p 'ign) (set-face-underline face underline-p frame)))
+  (unless running-xemacs
+    (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
+    (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
+  (unless (eq underline-p 'ign) (set-face-underline-p face underline-p frame)))
 
 (defun merge-font-lock-settings (settings-alist)
   "Merge a list of faces for into `bg-light-faces' and `bg-dark-faces'.
@@ -1498,7 +1504,7 @@ Before version 21, the font system had a different set of APIs."
 
   ;; TODO: XEmacs is hard-coded :(
   (if (< 20 emacs-major-version)
-      (if running-xemacs 16 (display-color-cells))
+      (if running-xemacs 256 (display-color-cells))
     (length (x-defined-colors)))) ; Very approximate...
 
 (defun dark-background-p (frame)
