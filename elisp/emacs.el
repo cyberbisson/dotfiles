@@ -120,6 +120,10 @@ and still remain compatible with Emacs 22."
 ;; XEmacs has a different name for this, but the same meaning.
 (if running-xemacs (defalias 'frame-parameter #'frame-property))
 
+;; `mapc' is a built-in function only starting with Emacs 21, and we use it
+;; extensively in this file.
+(if (> 21 emacs-major-version) (require 'cl))
+
 (unless running-xemacs
   (defmacro set-specifier (&rest _args)
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
@@ -165,15 +169,15 @@ were not introduced until Emacs 22."
       (when (< 20 emacs-major-version)
         (require 'emacs)
         (require 'newcomment)
-        (require 'org)
-        (require 'ox-html)
         ;; Legacy: replaced with `display-battery-mode'.
         (declare-function display-battery ()))
       (when (< 21 emacs-major-version)
-        (require 'undo-tree))
+        (require 'undo-tree)
+        (require 'whitespace))
       (when (< 22 emacs-major-version)
         (require 'gtags)
-        (require 'whitespace)
+        (require 'org)
+        (require 'ox-html)
         (require 'xgtags))
       (when (< 23 emacs-major-version)
         (require 'gdb-mi)
@@ -670,10 +674,6 @@ is light.")
 (defun custom-configure-emacs-22 ()
   "Customizations that are only applicable to Emacs 22 and above."
 
-  ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
-  ;; the `auto-mode-alist'.
-  (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist))
-
   ;; The `newcomment' package only exists in Emacs 21.1 and above, but just to
   ;; keep 21.0 safe (if there was such a version?) we'll use it here.
   ;; Essentially, this code makes `text-mode' "quote" paragraphs, email-style
@@ -687,7 +687,15 @@ is light.")
   ;; Show me a small set of extraneous bits of whitespace.
   (setq whitespace-global-modes '(not dired-mode org-mode text-mode))
   (unless running-xemacs (global-whitespace-mode 1))
-  (setq whitespace-style '(face trailing table lines empty tab-mark)))
+  (setq whitespace-style '(face trailing table lines empty tab-mark))
+
+  (if (< 22 emacs-major-version) (custom-configure-emacs-23)))
+
+(defun custom-configure-emacs-23 ()
+  "Customizations that are only applicable to Emacs 23 and above."
+  ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
+  ;; the `auto-mode-alist'.
+  (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist)))
 
 ;; -----------------------------------------------------------------------------
 ;; Customizations for Specific Modules:
