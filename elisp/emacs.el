@@ -224,49 +224,54 @@ the time ebeing.")
 ;; Font coloring configuration:
 ;; =========================================================
 
+;; Note that the symbol `ign' directs the `modify-face-compat' function to take
+;; no action with a given face setting.  T or NIL explicitly enables or disables
+;; a setting, so if you wish to leave it alone (e.g., `region' should not stomp
+;; in the italics of the underlying face), specify "ign".
+
 (defvar bg-dark-faces
-  ;; face                         fg              bg  st  b   i   u
-  '((font-lock-builtin-face       "LightSalmon"   nil nil t   nil nil)
-    (font-lock-comment-face       "PaleTurquoise" nil nil nil t   nil)
-    (font-lock-constant-face      "Aquamarine2"   nil nil nil nil nil)
-    (font-lock-doc-face           "LightBlue"     nil nil nil t   nil)
-    (font-lock-function-name-face "Aquamarine"    nil nil nil t   nil)
-    (font-lock-keyword-face       "IndianRed"     nil nil t   nil nil)
-    (font-lock-string-face        "LightSkyBlue"  nil nil nil nil nil)
-    (font-lock-type-face          "Violet"        nil nil nil nil nil)
-    (font-lock-variable-name-face "Turquoise"     nil nil nil nil nil)
-    (minibuffer-prompt            "DodgerBlue"    nil nil t   nil nil)
-    (sh-heredoc                   "Chocolate"     nil nil nil nil nil)
+  ;; face                         fg              bg  b   i   u
+  '((font-lock-builtin-face       "LightSalmon"   nil t   nil nil)
+    (font-lock-comment-face       "PaleTurquoise" nil nil t   nil)
+    (font-lock-constant-face      "Aquamarine2"   nil nil nil nil)
+    (font-lock-doc-face           "LightBlue"     nil nil t   nil)
+    (font-lock-function-name-face "Aquamarine"    nil nil t   nil)
+    (font-lock-keyword-face       "IndianRed"     nil t   nil nil)
+    (font-lock-string-face        "LightSkyBlue"  nil nil nil nil)
+    (font-lock-type-face          "Violet"        nil nil nil nil)
+    (font-lock-variable-name-face "Turquoise"     nil nil nil nil)
+    (minibuffer-prompt            "DodgerBlue"    nil t   nil nil)
+    (sh-heredoc                   "Chocolate"     nil nil nil nil)
 
     ;; Changing the background here:
-    (highlight                    nil "CadetBlue"     nil nil nil nil)
-    (region                       nil "Firebrick"     nil nil nil nil))
+    (highlight                    nil "CadetBlue" ign ign ign)
+    (region                       nil "Firebrick" ign ign ign))
 
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is dark.")
 
 (defvar bg-light-faces
-  ;; face                         fg                 bg  st  b   i   u
-  '((font-lock-builtin-face       "DodgerBlue4"      nil nil t   nil nil)
-    (font-lock-comment-face       "DarkGreen"        nil nil nil t   nil)
-    (font-lock-constant-face      "CadetBlue"        nil nil nil nil nil)
-    (font-lock-doc-face           "DarkGreen"        nil nil nil t   nil)
-    (font-lock-function-name-face "OrangeRed2"       nil nil nil t   nil)
-    (font-lock-keyword-face       "FireBrick"        nil nil t   nil nil)
-    (font-lock-string-face        "Chocolate"        nil nil nil nil nil)
-    (font-lock-type-face          "Maroon"           nil nil nil nil nil)
-    (font-lock-variable-name-face "SteelBlue"        nil nil nil nil nil)
-    (minibuffer-prompt            "DodgerBlue4"      nil nil t   nil nil)
-    (sh-heredoc                   "Chocolate"        nil nil nil nil nil)
+  ;; face                         fg              bg  b   i   u
+  '((font-lock-builtin-face       "DodgerBlue4"   nil t   nil nil)
+    (font-lock-comment-face       "DarkGreen"     nil nil t   nil)
+    (font-lock-constant-face      "CadetBlue"     nil nil nil nil)
+    (font-lock-doc-face           "DarkGreen"     nil nil t   nil)
+    (font-lock-function-name-face "OrangeRed2"    nil nil t   nil)
+    (font-lock-keyword-face       "FireBrick"     nil t   nil nil)
+    (font-lock-string-face        "Chocolate"     nil nil nil nil)
+    (font-lock-type-face          "Maroon"        nil nil nil nil)
+    (font-lock-variable-name-face "SteelBlue"     nil nil nil nil)
+    (minibuffer-prompt            "DodgerBlue4"   nil t   nil nil)
+    (sh-heredoc                   "Chocolate"     nil nil nil nil)
 
     ;; Changing the background here:
-    (highlight                     nil "CadetBlue"       nil nil nil nil)
-    (region                        nil "LightSteelBlue3" nil nil nil nil)
+    (highlight                     nil "CadetBlue"       ign ign ign)
+    (region                        nil "LightSteelBlue3" ign ign ign)
 
     ;; On light colored terminals, the mode-line can sometimes be annoyingly
     ;; similar between active and inactive windows.
-    (mode-line                     "Black"  "Grey70" nil nil nil nil)
-    (mode-line-inactive            "Grey40" "Grey80" nil nil nil nil))
+    (mode-line                     "Black"  "Grey70" ign ign ign)
+    (mode-line-inactive            "Grey40" "Grey80" ign ign ign))
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is light.")
 
@@ -274,29 +279,29 @@ is light.")
 ;; horrible.  They look fine on X, but it's so bad on the terminal, I'm changing
 ;; it.
 (defconst diff-faces
-  '((dark . ((diff-added   nil "DarkGreen" nil nil nil nil)
-             (diff-removed nil "DarkRed"   nil nil nil nil))))
+  '((dark . ((diff-added   nil "DarkGreen" ign ign ign)
+             (diff-removed nil "DarkRed"   ign ign ign))))
   "Custom faces for `diff-mode'.  These are modified lazily.")
 
 (defconst ediff-faces
   '((dark
-     . ((ediff-current-diff-A         nil "DarkRed"       nil nil nil nil)
-        (ediff-current-diff-B         nil "DarkGreen"     nil nil nil nil)
-        (ediff-current-diff-Ancestor  nil "DarkGreen"     nil nil nil nil))))
+     . ((ediff-current-diff-A         nil "DarkRed"   ign ign ign)
+        (ediff-current-diff-B         nil "DarkGreen" ign ign ign)
+        (ediff-current-diff-Ancestor  nil "DarkGreen" ign ign ign))))
   "Custom faces for `ediff-mode'.  These are modified lazily.")
 
 (defconst ebrowse-faces
-  '((dark  . ((ebrowse-root-class "Violet" nil nil nil nil nil)))
-    (light . ((ebrowse-root-class "Maroon" nil nil nil nil nil))))
+  '((dark  . ((ebrowse-root-class "Violet" nil nil nil nil)))
+    (light . ((ebrowse-root-class "Maroon" nil nil nil nil))))
   "Custom faces for `ebrowse-mode'.  These are modified lazily.")
 
 (defconst gud-faces
-  '((dark  . ((gdb-selection nil "MidnightBlue"  nil nil nil nil)))
-    (light . ((gdb-selection nil "DarkSeaGreen3" nil nil nil nil))))
+  '((dark  . ((gdb-selection nil "MidnightBlue"  ign ign ign)))
+    (light . ((gdb-selection nil "DarkSeaGreen3" ign ign ign))))
   "Custom faces for `gud-mode'.  These are modified lazily.")
 
 (defconst whitespace-faces
-  '((light . ((whitespace-line "Red1" nil nil t nil nil))))
+  '((light . ((whitespace-line "Red1" nil t nil nil))))
   "Custom faces for `whitespace-mode'.  These are modified lazily.")
 
 (defconst faces-all-versions
@@ -967,6 +972,23 @@ The FRAME parameter specifies which frame will be altered."
       (update-emacs-font-lock-faces
        (if (dark-background-p frame) bg-dark-faces bg-light-faces) frame)))
 
+(defun modify-face-compat (face fg bg bold-p italic-p underline-p frame)
+  "Modify a face on a specific frame in a backward-compatible way.
+
+This function behaves similarly to the interactive function, `modify-face',
+(which is not preferred for non-interactive use).  It would be best to use
+`set-face-attributes', but this function is not present until after Emacs 20.
+The parameters FG and BG specify the face names for foreground and background
+colors, and they may be NIL.  BOLD-P, ITALIC-P, and UNDERLINE-P enable or
+disable boldness, italics, and underlines (respectively), and the special
+symbol 'ign' does nothing."
+
+  (when fg (set-face-foreground face fg frame))
+  (when bg (set-face-background face bg frame))
+  (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
+  (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame))
+  (unless (eq underline-p 'ign) (set-face-underline face underline-p frame)))
+
 (defun merge-font-lock-settings (settings-alist)
   "Merge a list of faces for into `bg-light-faces' and `bg-dark-faces'.
 
@@ -988,10 +1010,9 @@ parameter specifies the frame whose faces will be altered."
   (mapc #'(lambda (face-to-modify)
             (let ((params-for-modify-face (assq face-to-modify faces-alist)))
               (unless (null params-for-modify-face)
-                (apply #'modify-face
+                (apply #'modify-face-compat
                        (append params-for-modify-face
-                                        ; Add INVERSE-P so FRAME can be set.
-                               (list nil which-frame))))))
+                               (list which-frame))))))
         faces-to-modify))
 
 (defun update-emacs-font-lock-faces (faces-alist which-frame)
