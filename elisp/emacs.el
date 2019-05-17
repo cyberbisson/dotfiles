@@ -661,7 +661,8 @@ is light.")
   ;; Org-mode only exists in version 22 and above.
   (setq
    auto-mode-alist       (append '(("\\.org$" . org-mode)) auto-mode-alist)
-   org-startup-truncated nil)
+   org-export-with-smart-quotes t
+   org-startup-truncated        nil)
 
   ;; The `newcomment' package only exists in Emacs 21.1 and above, but just to
   ;; keep 21.0 safe (if there was such a version?) we'll use it here.
@@ -675,7 +676,7 @@ is light.")
 
   ;; Show me a small set of extraneous bits of whitespace.
   (setq whitespace-global-modes '(not dired-mode org-mode text-mode))
-  (global-whitespace-mode 1)
+  (unless running-xemacs (global-whitespace-mode 1))
   (setq whitespace-style '(face trailing table lines empty tab-mark)))
 
 ;; -----------------------------------------------------------------------------
