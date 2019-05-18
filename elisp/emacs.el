@@ -3,12 +3,12 @@
 ;; Matt Bisson <mbisson@ccs.neu.edu>
 ;; Homepage:		https://cyberbisson.com/
 ;; Keywords:		initialization
-;; Last Major Edit:	25/04/2019
+;; Last Major Edit:	20/05/2019
 
 ;;; Commentary:
 
 ;; This is my Emacs initialization script.  It works with Emacs 19-26 and
-;; greater.
+;; greater.  Compile this file to get the most benefit.
 ;;
 ;; Features:
 ;;
@@ -70,23 +70,35 @@
 ;;; Code:
 
 ;; -----------------------------------------------------------------------------
-;; Global constants:
+;; Macros:
+;;
+;; This should be first.  As macros are evaluated lazily, placing them lower in
+;; the file has little benefit, but these macros help optimize compiled code, so
+;; they should be as early in the file as possible.  We use macros like
+;; `unless-running-xemacs' to simply remove if statements (and the code from one
+;; of the branches) when we know at compile-time that a value will never change
+;; (i.e., we're either compiling for XEmacs or GNU Emacs).
 ;; -----------------------------------------------------------------------------
 
-;; Uncomment this to see what gets loaded and when in the *Messages* buffer...
-;;(setq force-load-messages t)
+;;
+;; Are we running XEmacs or GNU Emacs?
+;;
 
-(defconst custom-loaddefs-file "~/elisp/cust-loaddefs.el"
-  "The file containing generated autoload content for my own custom set of
-modules.")
+(defmacro running-xemacs-p ()
+  "Test if this running instance is XEmacs."
+  (string-match "XEmacs\\|Lucid" emacs-version))
 
-(defconst ideal-window-columns 80
-  "I think all source code should be 80 columns, and that's how large I like my
-windows.")
+(defmacro if-running-xemacs (then &rest else)
+  "If this is XEmacs, execute THEN, otherwise run the ELSE body."
+  (if (running-xemacs-p) (list then) (cons 'progn else)))
 
-;; Are we running XEmacs or Emacs?
-(defconst running-xemacs (string-match "XEmacs\\|Lucid" emacs-version)
-  "Evaluates to t if this is the (obviously inferior) XEmacs.")
+(defmacro unless-running-xemacs (&rest body)
+  "Execute BODY unless this is XEmacs."
+  (if (not (running-xemacs-p)) (cons 'progn body) nil))
+
+(defmacro when-running-xemacs (&rest body)
+  "Execute BODY if this is XEmacs."
+  (if (running-xemacs-p) (cons 'progn body) nil))
 
 ;; -----------------------------------------------------------------------------
 ;; Compatibility functions:
@@ -118,7 +130,7 @@ and still remain compatible with Emacs 22."
     nil))
 
 ;; XEmacs has a different name for these, but the same meaning.
-(when running-xemacs
+(when-running-xemacs
   (defalias 'frame-parameter #'frame-property)
   (defalias 'global-font-lock-mode #'font-lock-mode))
 
@@ -126,7 +138,7 @@ and still remain compatible with Emacs 22."
 ;; extensively in this file.
 (if (> 21 emacs-major-version) (require 'cl))
 
-(unless running-xemacs
+(unless-running-xemacs
   (defmacro set-specifier (&rest _args)
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
     nil))
@@ -146,7 +158,7 @@ were not introduced until Emacs 22."
 ;; should be loaded lazily.
 ;; -----------------------------------------------------------------------------
 
-(unless running-xemacs
+(unless-running-xemacs
   (eval-when-compile
     (require 'bytecomp)
 
@@ -185,6 +197,25 @@ were not introduced until Emacs 22."
         (require 'gdb-mi)
         (require 'clang-format)
         (require 'vmw-c-dev)))))
+
+;; -----------------------------------------------------------------------------
+;; Global constants:
+;; -----------------------------------------------------------------------------
+
+;; Uncomment this to see what gets loaded and when in the *Messages* buffer...
+;;(setq force-load-messages t)
+
+(defconst custom-loaddefs-file "~/elisp/cust-loaddefs.el"
+  "The file containing generated autoload content for my own custom set of
+modules.")
+
+(defconst ideal-window-columns 80
+  "I think all source code should be 80 columns, and that's how large I like my
+windows.")
+
+(defconst running-xemacs
+  (if (boundp 'running-xemacs) running-xemacs (running-xemacs-p))
+  "Evaluates to t if this is the (obviously inferior) XEmacs.")
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
@@ -318,7 +349,7 @@ is light.")
     font-lock-string-face
     gdb-selection
     highlight
-    ,(unless running-xemacs 'region))
+    ,(unless-running-xemacs 'region))
   "Faces introduced in Emacs v20.")
 
 (defconst faces-version-20-2 '(font-lock-constant-face sh-heredoc)
@@ -333,7 +364,7 @@ is light.")
     ediff-current-diff-A
     ediff-current-diff-Ancestor
     ediff-current-diff-B
-    ,@(unless running-xemacs
+    ,@(unless-running-xemacs
         '(font-lock-doc-face
           minibuffer-prompt
           mode-line
@@ -596,7 +627,7 @@ is light.")
   (add-to-list 'command-switch-alist
                '("--instance-id" . command-line-instance-id))
 
-  (unless running-xemacs
+  (unless-running-xemacs
     ;; Show me the time, so I can tell how bored I am.  Have to update the time
     ;; _after_ changing settings.
     (display-time)
@@ -637,7 +668,7 @@ is light.")
 (defun custom-configure-emacs-20 ()
   "Customizations that are only applicable to Emacs 20 and above."
 
-  (unless running-xemacs (show-paren-mode 1))
+  (unless-running-xemacs (show-paren-mode 1))
 
   (if (< 20 emacs-major-version)
       (custom-configure-emacs-21)
@@ -664,11 +695,11 @@ is light.")
     ;; Enable wheelmouse support by default.
     (mwheel-install)
 
-    (if running-xemacs
+    (if-running-xemacs
         (set-specifier default-toolbar-visible-p nil)
       (tool-bar-mode -1)))
 
-  (unless running-xemacs
+  (unless-running-xemacs
     (blink-cursor-mode -1)
 
     (condition-case nil
@@ -693,7 +724,7 @@ is light.")
 
   ;; Show me a small set of extraneous bits of whitespace.
   (setq whitespace-global-modes '(not dired-mode org-mode text-mode))
-  (unless running-xemacs (global-whitespace-mode 1))
+  (unless-running-xemacs (global-whitespace-mode 1))
   (setq whitespace-style '(face trailing table lines empty tab-mark))
 
   (if (< 22 emacs-major-version) (custom-configure-emacs-23)))
@@ -889,7 +920,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
   ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
   ;; unless the background is pure black.
-  (unless running-xemacs
+  (unless-running-xemacs
     (let ((frame-params (frame-parameters)))
       (if (eq 'dark (cdr (assq 'background-mode frame-params)))
           (let ((fg-color (cdr (assq 'foreground-color frame-params))))
@@ -945,7 +976,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
   ;; TODO: Figure out how to move this `desktop-mode' stuff somewhere else!
-  (unless running-xemacs ; Not figuring out `desktop-mode' for XEmacs.
+  (unless-running-xemacs ; Not figuring out `desktop-mode' for XEmacs.
     (setup-desktop-restore-transient-buffer 'compilation-mode))
 
   ;; Set everything up for us to use a desktop (saved session) if asked.
@@ -975,7 +1006,7 @@ The FRAME parameter specifies which frame will be altered."
        ;; There's no good hook for frame creation in XEmacs, seemingly, so just
        ;; set the font-lock settings universally (by passing NIL for the frame).
        ;; For GNU Emacs, we can proceed normally.
-       (if running-xemacs nil frame))))
+       (if-running-xemacs nil frame))))
 
 (defun modify-face-compat (face fg bg bold-p italic-p underline-p frame)
   "Modify a face on a specific frame in a backward-compatible way.
@@ -990,7 +1021,7 @@ symbol 'ign' does nothing."
 
   (when fg (set-face-foreground face fg frame))
   (when bg (set-face-background face bg frame))
-  (unless running-xemacs
+  (unless-running-xemacs
     (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
     (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
   (unless (eq underline-p 'ign) (set-face-underline-p face underline-p frame)))
@@ -1167,7 +1198,7 @@ a similar alias to avoid bucking the trend.")
 
   ;; Horizontal scroll by page is nice, but some finer-grained control is
   ;; better.
-  (unless running-xemacs
+  (unless-running-xemacs
     (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
     (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t))))
 
@@ -1229,7 +1260,7 @@ a similar alias to avoid bucking the trend.")
 
   (global-set-key [delete]      #'delete-char)
   (global-set-key [kp-delete]   #'delete-char)
-  (unless running-xemacs
+  (unless-running-xemacs
     (global-set-key [C-delete]    #'kill-word)
     (global-set-key [C-kp-delete] #'kill-word)
     (global-set-key [C-tab]       #'other-frame)
@@ -1493,7 +1524,7 @@ Before version 22, the font system had a different set of APIs."
   (if (< 22 emacs-major-version)
       (find-font (font-spec :name font-name))
     (not (null
-          (if running-xemacs (list-fonts font-name)
+          (if-running-xemacs (list-fonts font-name)
             (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
 
 (defun compat-display-color-cells ()
@@ -1504,7 +1535,7 @@ Before version 21, the font system had a different set of APIs."
 
   ;; TODO: XEmacs is hard-coded :(
   (if (< 20 emacs-major-version)
-      (if running-xemacs 256 (display-color-cells))
+      (if-running-xemacs 256 (display-color-cells))
     (length (x-defined-colors)))) ; Very approximate...
 
 (defun dark-background-p (frame)
