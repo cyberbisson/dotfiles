@@ -90,7 +90,7 @@
 
 (defmacro if-running-xemacs (then &rest else)
   "If this is XEmacs, execute THEN, otherwise run the ELSE body."
-  (if (running-xemacs-p) (list then) (cons 'progn else)))
+  (if (running-xemacs-p) then (cons 'progn else)))
 
 (defmacro unless-running-xemacs (&rest body)
   "Execute BODY unless this is XEmacs."
