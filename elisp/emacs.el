@@ -63,11 +63,23 @@
 ;; - Some bits of `customize-font-lock' make global changes based on what
 ;;   happens to be the current frame.  The same goes for toolbar and menu
 ;;   alterations.
-;; - Optimize some code paths at compile time, namely those that check
-;;   `running-xemacs'.  Perhaps a macro that does some byte-compilation is in
-;;   order.
 
 ;;; Code:
+
+;; Set this to T to see what gets loaded (and when) in the *Messages* buffer.
+;; It is located first for obvious reasons.
+(setq force-load-messages nil)
+
+;; Put this early in the file to control the behavior of the Macros section.
+(eval-and-compile
+  (defvar lock-dotfile-version t
+    "Determines if the configuration should 'lock' to a particular Emacs version
+by compiling version checks out of existence.
+
+If NIL, the configuration will dynamically check what features may run by
+examining the Emacs major version.  If T, branches will be removed during
+compilation, and the configuration will only be valid for the Emacs major
+version on which it was compiled."))
 
 ;; -----------------------------------------------------------------------------
 ;; Macros:
@@ -80,25 +92,70 @@
 ;; (i.e., we're either compiling for XEmacs or GNU Emacs).
 ;; -----------------------------------------------------------------------------
 
+;; These macros optimize compilation, so they only need to exist there.  If you
+;; edit this file, you may wish to temporarily comment this line, because it
+;; helps indentation and syntax highlighting work better...
+(eval-when-compile
+
+;; TODO: Validate on older versions of Emacs.
+;;(unless (fboundp 'declare)
+;;  (defmacro declare (&rest _specs)
+;;    ""
+;;    nil))
+
 ;;
 ;; Are we running XEmacs or GNU Emacs?
 ;;
 
 (defmacro running-xemacs-p ()
   "Test if this running instance is XEmacs."
-  (string-match "XEmacs\\|Lucid" emacs-version))
+  (if (boundp 'running-xemacs)
+      running-xemacs
+    (string-match "XEmacs\\|Lucid" emacs-version)))
 
 (defmacro if-running-xemacs (then &rest else)
   "If this is XEmacs, execute THEN, otherwise run the ELSE body."
+  (declare (indent 0) (debug t))
   (if (running-xemacs-p) then (cons 'progn else)))
 
 (defmacro unless-running-xemacs (&rest body)
   "Execute BODY unless this is XEmacs."
+  (declare (indent 0) (debug t))
   (if (not (running-xemacs-p)) (cons 'progn body) nil))
 
 (defmacro when-running-xemacs (&rest body)
   "Execute BODY if this is XEmacs."
+  (declare (indent 0) (debug t))
   (if (running-xemacs-p) (cons 'progn body) nil))
+
+;;
+;; Conditional versioning optimizations (controlled by `lock-dotfile-version').
+;;
+
+(defmacro version-if (cond then &rest else)
+  "If COND yeilds non-nil, do THEN, else do ELSE...
+
+This function is specifically designed for Emacs version checks.  This interacts
+with `lock-dotfile-version' to either behave like a normal `if' statement, or to
+completely evaluate the test at compile time."
+  (declare (indent 1) (debug t))
+  (if lock-dotfile-version
+      ;; To optimize compiled Emacs Lisp to only the file for which this was
+      ;; compiled, use the following form:
+      (if (eval cond) then `(progn ,@else))
+    ;; To enable multiple versions of Emacs from a single compiled file, use
+    ;; the following form:
+    `(if ,cond ,then ,@else)))
+
+(defmacro version-when (cond &rest body)
+  "Execute BODY based on COND.
+
+Depending on the value of `lock-dotfile-version', COND may be evaluated at
+compile time."
+  (declare (indent 1) (debug t))
+  `(version-if ,cond (progn ,@body) nil))
+
+) ;; END eval-when-compile
 
 ;; -----------------------------------------------------------------------------
 ;; Compatibility functions:
@@ -115,12 +172,12 @@
 Prior to Emacs 23.2, `called-interactively-p' took no parameters, but they made
 a backwards-incompitable change to add a parameter, so this macro exists for
 compatibility purposes."
-  (if (or (and (= 23 emacs-major-version) (< 1 emacs-minor-version))
-          (< 23 emacs-major-version))
-      '(called-interactively-p 'interactive)
+  (version-if (or (and (= 23 emacs-major-version) (< 1 emacs-minor-version))
+                  (< 23 emacs-major-version))
+    '(called-interactively-p 'interactive)
     '(called-interactively-p)))
 
-(unless (fboundp 'declare-function)
+(version-if (not (fboundp 'declare-function))
   ;; taken from Emacs 22.2, not present in 22.1:
   (defmacro declare-function (&rest _args)
     "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler warnings.
@@ -136,20 +193,20 @@ and still remain compatible with Emacs 22."
 
 ;; `mapc' is a built-in function only starting with Emacs 21, and we use it
 ;; extensively in this file.
-(if (> 21 emacs-major-version) (require 'cl))
+(version-if (> 21 emacs-major-version) (require 'cl))
 
 (unless-running-xemacs
   (defmacro set-specifier (&rest _args)
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
     nil))
 
-(if (> 22 emacs-major-version)
-    (defun warn (fmt-message &rest args)
-      "Display a warning message as an error.
+(version-if (> 22 emacs-major-version)
+  (defun warn (fmt-message &rest args)
+    "Display a warning message as an error.
 
 This generates the message with `format', using FMT-MESSAGE and ARGS.  Warnings
 were not introduced until Emacs 22."
-      (error (apply #'format fmt-message args))))
+    (error (apply #'format fmt-message args))))
 
 ;; -----------------------------------------------------------------------------
 ;; Compile-time "Requirements":
@@ -202,19 +259,19 @@ were not introduced until Emacs 22."
 ;; Global constants:
 ;; -----------------------------------------------------------------------------
 
-;; Uncomment this to see what gets loaded and when in the *Messages* buffer...
-;;(setq force-load-messages t)
+(defconst compiled-dotfile-version
+  (if lock-dotfile-version emacs-major-version nil)
+  "If `lock-dotfile-version' is T, this reports the version that is locked.")
 
 (defconst custom-loaddefs-file "~/elisp/cust-loaddefs.el"
-  "The file containing generated autoload content for my own custom set of
-modules.")
+  "This is the file containing generated autoload content for my own custom set
+of modules.")
 
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
 windows.")
 
-(defconst running-xemacs
-  (if (boundp 'running-xemacs) running-xemacs (running-xemacs-p))
+(defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
 
 ;; -----------------------------------------------------------------------------
@@ -222,9 +279,9 @@ windows.")
 ;; -----------------------------------------------------------------------------
 
 (defvar custom-environments '()
-  "Contains a list of symbols to identify what customized environments are used
-in this Emacs session.  For instance, `\\='(palm vmware)' indicates that both
-Palm and VMware development modules should be present.
+  "This contains a list of symbols to identify what customized environments are
+used in this Emacs session.  For instance, `\\='(palm vmware)' indicates that
+both Palm and VMware development modules should be present.
 
 The function `provide-customized-features' populates this structure, and it can
 be utilized any time after that.")
@@ -425,7 +482,7 @@ is light.")
             (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data))))
     (add-to-list 'custom-environments 'vmware-dev))
 
-  (if (< 19 emacs-major-version) (provide-customized-features-20)))
+  (version-if (< 19 emacs-major-version) (provide-customized-features-20)))
 
 (defun provide-customized-features-20 ()
   "Load features that only work with Emacs 20 and above."
@@ -454,14 +511,14 @@ is light.")
       ;; Perforce, "are we looking at a version file yet??"
       (require 'p4))
 
-  (if (< 22 emacs-major-version) (provide-customized-features-23)))
+  (version-if (< 22 emacs-major-version) (provide-customized-features-23)))
 
 (defun provide-customized-features-23 ()
   "Load features that only work with Emacs 23 and above."
 
   (if (file-exists-p "~/elisp/undo-tree.elc") (global-undo-tree-mode))
 
-  (if (< 23 emacs-major-version) (provide-customized-features-24)))
+  (version-if (< 23 emacs-major-version) (provide-customized-features-24)))
 
 (defun provide-customized-features-24 ()
   "Load features that only work with Emacs 24 and above."
@@ -486,6 +543,12 @@ is light.")
 
 (defun custom-configure-emacs ()
   "This is the full configuration/customization function for Emacs."
+
+  (if (and lock-dotfile-version
+           (not (= compiled-dotfile-version emacs-major-version)))
+      (warn (concat "Emacs initialization file has been locked to (major) "
+                    "version %d (running: %d)")
+            compiled-dotfile-version emacs-major-version))
 
   (provide-customized-features)
 
@@ -651,7 +714,7 @@ is light.")
     (custom-configure-for-xwindows))
 
   ;; Descend into version-specific customizations.
-  (if (< 19 emacs-major-version) (custom-configure-emacs-20))
+  (version-if (< 19 emacs-major-version) (custom-configure-emacs-20))
 
   ;; Now that we've detected what custom development environments we're using
   ;; from `provide-customized-features', call the configuration functions as
@@ -670,8 +733,8 @@ is light.")
 
   (unless-running-xemacs (show-paren-mode 1))
 
-  (if (< 20 emacs-major-version)
-      (custom-configure-emacs-21)
+  (version-if (< 20 emacs-major-version)
+    (custom-configure-emacs-21)
     (display-battery)))
 
 (defun custom-configure-emacs-21 ()
@@ -707,7 +770,7 @@ is light.")
       (error nil)) ; Ignore errors if AC powered!
     (unless display-battery-mode (unload-feature 'battery)))
 
-  (if (< 21 emacs-major-version) (custom-configure-emacs-22)))
+  (version-if (< 21 emacs-major-version) (custom-configure-emacs-22)))
 
 (defun custom-configure-emacs-22 ()
   "Customizations that are only applicable to Emacs 22 and above."
@@ -727,7 +790,7 @@ is light.")
   (unless-running-xemacs (global-whitespace-mode 1))
   (setq whitespace-style '(face trailing table lines empty tab-mark))
 
-  (if (< 22 emacs-major-version) (custom-configure-emacs-23)))
+  (version-if (< 22 emacs-major-version) (custom-configure-emacs-23)))
 
 (defun custom-configure-emacs-23 ()
   "Customizations that are only applicable to Emacs 23 and above."
@@ -829,7 +892,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
       (setq frame-background-mode (get-macos-terminal-bg-mode))
     (set-bg-mode-from-colorfgbg))
 
-  (when (< 24 emacs-major-version)
+  (version-when (< 24 emacs-major-version)
     ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore the
     ;; frameset that was saved in the desktop, it must call
     ;; `desktop-restoring-frameset-p', which in turn checks the function
@@ -955,10 +1018,10 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   (require 'font-lock)
 
   ;; By default, this face is UNREADABLE.
-  (if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-          (< 20 emacs-major-version))
-      ;; TODO: `make-face' seems to indicate a logic error here...
-      (make-face 'sh-heredoc)
+  (version-if (or (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
+                  (< 20 emacs-major-version))
+    ;; TODO: `make-face' seems to indicate a logic error here...
+    (make-face 'sh-heredoc)
     (make-face 'font-lock-doc-face))
 
   ;; Go all out with the font colors
@@ -1009,7 +1072,7 @@ The FRAME parameter specifies which frame will be altered."
        (if-running-xemacs nil frame))))
 
 (defun modify-face-compat (face fg bg bold-p italic-p underline-p frame)
-  "Modify a face on a specific frame in a backward-compatible way.
+  "Modify a FACE on a specific FRAME in a backward-compatible way.
 
 This function behaves similarly to the interactive function, `modify-face',
 (which is not preferred for non-interactive use).  It would be best to use
@@ -1059,13 +1122,13 @@ WHICH-FRAME parameter specifies the frame whose faces will be altered."
 
   (modify-font-lock-faces faces-alist faces-all-versions which-frame)
 
-  (when (< 19 emacs-major-version)
+  (version-when (< 19 emacs-major-version)
     (modify-font-lock-faces faces-alist faces-version-20 which-frame)
-    (if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
-        (modify-font-lock-faces faces-alist faces-version-20-2 which-frame))
-    (when (< 20 emacs-major-version)
+    (version-if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
+      (modify-font-lock-faces faces-alist faces-version-20-2 which-frame))
+    (version-if (< 20 emacs-major-version)
       (modify-font-lock-faces faces-alist faces-version-21 which-frame)
-      (when (< 24 emacs-major-version)
+      (version-if (< 24 emacs-major-version)
         (modify-font-lock-faces faces-alist faces-version-25 which-frame)))))
 
 ;; -----------------------------------------------------------------------------
@@ -1376,14 +1439,14 @@ Optionally, COUNT may be given to skip more than one frame at a time."
 
 
 (defun make-cli-frame ()
-  "Creates a new frame to have one large window, covering 2/3 of the frame
-width, with 2 smaller windows (stacked vertically) to the right of it.  The idea
-is to have a large space for a CLI, with two smaller windows for notes, etc."
+  "Create a new frame to have one large window, covering 2/3 of the frame width,
+with 2 smaller windows (stacked vertically) to the right of it.  The idea is to
+have a large space for a CLI, with two smaller windows for notes, etc."
   (interactive)
   (reset-to-cli-frame t))
 
 (defun reset-to-cli-frame (&optional make-new-frame tgt-frame-width)
-  "Re-organizes a frame to have one large window, covering 2/3 of the frame
+  "Re-organize a frame to have one large window, covering 2/3 of the frame
 width, with 2 smaller windows (stacked vertically) to the right of it.  The idea
 is to have a large space for a CLI, with two smaller windows for notes, etc.
 
@@ -1521,10 +1584,11 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
 This function does so in a way that is compatible with all versions of Emacs.
 Before version 22, the font system had a different set of APIs."
 
-  (if (< 22 emacs-major-version)
-      (find-font (font-spec :name font-name))
+  (version-if (< 22 emacs-major-version)
+    (find-font (font-spec :name font-name))
     (not (null
-          (if-running-xemacs (list-fonts font-name)
+          (if-running-xemacs
+              (list-fonts font-name)
             (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
 
 (defun compat-display-color-cells ()
@@ -1534,8 +1598,8 @@ This function does so in a way that is compatible with all versions of Emacs.
 Before version 21, the font system had a different set of APIs."
 
   ;; TODO: XEmacs is hard-coded :(
-  (if (< 20 emacs-major-version)
-      (if-running-xemacs 256 (display-color-cells))
+  (version-if (< 20 emacs-major-version)
+    (if-running-xemacs 256 (display-color-cells))
     (length (x-defined-colors)))) ; Very approximate...
 
 (defun dark-background-p (frame)
@@ -1575,7 +1639,7 @@ finds no fonts, it uses the DEFAULT-FONT-NAME."
           (find-first-defined-font default-font-name rest-font-names))))))
 
 (defun ideal-frame-width (window-count)
-  "Computes the width in 'columns' that a frame must be to accommodate
+  "Compute the width in 'columns' that a frame must be to accommodate
 WINDOW-COUNT windows horizontally.
 
 Note that on a TTY, columns is exact, but on a GUI, the columns is whatever
@@ -1651,7 +1715,7 @@ restoration, and it is optional.  It should have the same behavior as
 
 ;; TODO!  In Emacs 21 and below, this must be done with `desktop-buffer-handler'
 ;; instead.  This shouldn't be too hard.
-(when (< 21 emacs-major-version)
+(version-when (< 21 emacs-major-version)
   (let ((mode-hook (or init-hook
                        (intern (concat (symbol-name buf-major-mode) "-hook")))))
     (add-hook mode-hook #'(lambda () (setq desktop-save-buffer t)))
