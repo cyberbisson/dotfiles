@@ -92,6 +92,14 @@ version on which it was compiled."))
 ;; (i.e., we're either compiling for XEmacs or GNU Emacs).
 ;; -----------------------------------------------------------------------------
 
+;; This is outside the eval block because it seems older Emacs cannot evaluate
+;; nested macros.
+(defmacro running-xemacs-p ()
+  "Test if this running instance is XEmacs."
+  (if (boundp 'running-xemacs)
+      running-xemacs
+    (string-match "XEmacs\\|Lucid" emacs-version)))
+
 ;; These macros optimize compilation, so they only need to exist there.  If you
 ;; edit this file, you may wish to temporarily comment this line, because it
 ;; helps indentation and syntax highlighting work better...
@@ -106,12 +114,6 @@ version on which it was compiled."))
 ;;
 ;; Are we running XEmacs or GNU Emacs?
 ;;
-
-(defmacro running-xemacs-p ()
-  "Test if this running instance is XEmacs."
-  (if (boundp 'running-xemacs)
-      running-xemacs
-    (string-match "XEmacs\\|Lucid" emacs-version)))
 
 (defmacro if-running-xemacs (then &rest else)
   "If this is XEmacs, execute THEN, otherwise run the ELSE body."
@@ -131,6 +133,11 @@ version on which it was compiled."))
 ;;
 ;; Conditional versioning optimizations (controlled by `lock-dotfile-version').
 ;;
+
+(defmacro get-compiled-dotfile-version ()
+  "Return the version the configuration was compiled against.  This is NIL if
+`lock-dotfile-version' is NIL."
+  (if lock-dotfile-version emacs-major-version nil))
 
 (defmacro version-if (cond then &rest else)
   "If COND yeilds non-nil, do THEN, else do ELSE...
@@ -260,7 +267,7 @@ were not introduced until Emacs 22."
 ;; -----------------------------------------------------------------------------
 
 (defconst compiled-dotfile-version
-  (if lock-dotfile-version emacs-major-version nil)
+  (get-compiled-dotfile-version)
   "If `lock-dotfile-version' is T, this reports the version that is locked.")
 
 (defconst custom-loaddefs-file "~/elisp/cust-loaddefs.el"
