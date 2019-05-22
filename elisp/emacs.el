@@ -92,24 +92,26 @@ version on which it was compiled."))
 ;; (i.e., we're either compiling for XEmacs or GNU Emacs).
 ;; -----------------------------------------------------------------------------
 
-;; This is outside the eval block because it seems older Emacs cannot evaluate
-;; nested macros.
+(eval-and-compile
+
+;; This is outside the `eval-when-compile' block because it seems older Emacs
+;; cannot evaluate nested macros.
 (defmacro running-xemacs-p ()
   "Test if this running instance is XEmacs."
   (if (boundp 'running-xemacs)
       running-xemacs
     (string-match "XEmacs\\|Lucid" emacs-version)))
 
+;; Provide older versions of Emacs with a `declare' macro.  This should only be
+;; required for Emacs versions prior to 21.
+(unless (fboundp 'declare) (require 'cl))
+
+) ;; END eval-and-compile
+
 ;; These macros optimize compilation, so they only need to exist there.  If you
 ;; edit this file, you may wish to temporarily comment this line, because it
 ;; helps indentation and syntax highlighting work better...
 (eval-when-compile
-
-;; TODO: Validate on older versions of Emacs.
-;;(unless (fboundp 'declare)
-;;  (defmacro declare (&rest _specs)
-;;    ""
-;;    nil))
 
 ;;
 ;; Are we running XEmacs or GNU Emacs?
@@ -207,13 +209,14 @@ and still remain compatible with Emacs 22."
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
     nil))
 
-(version-if (> 22 emacs-major-version)
-  (defun warn (fmt-message &rest args)
-    "Display a warning message as an error.
+(unless-running-xemacs
+  (version-if (> 22 emacs-major-version)
+    (defun warn (fmt-message &rest args)
+      "Display a warning message as an error.
 
 This generates the message with `format', using FMT-MESSAGE and ARGS.  Warnings
 were not introduced until Emacs 22."
-    (error (apply #'format fmt-message args))))
+      (error (apply #'format fmt-message args)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Compile-time "Requirements":
@@ -255,12 +258,13 @@ were not introduced until Emacs 22."
       (when (< 22 emacs-major-version)
         (require 'gtags)
         (require 'org)
-        (require 'ox-html)
         (require 'xgtags))
       (when (< 23 emacs-major-version)
         (require 'gdb-mi)
         (require 'clang-format)
-        (require 'vmw-c-dev)))))
+        (require 'vmw-c-dev))
+      (when (< 24 emacs-major-version)
+        (require 'ox-html)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Global constants:
