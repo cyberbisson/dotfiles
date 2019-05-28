@@ -68,7 +68,11 @@
 
 ;; Set this to T to see what gets loaded (and when) in the *Messages* buffer.
 ;; It is located first for obvious reasons.
-(setq force-load-messages nil)
+;;;(setq force-load-messages t)
+
+;; This is actually interesting on older Emacs to see what exactly doesn't ever
+;; get used.
+;;;(setq byte-compile-generate-call-tree t)
 
 ;; Put this early in the file to control the behavior of the Macros section.
 (eval-and-compile
@@ -92,8 +96,22 @@ version on which it was compiled."))
 ;; (i.e., we're either compiling for XEmacs or GNU Emacs).
 ;; -----------------------------------------------------------------------------
 
-(eval-and-compile
+;; These macros optimize compilation, so they only need to exist there.  If you
+;; edit this file, you may wish to start Emacs with "-q -l emacs.el", because it
+;; helps indentation and syntax highlighting work better...
+;;
+;; On older Emacs versions, the `eval' part of `eval-when-compile' doesn't
+;; happen until the statement completes, so things break when you have a macro
+;; based on a macro from the same `eval-when-compile' statement.  Consequently,
+;; we have one statement that injects definitions into the compilation
+;; environment for the second statement.
+(eval-when-compile
 
+;; Provide older versions of Emacs with a `declare' macro.  This should only be
+;; required for Emacs versions prior to 21.
+(unless (fboundp 'declare) (require 'cl))
+
+;;(setq byte-compile-call-tree t)
 ;; This is outside the `eval-when-compile' block because it seems older Emacs
 ;; cannot evaluate nested macros.
 (defmacro running-xemacs-p ()
@@ -102,15 +120,9 @@ version on which it was compiled."))
       running-xemacs
     (string-match "XEmacs\\|Lucid" emacs-version)))
 
-;; Provide older versions of Emacs with a `declare' macro.  This should only be
-;; required for Emacs versions prior to 21.
-(unless (fboundp 'declare) (require 'cl))
+) ;; END eval-when-compile
 
-) ;; END eval-and-compile
-
-;; These macros optimize compilation, so they only need to exist there.  If you
-;; edit this file, you may wish to temporarily comment this line, because it
-;; helps indentation and syntax highlighting work better...
+;; Part II: See the eval-when-compile above.
 (eval-when-compile
 
 ;;
