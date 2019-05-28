@@ -198,6 +198,32 @@ compatibility purposes."
     '(called-interactively-p 'interactive)
     '(called-interactively-p)))
 
+(defun compat-display-color-cells (frame)
+  "Return the number of colors (color cells) that FRAME supports.
+
+This function does so in a way that is compatible with all versions of Emacs.
+Before version 21, the font system had a different set of APIs."
+
+  ;; TODO: XEmacs is hard-coded :(
+  (if-running-xemacs
+    256
+    (version-if (< 20 emacs-major-version)
+      (display-color-cells frame)
+      (length (x-defined-colors frame))))) ; Very approximate...
+
+(defun compat-font-exists-p (font-name)
+  "Determine if a font (given by FONT-NAME) exists by its name.
+
+This function does so in a way that is compatible with all versions of Emacs.
+Before version 22, the font system had a different set of APIs."
+
+  (version-if (< 22 emacs-major-version)
+    (find-font (font-spec :name font-name))
+    (not (null
+          (if-running-xemacs
+              (list-fonts font-name)
+            (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
+
 (version-if (not (fboundp 'declare-function))
   ;; taken from Emacs 22.2, not present in 22.1:
   (defmacro declare-function (&rest _args)
@@ -1085,7 +1111,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   "Customize the color settings on a per-frame basis.
 
 The FRAME parameter specifies which frame will be altered."
-  (if (< 255 (compat-display-color-cells))
+  (if (< 255 (compat-display-color-cells frame))
       ;; Give me some nice pretty colors...
       (update-emacs-font-lock-faces
        (if (dark-background-p frame) bg-dark-faces bg-light-faces)
@@ -1600,30 +1626,6 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
                ((null buf-file1) nil)
                ((null buf-file2) t)
                (t (string< buf-file1 buf-file2)))))))
-
-(defun compat-font-exists-p (font-name)
-  "Determine if a font (given by FONT-NAME) exists by its name.
-
-This function does so in a way that is compatible with all versions of Emacs.
-Before version 22, the font system had a different set of APIs."
-
-  (version-if (< 22 emacs-major-version)
-    (find-font (font-spec :name font-name))
-    (not (null
-          (if-running-xemacs
-              (list-fonts font-name)
-            (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
-
-(defun compat-display-color-cells ()
-  "Return the number of colors (color cells) that the display supports.
-
-This function does so in a way that is compatible with all versions of Emacs.
-Before version 21, the font system had a different set of APIs."
-
-  ;; TODO: XEmacs is hard-coded :(
-  (version-if (< 20 emacs-major-version)
-    (if-running-xemacs 256 (display-color-cells))
-    (length (x-defined-colors)))) ; Very approximate...
 
 (defun dark-background-p (frame)
   "Determine if Emacs considers the background color to be 'dark'.
