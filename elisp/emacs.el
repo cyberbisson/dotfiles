@@ -357,7 +357,7 @@ be utilized any time after that.")
 I do not search for more than this because I want to keep pretty tight control
 on what gets loaded into my Emacs.  Any other files not in this list are
 probably something I'm playing with, and will have to be dealt with manually for
-the time ebeing.")
+the time being.")
 
 ;; =========================================================
 ;; Font coloring configuration:
@@ -383,8 +383,8 @@ the time ebeing.")
     (sh-heredoc                   "Chocolate"     nil nil nil nil)
 
     ;; Changing the background here:
-    (highlight                    nil "CadetBlue" ign ign ign)
-    (region                       nil "Firebrick" ign ign ign))
+    (highlight                    ign "CadetBlue" ign ign ign)
+    (region                       ign "Firebrick" ign ign ign))
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is dark.")
 
@@ -403,8 +403,8 @@ is dark.")
     (sh-heredoc                   "Chocolate"     nil nil nil nil)
 
     ;; Changing the background here:
-    (highlight                     nil "CadetBlue"       ign ign ign)
-    (region                        nil "LightSteelBlue3" ign ign ign)
+    (highlight                     ign "CadetBlue"       ign ign ign)
+    (region                        ign "LightSteelBlue3" ign ign ign)
 
     ;; On light colored terminals, the mode-line can sometimes be annoyingly
     ;; similar between active and inactive windows.
@@ -417,15 +417,15 @@ is light.")
 ;; horrible.  They look fine on X, but it's so bad on the terminal, I'm changing
 ;; it.
 (defconst diff-faces
-  '((dark . ((diff-added   nil "DarkGreen" ign ign ign)
-             (diff-removed nil "DarkRed"   ign ign ign))))
+  '((dark . ((diff-added   ign "DarkGreen" ign ign ign)
+             (diff-removed ign "DarkRed"   ign ign ign))))
   "Custom faces for `diff-mode'.  These are modified lazily.")
 
 (defconst ediff-faces
   '((dark
-     . ((ediff-current-diff-A         nil "DarkRed"   ign ign ign)
-        (ediff-current-diff-B         nil "DarkGreen" ign ign ign)
-        (ediff-current-diff-Ancestor  nil "DarkGreen" ign ign ign))))
+     . ((ediff-current-diff-A         ign "DarkRed"   ign ign ign)
+        (ediff-current-diff-B         ign "DarkGreen" ign ign ign)
+        (ediff-current-diff-Ancestor  ign "DarkGreen" ign ign ign))))
   "Custom faces for `ediff-mode'.  These are modified lazily.")
 
 (defconst ebrowse-faces
@@ -434,8 +434,8 @@ is light.")
   "Custom faces for `ebrowse-mode'.  These are modified lazily.")
 
 (defconst gud-faces
-  '((dark  . ((gdb-selection nil "MidnightBlue"  ign ign ign)))
-    (light . ((gdb-selection nil "DarkSeaGreen3" ign ign ign))))
+  '((dark  . ((gdb-selection ign "MidnightBlue"  ign ign ign)))
+    (light . ((gdb-selection ign "DarkSeaGreen3" ign ign ign))))
   "Custom faces for `gud-mode'.  These are modified lazily.")
 
 (defconst whitespace-faces
@@ -1131,8 +1131,8 @@ colors, and they may be NIL.  BOLD-P, ITALIC-P, and UNDERLINE-P enable or
 disable boldness, italics, and underlines (respectively), and the special
 symbol 'ign' does nothing."
 
-  (when fg (set-face-foreground face fg frame))
-  (when bg (set-face-background face bg frame))
+  (unless (eq fg 'ign) (set-face-foreground face fg frame))
+  (unless (eq bg 'ign) (set-face-background face bg frame))
   (unless-running-xemacs
     (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
     (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
@@ -1175,9 +1175,9 @@ WHICH-FRAME parameter specifies the frame whose faces will be altered."
     (modify-font-lock-faces faces-alist faces-version-20 which-frame)
     (version-if (and (= 20 emacs-major-version) (< 2 emacs-minor-version))
       (modify-font-lock-faces faces-alist faces-version-20-2 which-frame))
-    (version-if (< 20 emacs-major-version)
+    (version-when (< 20 emacs-major-version)
       (modify-font-lock-faces faces-alist faces-version-21 which-frame)
-      (version-if (< 24 emacs-major-version)
+      (version-when (< 24 emacs-major-version)
         (modify-font-lock-faces faces-alist faces-version-25 which-frame)))))
 
 ;; -----------------------------------------------------------------------------
