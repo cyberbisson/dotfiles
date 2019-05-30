@@ -267,14 +267,24 @@ were not introduced until Emacs 22."
   (eval-when-compile
     (require 'bytecomp)
 
-    (let ((this-file-name (or load-file-name ;; One of these will work...
-                              byte-compile-current-file
-                              byte-compile-dest-file
-                              buffer-file-name)))
+    (let* ((this-file-name (or load-file-name ;; One of these will work...
+                               byte-compile-current-file
+                               byte-compile-dest-file
+                               buffer-file-name))
+           ;; A heuristic to determine if this emacs.el is separated from the
+           ;; rest of my added packages (that will be required below).  If there
+           ;; is 1 or fewer files named .el (assuming emacs.el is one of them),
+           ;; this is a "stand-alone" file.
+           (stand-alone (>= 1 (length (directory-files
+                                       (file-name-directory this-file-name)
+                                       t
+                                       "^[^.].+\.el$")))))
+
       ;; When compiling, make sure that `require' finds all the Emacs modules
       ;; next to 'emacs.el'.  They may or may not make it into the `load-path'
       ;; for a running Emacs session.
-      (add-to-list 'load-path (file-name-directory this-file-name))
+      (unless stand-alone
+        (add-to-list 'load-path (file-name-directory this-file-name)))
 
       (require 'battery)
       (require 'cc-vars)
@@ -291,16 +301,17 @@ were not introduced until Emacs 22."
         ;; Legacy: replaced with `display-battery-mode'.
         (declare-function display-battery ()))
       (when (< 21 emacs-major-version)
-        (require 'undo-tree)
+        (unless stand-alone (require 'undo-tree))
         (require 'whitespace))
       (when (< 22 emacs-major-version)
-        (require 'gtags)
+        (unless stand-alone (require 'gtags))
         (require 'org)
-        (require 'xgtags))
+        (unless stand-alone (require 'xgtags)))
       (when (< 23 emacs-major-version)
         (require 'gdb-mi)
-        (require 'clang-format)
-        (require 'vmw-c-dev))
+        (unless stand-alone
+          (require 'clang-format)
+          (require 'vmw-c-dev)))
       (when (< 24 emacs-major-version)
         (require 'ox-html)))))
 
