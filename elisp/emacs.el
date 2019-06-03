@@ -743,12 +743,12 @@ is light.")
        (define-key term-raw-map (kbd "C-c M-y") #'yank-pop))) ;; Doesn't work.
 
   ;; Provide some nice GUI tools from the Emacs command-line for diff and merge
-  (add-to-list 'command-switch-alist '("--diff"  . command-line-diff))
-  (add-to-list 'command-switch-alist '("--merge" . command-line-merge))
+  (add-to-list 'command-switch-alist `("--diff"  . ,#'command-line-diff))
+  (add-to-list 'command-switch-alist `("--merge" . ,#'command-line-merge))
 
   ;; Allow us to "name" our Emacs instance from the command line
   (add-to-list 'command-switch-alist
-               '("--instance-id" . command-line-instance-id))
+               `("--instance-id" . ,#'command-line-instance-id))
 
   (unless-running-xemacs
     ;; Show me the time, so I can tell how bored I am.  Have to update the time
@@ -856,7 +856,7 @@ is light.")
   "Customizations that are only applicable to Emacs 23 and above."
   ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
   ;; the `auto-mode-alist'.
-  (setq auto-mode-alist (append '(("\\.org$" . org-mode)) auto-mode-alist)))
+  (setq auto-mode-alist (append `(("\\.org$" . ,#'org-mode)) auto-mode-alist)))
 
 ;; -----------------------------------------------------------------------------
 ;; Customizations for Specific Modules:
@@ -878,45 +878,45 @@ is light.")
     ;; NOTE: `mediawiki-mode' is not autoload enabled...
     (autoload 'mediawiki-mode "media-wiki" "Edit wiki documents." t)
     (setq auto-mode-alist
-          (append '(("\\.wiki$" . mediawiki-mode)) auto-mode-alist)))
+          (append `(("\\.wiki$" . ,#'mediawiki-mode)) auto-mode-alist)))
 
   ;; Load Batch-script stuff.
   (setq auto-mode-alist
         (append (if (file-exists-p "~/elisp/dos.elc")
                     (progn
                       (autoload 'dos-mode "dos" "Edit Dos scripts." t)
-                      '(("\\.bat$" . dos-mode) ("\\.cmd$" . dos-mode)))
-                  '(("\\.bat$" . sh-mode)  ("\\.cmd$" . sh-mode)))
+                      `(("\\.bat$" . ,#'dos-mode) ("\\.cmd$" . ,#'dos-mode)))
+                  `(("\\.bat$" . ,#'sh-mode)  ("\\.cmd$" . ,#'sh-mode)))
                 auto-mode-alist))
 
   (when (file-exists-p "~/elisp/visual-basic-mode.elc")
     (autoload 'visual-basic-mode "visual-basic-mode" "Visual Basic mode." t)
     (setq auto-mode-alist
-          (append '(("\\.bas$" . visual-basic-mode)
-                    ("\\.vb$"  . visual-basic-mode)
-                    ("\\.vbs$" . visual-basic-mode)))))
+          (append `(("\\.bas$" . ,#'visual-basic-mode)
+                    ("\\.vb$"  . ,#'visual-basic-mode)
+                    ("\\.vbs$" . ,#'visual-basic-mode)))))
 
   (setq auto-mode-alist
-        (append '(("\\.C$"       . c++-mode)
-                  ("\\.cc$"      . c++-mode)
-                  ("\\.H$"       . c++-mode)
-                  ("\\.h$"       . c++-mode)
-                  ("\\.hpp$"     . c++-mode)
-                  ("\\.i$"       . c++-mode)
-                  ("\\.rc$"      . c++-mode)
-                  ("\\.sc$"      . python-mode)
-                  ("\\.r$"       . c-mode)
-                  ("\\.make$"    . makefile-mode)
-                  ("\\.mk$"      . makefile-mode)
-                  ("[Mm]akefile" . makefile-mode)
-                  ("\\.M$"       . nroff-mode)
-                  ("\\.ms$"      . nroff-mode)
-                  ("sendmail.cf" . sh-mode) ;; Don't ask...
-                  ("Doxyfile"    . sh-mode) ;; Don't ask...
-                  ("\\.csh$"     . sh-mode)
-                  ("\\.ksh$"     . sh-mode)
-                  ("\\.sh$"      . sh-mode)
-                  ("\\.txt$"     . text-mode))
+        (append `(("\\.C$"       . ,#'c++-mode)
+                  ("\\.cc$"      . ,#'c++-mode)
+                  ("\\.H$"       . ,#'c++-mode)
+                  ("\\.h$"       . ,#'c++-mode)
+                  ("\\.hpp$"     . ,#'c++-mode)
+                  ("\\.i$"       . ,#'c++-mode)
+                  ("\\.rc$"      . ,#'c++-mode)
+                  ("\\.sc$"      . ,#'python-mode)
+                  ("\\.r$"       . ,#'c-mode)
+                  ("\\.make$"    . ,#'makefile-mode)
+                  ("\\.mk$"      . ,#'makefile-mode)
+                  ("[Mm]akefile" . ,#'makefile-mode)
+                  ("\\.M$"       . ,#'nroff-mode)
+                  ("\\.ms$"      . ,#'nroff-mode)
+                  ("sendmail.cf" . ,#'sh-mode) ;; Don't ask...
+                  ("Doxyfile"    . ,#'sh-mode) ;; Don't ask...
+                  ("\\.csh$"     . ,#'sh-mode)
+                  ("\\.ksh$"     . ,#'sh-mode)
+                  ("\\.sh$"      . ,#'sh-mode)
+                  ("\\.txt$"     . ,#'text-mode))
                 auto-mode-alist)))
 
 (defun custom-configure-backups (custom-backup-dir)
