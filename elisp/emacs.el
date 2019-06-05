@@ -53,10 +53,6 @@
 ;;; To-do:
 
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
-;; - Face customization should probably run more lazily.  This would not only
-;;   prevent creation of faces that aren't (yet) used, but solve issues where
-;;   the mode stomps on our preferences after loading (I'm looking at you,
-;;   ediff).
 ;; - `pop' doesn't exist in older Emacs, so command-line function should change!
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
 ;; - Consolodate various background-color detection functionality.
@@ -72,7 +68,11 @@
 
 ;; This is actually interesting on older Emacs to see what exactly doesn't ever
 ;; get used.
-;;;(setq byte-compile-generate-call-tree t)
+;;;(eval-when-compile (setq byte-compile-generate-call-tree t))
+
+;; Tell the byte-compiler to log everything it's modifying.  This can be
+;; interesting, but also make compilation warnings harder to see.
+;;;(eval-when-compile (setq byte-optimize-log t))
 
 ;; Put this early in the file to control the behavior of the Macros section.
 (eval-and-compile
@@ -993,50 +993,44 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
 
     (cond
      ((eq system-type 'windows-nt)
-      (list
-       ;; Preserve the background at configuration time for future frames.
-       ;; Because there's no .Xdefaults, we rely on command-line arguments.
-       (cons 'background-color
-             (frame-parameter (selected-frame) 'background-color))
+      ;; Preserve the background at configuration time for future frames.
+      ;; Because there's no .Xdefaults, we rely on command-line arguments.
+      `((background-color
+         . ,(frame-parameter (selected-frame) 'background-color))
 
-       ;; Determine the font we can use somewhat dynamically by falling through
-       ;; until we find one that exists on our system.
-       (cons 'font
-             (find-first-defined-font
-              "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
-              '(;; Consolas 11
-                "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
-                ;; Liberation Mono 9
-                "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
-                ;; Lucida Console 8 (thinner)
-                "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
+        ;; Determine the font we can use somewhat dynamically by falling through
+        ;; until we find one that exists on our system.
+        (font
+         . ,(find-first-defined-font
+             "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
+             '(;; Consolas 11
+               "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
+               ;; Liberation Mono 9
+               "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
+               ;; Lucida Console 8 (thinner)
+               "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
 
        ;; TODO: Perhaps this hard coded value should be given in a hook, or in
        ;; initial-frame-alist?
-       '(height . 70)
-       '(width  . 81)))
+       (height . 70)
+       (width  . 81)))
      ((eq system-type 'darwin)
-      (list
-       (cons 'font
-             (find-first-defined-font
-              "Menlo 12"
-              '("DejaVu Sans Mono 9")))
-       '(height . 60)
-       '(width  . 81)))
+      `((font . ,(find-first-defined-font "Menlo 12" '("DejaVu Sans Mono 9")))
+        (height . 60)
+        (width  . 81)))
      (t
-      (list
-       (if (eq system-type 'cygwin)
-           (cons 'font (find-first-defined-font "8x13" '("Consolas 9")) )
-         (cons 'font
-               (find-first-defined-font
-                "8x13"
-                '("DejaVu Sans Mono 9"; 10"
-                  "FreeMono 10"
-                  "Nimbus Mono L 10"
-                  "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
-               ))
-       (cons 'height (frame-parameter (selected-frame) 'height))
-       (cons 'width  (frame-parameter (selected-frame) 'width)))))))
+      `(,(if (eq system-type 'cygwin)
+             `(font . ,(find-first-defined-font "8x13" '("Consolas 9")))
+           `(font .
+             ,(find-first-defined-font
+               "8x13"
+               '("DejaVu Sans Mono 9"; 10"
+                 "FreeMono 10"
+                 "Nimbus Mono L 10"
+                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
+             ))
+        (height . ,(frame-parameter (selected-frame) 'height))
+        (width  . ,(frame-parameter (selected-frame) 'width)))))))
 
   ;; Print the name of the visited file in the title of the window...
   (set-emacs-title-format "%b")
