@@ -1187,8 +1187,13 @@ colors, and they may be NIL.  BOLD-P, ITALIC-P, and UNDERLINE-P enable or
 disable boldness, italics, and underlines (respectively), and the special
 symbol 'ign' does nothing."
 
-  (unless (eq fg 'ign) (set-face-foreground face fg frame))
-  (unless (eq bg 'ign) (set-face-background face bg frame))
+  (if-running-xemacs
+    (progn ;; XEmacs doesn't like setting colors to NIL.
+      (unless (or (null fg) (eq fg 'ign)) (set-face-foreground face fg frame))
+      (unless (or (null bg) (eq bg 'ign)) (set-face-background face bg frame)))
+    (progn
+      (unless (eq fg 'ign) (set-face-foreground face fg frame))
+      (unless (eq bg 'ign) (set-face-background face bg frame))))
   (unless-running-xemacs
     (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
     (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
