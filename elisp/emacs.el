@@ -38,7 +38,10 @@
 ;;   added benefit of not requiring version checks, because the module simply
 ;;   won't be loaded, and incompatible code won't run.  The flip-side of this is
 ;;   that a module rename will cause customizations to mysteriously no longer
-;;   happen.
+;;   happen.  Note: be careful when registering hooks in `eval-after-load'
+;;   bodies, because it might be after the first mode's hook has run.  For
+;;   `cc-mode' specifically, we're using `c-initialization-hook' to solve this
+;;   problem.
 ;;
 ;; - This file should only use `declare-function' or `defvar' to stifle warnings
 ;;   from other modules when those modules are loaded expliclty, and they are
@@ -531,15 +534,16 @@ is light.")
     (add-to-list 'custom-environments 'palm-dev))
 
   (when (getenv "VMWARE_CODE")
-    (when (file-exists-p "~/elisp/vmw-c-dev.elc")
-      (eval-after-load 'cc-mode
+    (if (file-exists-p "~/elisp/vmw-c-dev.elc")
+      (add-hook 'c-initialization-hook
         #'(lambda ()
             (require 'vmw-c-dev)
             (condition-case err (vmw-update-cpp-and-flags)
               (error (message "Cannot use C++ preprocessor (yet): %s"
                               (error-message-string err))))
             (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
-            (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data))))
+            (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data)))
+       (message "Wouldn't it be nice if there were a VMware mode..."))
     (add-to-list 'custom-environments 'vmware-dev))
 
   (version-if (< 19 emacs-major-version) (provide-customized-features-20)))
@@ -552,7 +556,7 @@ is light.")
 
   ;; First type XGTags, then GTags, and finally fall back to xcscope.
   (if (file-exists-p "~/elisp/xgtags.elc")
-      (eval-after-load 'cc-mode
+      (add-hook 'c-initialization-hook
         #'(lambda ()
             (require 'xgtags)
             (add-hook 'c-mode-common-hook #'(lambda () (xgtags-mode 1)))))
@@ -576,6 +580,11 @@ is light.")
 (defun provide-customized-features-23 ()
   "Load features that only work with Emacs 23 and above."
 
+  ;; Put hooks in to color Doxygen-style comments when C/C++ files load.  This
+  ;; actually works in Emacs 22, but I'm too lazy to add another function here
+  ;; in 2019.
+  (add-hook 'c-initialization-hook #'add-doxygen-comment-style)
+
   (if (file-exists-p "~/elisp/undo-tree.elc") (global-undo-tree-mode))
 
   (version-if (< 23 emacs-major-version) (provide-customized-features-24)))
@@ -584,7 +593,7 @@ is light.")
   "Load features that only work with Emacs 24 and above."
 
   (if (file-exists-p "~/elisp/clang-format.elc")
-    (eval-after-load 'cc-mode
+    (add-hook 'c-initialization-hook
       #'(lambda ()
           (add-hook 'c-mode-common-hook
            #'(lambda ()
@@ -1112,6 +1121,48 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
                (not (member "--no-desktop" command-line-args)))
       (setq desktop-path (list env-dt-dir)) (desktop-read))))
 
+(defun add-doxygen-comment-style ()
+  "Add a new Doxygen comment style, and apply it to C/C++ files."
+
+  (defconst doxygen-font-lock-doc-comments
+    (let ((symbol "[a-zA-Z0-9_\.\*\-\:]+"))
+      `(;; HTML tags:
+        ("</?\\sw\\(\\sw\\|\\s \\|[=\n\r*.:]\\|\"[^\"]*\"\\|'[^']*'\\)*>"
+         0 ,c-doc-markup-face-name prepend nil)
+        ;; `symbol`, 'symbol', and ``symbol``:
+        (,(concat
+           "\\(?:\'" symbol "\'\\|\`" symbol "\`\\|\`\`" symbol "\`\`\\)")
+         0 ,c-doc-markup-face-name prepend nil)
+        ;; Special case for @param[in,out], as I use it so much:
+        ("[\\@]param\\[\\(?:in\\|out\\|in,out\\)\\]"
+         0 ,c-doc-markup-face-name prepend nil)
+        ;; Special command with either words or non-word command names:
+        ("[\\@]\\(?:[a-z]+\\|[[:punct:]]+\\)"
+         0 ,c-doc-markup-face-name prepend nil)
+        ;; #some_c_symbol.some_member:
+        ("#[a-zA-Z0-9_\.\:]+" 0 ,c-doc-markup-face-name prepend nil)))
+    "A table of regexps that identify keywords in Doxygen comment text.")
+
+  ;; Matches across multiple lines:
+  ;;   /** doxy comments */
+  ;;   /*! doxy comments */
+  ;;   /// doxy comments
+  ;; Doesn't match:
+  ;;   /*******/
+  (defconst doxygen-font-lock-keywords
+    `((,#'(lambda (limit)
+            (c-font-lock-doc-comments
+             "/\\(//[^/]\\|\\*[\\*!][^\\*!]\\)"
+             limit doxygen-font-lock-doc-comments))))
+    "A regular expression that identifies Doxygen-speicifc comments.")
+
+  (let ((set-doc-style-hook
+         #'(lambda ()
+             (setq c-doc-comment-style '(doxygen))
+             (c-setup-doc-comment-style))))
+    (add-hook 'c-mode-hook   set-doc-style-hook)
+    (add-hook 'c++-mode-hook set-doc-style-hook)))
+
 (defun customize-font-lock-on-frame (frame)
   "Customize the color settings on a per-frame basis.
 
@@ -1243,29 +1294,34 @@ a similar alias to avoid bucking the trend.")
 
   ;; VMware's coding style is sufficiently unique to warrant its own C style
   ;; definition.
-  (c-add-style
-   "vmware-c-c++-engineering-manual"
-   '((c-basic-offset . 3)         ; Three-space indent
-     (indent-tabs-mode . nil)     ; Use spaces instead of tabs
-     (comment-style . extra-line) ; Use C-style comments even in C++-mode
-     (comment-start . "/*") (comment-end . "*/")
-     (c-comment-only-line-offset . 0)
-     (c-hanging-braces-alist . ((substatement-open before after)))
-     (c-offsets-alist
-      . ((access-label         . -)
-         (cpp-macro            . [0])
-         (extern-lang-open     . 0)
-         (inclass              . +)
-         (inline-open          . 0)
-         (inextern-lang        . 0)
-         (innamespace          . 0)
-         (label                . 0)
-         (statement-case-open  . +)
-         (statement-cont       . +)
-         (substatement         . +)
-         (substatement-open    . 0)
-         (topmost-intro        . 0)
-         (topmost-intro-cont   . 0)))))
+  (let ((vmware-c-style
+         `((c-basic-offset . 3)         ; Three-space indent
+           (indent-tabs-mode . nil)     ; Use spaces instead of tabs
+           (comment-style . extra-line) ; Use C-style comments even in C++-mode
+           (comment-start . "/*") (comment-end . "*/")
+           (c-comment-only-line-offset . 0)
+           (c-hanging-braces-alist . ((substatement-open before after)))
+           (c-offsets-alist
+            . ((access-label         . -)
+               (cpp-macro            . [0])
+               (extern-lang-open     . 0)
+               (inclass              . +)
+               (inline-open          . 0)
+               (inextern-lang        . 0)
+               (innamespace          . 0)
+               (label                . 0)
+               (statement-case-open  . +)
+               (statement-cont       . +)
+               (substatement         . +)
+               (substatement-open    . 0)
+               (topmost-intro        . 0)
+               (topmost-intro-cont   . 0))))))
+    ;; Must match guards around `add-doxygen-comment-style'.  It's initialized
+    ;; lazily, so there's no other way than this manual coordination.
+    (version-if (< 22 emacs-major-version)
+      (setq vmware-c-style
+            (append vmware-c-style '((c-doc-comment-style . doxygen)))))
+    (c-add-style "vmware-c-c++-engineering-manual" vmware-c-style))
 
   (let ((vmware-style-hook
          #'(lambda () (c-set-style "vmware-c-c++-engineering-manual"))))
