@@ -337,6 +337,9 @@ windows.")
 (defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
 
+(defconst server-title-mark " [S]"
+  "This text will be added to frame titles when Emacs runs in `server-mode'.")
+
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
 ;; -----------------------------------------------------------------------------
@@ -372,6 +375,15 @@ I do not search for more than this because I want to keep pretty tight control
 on what gets loaded into my Emacs.  Any other files not in this list are
 probably something I'm playing with, and will have to be dealt with manually for
 the time being.")
+
+;; This variable exists so we can alter the title format without caring what it
+;; currently is.  Every alteration of this must be followed by
+;; `set-emacs-title-format' to have any effect.  This seems a bit redundant, but
+;; something needs to set the title at least once (so we need the function), and
+;; not having the variable means we need a "get" function.
+(defvar emacs-title-format "%b"
+  "Used to set the title for Emacs frames (iconized or not).  See
+`set-emacs-title-format' for details.")
 
 ;; =========================================================
 ;; Font coloring configuration:
@@ -1043,7 +1055,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
         (width  . ,(frame-parameter (selected-frame) 'width)))))))
 
   ;; Print the name of the visited file in the title of the window...
-  (set-emacs-title-format "%b")
+  (set-emacs-title-format emacs-title-format)
 
   ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
   ;; unless the background is pure black.
@@ -1488,7 +1500,27 @@ a similar alias to avoid bucking the trend.")
 ;; "Advice" for existing functions:
 ;; -----------------------------------------------------------------------------
 
-(defadvice gud-display-line (after my-gud-highlight act)
+;; TODO: We should `eval-after-load' here because `ad-handle-definition' prints
+;; a (harmless, but) noticeable message on Emacs start-up about how
+;; `start-server' was re-defined.  Emacs versions prior to 23 don't seem to like
+;; this for 'server, for some reason (it doesn't run my lambda).
+(defadvice server-start (after tell-server-start preactivate)
+  "Alter the (default) frame titles when the Emacs server status changes."
+
+  ;; First, strip off the server marking, as `server-start' runs when the server
+  ;; start, or exits.  This also helps avoid adding multiple markers when
+  ;; something silly happens like multiple start invocations.
+  (if (string-match (regexp-quote server-title-mark) emacs-title-format)
+      (setq emacs-title-format (replace-match "" t t emacs-title-format)))
+
+  (if server-process
+      (setq emacs-title-format (concat emacs-title-format server-title-mark)))
+
+  ;; TODO: This doesn't update when the server stops until something (anything)
+  ;; changes, for example, changing buffers.  Don't know why.
+  (set-emacs-title-format emacs-title-format))
+
+(defadvice gud-display-line (after my-gud-highlight preactivate)
   "Highlight current line.
 
 The highlight will apply to all debuggers that `gud-mode' supports.  This
@@ -1518,7 +1550,7 @@ behavior and contention around those global variables."
                     (+ (line-end-position) 1)
                     (current-buffer)))))
 
-(defadvice gud-sentinel (after my-gud-sentinel act)
+(defadvice gud-sentinel (after my-gud-sentinel preactivate)
   "Remove the highlight when the sentinel detects a dead process."
 
   (if (null gud-overlay-arrow-position)
@@ -1554,11 +1586,11 @@ put a friendly name in the title for easy identification.
 
 _SWITCH contains the switch string that invoked this function if it was called
 from the command-line switch handler."
-
   (let ((emacs-instance-id (pop command-line-args-left)))
-    (set-emacs-title-format (if emacs-instance-id
-                                (concat "(" emacs-instance-id ") %b")
-                                "%b"))))
+    (when emacs-instance-id
+      (setq emacs-title-format
+            (concat "(" emacs-instance-id ") " emacs-title-format))
+      (set-emacs-title-format emacs-title-format))))
 
 (defun command-line-merge (_switch)
   "Enter a graphical `ediff' merge (with ancestor) from the command line.
@@ -1818,7 +1850,7 @@ EVs are dicey, and a last resort."
 (defun set-emacs-title-format (title-format)
   "Set the title for Emacs frames (iconized or not).
 
-The parameter TITLE-FORMAT should be specified as in `frame-title-format`."
+The parameter TITLE-FORMAT should be specified as in `frame-title-format'."
 
   (setq frame-title-format title-format
         icon-title-format  title-format))
