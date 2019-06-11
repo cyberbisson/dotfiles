@@ -855,7 +855,8 @@ is light.")
                 (local-set-key "\C-c\C-c" #'comment-region)))
 
   ;; Show me a small set of extraneous bits of whitespace.
-  (setq whitespace-global-modes '(not dired-mode org-mode text-mode))
+  (setq whitespace-global-modes
+        '(not dired-mode elisp-byte-code-mode org-mode text-mode))
   (unless-running-xemacs (global-whitespace-mode 1))
   (setq whitespace-style '(face trailing table lines empty tab-mark))
 
@@ -1122,8 +1123,15 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
       (setq desktop-path (list env-dt-dir)) (desktop-read))))
 
 (defun add-doxygen-comment-style ()
-  "Add a new Doxygen comment style, and apply it to C/C++ files."
+  "Add a new Doxygen comment style, and apply it to C/C++ files.
 
+By default, this method installs a hook, `set-doxygen-style-hook', to
+`c-mode-hook' and `c++-mode-hook'.  These may be removed if `c-default-style'
+refers to the 'doxygen comment style, as they will do extra work."
+
+  ;; Only add these constants after `cc-mode' has loaded, or they won't be valid
+  ;; expressions.  For example `c-doc-markup-face-name' will not exist.  See
+  ;; `font-lock-keywords' for what the elements in this constant should contain.
   (defconst doxygen-font-lock-doc-comments
     (let ((symbol "[a-zA-Z0-9_\.\*\-\:]+"))
       `(;; HTML tags:
@@ -1133,9 +1141,26 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
         (,(concat
            "\\(?:\'" symbol "\'\\|\`" symbol "\`\\|\`\`" symbol "\`\`\\)")
          0 ,c-doc-markup-face-name prepend nil)
-        ;; Special case for @param[in,out], as I use it so much:
-        ("[\\@]param\\[\\(?:in\\|out\\|in,out\\)\\]"
-         0 ,c-doc-markup-face-name prepend nil)
+        ;; Special case for "@param[in,out] var", as I use it so much:
+        ;;
+        ;; NOTE that matching the "[in,out]" does not use the ? operation, but
+        ;; instead matches "\b".  This is because when this clause matches 1
+        ;; time, everything comes out OK, but matching 0 times kills syntax
+        ;; highlighting for the entire rest of the file.  So instead of matching
+        ;; 0 or 1, we match either what we're looking for, or a meaningless
+        ;; empty character.
+        (,(concat
+           "[\\@]param"
+           "\\(?:[[:space:]]*\\[\\(?1:in\\|out\\|in,out\\)\\]\\|\\(?1:\\b\\)\\)"
+           "[[:space:]]+\\(?2:" symbol "\\)")
+         (0 ,c-doc-markup-face-name prepend nil)
+         (1 font-lock-type-face prepend nil)
+         (2 font-lock-variable-name-face prepend nil))
+        ;; Highlight headings (only on their own lines):
+        ("^[/* ]*\\(#+\\)[[:space:]]+\\([^#]+\\)\\(#+\\)[/* ]*$"
+         (1 ,c-doc-markup-face-name prepend nil)
+         (2 font-lock-string-face prepend nil)
+         (3 ,c-doc-markup-face-name prepend nil))
         ;; Special command with either words or non-word command names:
         ("[\\@]\\(?:[a-z]+\\|[[:punct:]]+\\)"
          0 ,c-doc-markup-face-name prepend nil)
@@ -1143,12 +1168,13 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
         ("#[a-zA-Z0-9_\.\:]+" 0 ,c-doc-markup-face-name prepend nil)))
     "A table of regexps that identify keywords in Doxygen comment text.")
 
-  ;; Matches across multiple lines:
-  ;;   /** doxy comments */
-  ;;   /*! doxy comments */
-  ;;   /// doxy comments
+  ;; Matches (across multiple lines):
+  ;;   /** Doxygen comments */
+  ;;   /*! Doxygen comments */
+  ;;   /// Doxygen comments
   ;; Doesn't match:
   ;;   /*******/
+  ;;   /////////
   (defconst doxygen-font-lock-keywords
     `((,#'(lambda (limit)
             (c-font-lock-doc-comments
@@ -1156,12 +1182,15 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
              limit doxygen-font-lock-doc-comments))))
     "A regular expression that identifies Doxygen-speicifc comments.")
 
-  (let ((set-doc-style-hook
-         #'(lambda ()
-             (setq c-doc-comment-style '(doxygen))
-             (c-setup-doc-comment-style))))
-    (add-hook 'c-mode-hook   set-doc-style-hook)
-    (add-hook 'c++-mode-hook set-doc-style-hook)))
+  ;; For those `c-default-style' variants that already have 'doxygen set, you
+  ;; can safely remove these hooks, as they will only do extra work.
+  (defun set-doxygen-style-hook ()
+    "Install 'doxygen as the default doc style for C and C++."
+    (setq c-doc-comment-style 'doxygen)
+    (c-setup-doc-comment-style))
+
+  (add-hook 'c-mode-hook   #'set-doxygen-style-hook)
+  (add-hook 'c++-mode-hook #'set-doxygen-style-hook))
 
 (defun customize-font-lock-on-frame (frame)
   "Customize the color settings on a per-frame basis.
@@ -1336,6 +1365,17 @@ a similar alias to avoid bucking the trend.")
               #'(lambda () (setq c-basic-offset 3)))
     (add-hook 'protobuf-mode-hook
               #'(lambda () (setq c-basic-offset 3))))
+
+  ;; Remove the redundant doxygen style hook, as it will be overridden by
+  ;; `c-add-style'.  This needs to be done in `c-initialization-hook', as that's
+  ;; where `add-doxygen-comment-style' adds them.  Add the hook the the end of
+  ;; the list.
+  (version-if (< 22 emacs-major-version)
+    (add-hook 'c-initialization-hook
+              #'(lambda ()
+                  (remove-hook 'c-mode-hook   #'set-doxygen-style-hook)
+                  (remove-hook 'c++-mode-hook #'set-doxygen-style-hook))
+              t))
 
   ;; Git mode is slow when loading up a desktop with a hundred files, and I
   ;; never use it.  Also, the space it consumes in the mode-line generally hides
