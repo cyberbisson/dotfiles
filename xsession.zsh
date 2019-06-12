@@ -19,6 +19,8 @@ chmod 600 ${log_file}
 # "ignore" variables to skip WMs that you don't want to use.
 ignore_compiz=1
 #ignore_fvwm=1
+ignore_gnome=1
+ignore_kde=1
 ignore_openwin=1
 
 source "${HOME}/.zprofile" >> ${log_file} 2>&1
@@ -34,6 +36,11 @@ elif [ ! "${ignore_compiz}" ] && [ `command -v beryl-xgl` ] ; then
 #   WINDOW_MANAGER="beryl-manager" exec gnome-session >> ${log_file} 2>&1
     beryl-xgl --replace  >> ${log_file} 2>&1 &
     exec beryl-manager >> ${log_file} 2>&1
+elif [ ! "${ignore_kde}" ] && [ `command -v startkde` ] ; then
+    exec startkde >> ${log_file} 2>&1
+elif [ ! "${ignore_gnome}" ] && [ `command -v gnome-session` ] ; then
+    # TODO: UNTESTED...
+    exec gnome-session >> ${log_file} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
     # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
     # or else, what's the point?
