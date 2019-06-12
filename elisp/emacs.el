@@ -715,6 +715,11 @@ is light.")
    ;; Get rid of shift moving the mark around...
    shift-select-mode            nil)
 
+  ;; Put some indication as to when lines are wrapped.  (Actually, don't do
+  ;; this, it's really distracting.  I left this here has a reminder.)
+;;(setq visual-line-fringe-indicators
+;;      (alist-get 'continuation fringe-indicator-alist))
+
   ;; It's stupid that this is not the default behavior
   (let ((ev-server-name (getenv "EMACS_SERVER_FILE")))
     (unless (null ev-server-name) (setq server-name ev-server-name)))
