@@ -1173,6 +1173,10 @@ refers to the 'doxygen comment style, as they will do extra work."
          (0 ,c-doc-markup-face-name prepend nil)
          (1 font-lock-type-face prepend nil)
          (2 font-lock-variable-name-face prepend nil))
+        ;; Do "@tparam type" template specifications:
+        (,(concat "[\\@]tparam[[:space:]]+\\(" symbol "\\)")
+         (0 ,c-doc-markup-face-name prepend nil)
+         (1 font-lock-type-face prepend nil))
         ;; Highlight headings (only on their own lines):
         ("^[/* ]*\\(#+\\)[[:space:]]+\\([^#]+\\)\\(#+\\)[/* ]*$"
          (1 ,c-doc-markup-face-name prepend nil)
