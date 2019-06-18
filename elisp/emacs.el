@@ -575,7 +575,7 @@ is light.")
     (if (file-exists-p "~/elisp/gtags.elc")
         (add-hook 'c-mode-common-hook #'gtags-mode)
       (if (file-exists-p "~/elisp/xcscope.elc")
-          (eval-after-load 'cc-mode #'(lambda () (require 'xcscope))))))
+          (eval-after-load 'cc-mode '(require 'xcscope)))))
 
   ;; Perforce is a horrible version control system -- it has an Emacs mode.
   (if (file-exists-p "~/elisp/p4.elc") ;; 2 slow
@@ -826,20 +826,14 @@ is light.")
 (defun custom-configure-emacs-21 ()
   "Customizations that are only applicable to Emacs 21 and above."
 
-  (eval-after-load 'diff-mode
-    #'(lambda () (merge-font-lock-settings diff-faces)))
-  (eval-after-load 'ebrowse
-    #'(lambda () (merge-font-lock-settings ebrowse-faces)))
-  (eval-after-load 'ediff
-    #'(lambda () (merge-font-lock-settings ediff-faces)))
-  (eval-after-load 'gud
-    #'(lambda () (merge-font-lock-settings gud-faces)))
-  (eval-after-load 'whitespace
-    #'(lambda () (merge-font-lock-settings whitespace-faces)))
+  (eval-after-load 'diff-mode  '(merge-font-lock-settings diff-faces))
+  (eval-after-load 'ebrowse    '(merge-font-lock-settings ebrowse-faces))
+  (eval-after-load 'ediff      '(merge-font-lock-settings ediff-faces))
+  (eval-after-load 'gud        '(merge-font-lock-settings gud-faces))
+  (eval-after-load 'whitespace '(merge-font-lock-settings whitespace-faces))
 
   (unless terminal-frame
-    (eval-when-compile ; XEmacs noise...
-      (defvar default-toolbar-visible-p))
+    (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
     ;; Enable wheelmouse support by default.
     (mwheel-install)
