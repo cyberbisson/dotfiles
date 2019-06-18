@@ -337,8 +337,12 @@ windows.")
 (defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
 
-(defconst server-title-mark " [S]"
-  "This text will be added to frame titles when Emacs runs in `server-mode'.")
+(defvar server-title-mark " [%N]"
+  "This text will be added to frame titles when Emacs runs in `server-mode'.
+
+The string is printed verbatim, except if it contains a formatter string.  Aside
+from those available to `frame-title-format', this function supports %N, which
+displays the `server-name' in the title.")
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
@@ -1341,6 +1345,10 @@ a similar alias to avoid bucking the trend.")
 (defun configure-vmware-dev-env ()
   "Configure Emacs to develop VMware code."
 
+  ;; I usually use an "instance" ID with dev environments, so there's no need to
+  ;; repeat similar information by adding "%N" to the title.
+  (setq server-title-mark " []")
+
   ;; VMware's coding style is sufficiently unique to warrant its own C style
   ;; definition.
   (let ((vmware-c-style
@@ -1509,19 +1517,7 @@ a similar alias to avoid bucking the trend.")
 ;; this for 'server, for some reason (it doesn't run my lambda).
 (defadvice server-start (after tell-server-start preactivate)
   "Alter the (default) frame titles when the Emacs server status changes."
-
-  ;; First, strip off the server marking, as `server-start' runs when the server
-  ;; start, or exits.  This also helps avoid adding multiple markers when
-  ;; something silly happens like multiple start invocations.
-  (if (string-match (regexp-quote server-title-mark) emacs-title-format)
-      (setq emacs-title-format (replace-match "" t t emacs-title-format)))
-
-  (if server-process
-      (setq emacs-title-format (concat emacs-title-format server-title-mark)))
-
-  ;; TODO: This doesn't update when the server stops until something (anything)
-  ;; changes, for example, changing buffers.  Don't know why.
-  (set-emacs-title-format emacs-title-format))
+  (on-server-state-change))
 
 (defadvice gud-display-line (after my-gud-highlight preactivate)
   "Highlight current line.
@@ -1618,7 +1614,6 @@ Optionally, COUNT may be given to skip more than one frame at a time."
   (interactive "p")
   (other-frame (- (if (null count) 1 count))))
 
-
 (defun insert-date (&optional _arg)
   "Insert a date as Matt likes into a file."
 
@@ -1626,7 +1621,6 @@ Optionally, COUNT may be given to skip more than one frame at a time."
   ;; into my file.
   (interactive "P")
   (insert (format-time-string "%A, %e %B %Y" (current-time))))
-
 
 (defun make-cli-frame ()
   "Create a new frame to have one large window, covering 2/3 of the frame width,
@@ -1836,6 +1830,35 @@ width."
                     (split-string (shell-command-to-string osascript) ","))))
     ;; Assuming 65536 values per R, G, and B, this is 98304=(R+B+G)/2.
     (if (< (apply '+ rgb-list) 98304) 'dark 'light)))
+
+(defun on-server-state-change ()
+  "Modifies Emacs when the state of the server changes.
+
+This function can be thought of as a hook for `server-mode'.  Currently, it
+changes the title of the running Emacs instance to make it obvious that you are
+using Emacs server (rather than a stand-alone instance.  See `server-title-mark'
+for configuration of this behavior."
+
+  ;; First, strip off the server marking, as `server-start' runs when the server
+  ;; start, or exits.  This also helps avoid adding multiple markers when
+  ;; something silly happens like multiple start invocations.
+  (if (string-match (regexp-quote server-title-mark) emacs-title-format)
+      (setq emacs-title-format (replace-match "" t t emacs-title-format)))
+
+  ;; TODO: This only works once.  If the server name changes, the above
+  ;; `string-match' needs to know the old server name (so it can be removed).
+  ;; Temporarily, we are stomping on the user-configured setting to make sure
+  ;; that works, but the %N is now gone...
+  (if (string-match "\\b%N\\b" server-title-mark)
+      (setq server-title-mark
+            (replace-match server-name t t server-title-mark)))
+
+  (if server-process
+      (setq emacs-title-format (concat emacs-title-format server-title-mark)))
+
+  ;; TODO: This doesn't update when the server stops until something (anything)
+  ;; changes, for example, changing buffers.  Don't know why.
+  (set-emacs-title-format emacs-title-format))
 
 (defun set-bg-mode-from-colorfgbg ()
   "Only XTerm seems to properly inform Emacs what its color scheme is.
