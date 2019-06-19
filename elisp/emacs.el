@@ -1509,17 +1509,24 @@ a similar alias to avoid bucking the trend.")
 
 ;; -----------------------------------------------------------------------------
 ;; "Advice" for existing functions:
+;;
+;; NOTE that using "preactivate" tends to break when using a "compatible" Emacs
+;; initialization (i.e., when `lock-dotfile-version' is T).  This is because the
+;; older Emacs will compile the advice in such a way that it may not function on
+;; newer builds.  If you need to compile this advice, specify the "compile"
+;; flag, taking the one-time hit in the current Emacs session.  Hopefully these
+;; advice definitions only really refer to already compiled functions elsewhere.
 ;; -----------------------------------------------------------------------------
 
-;; TODO: We should `eval-after-load' here because `ad-handle-definition' prints
-;; a (harmless, but) noticeable message on Emacs start-up about how
-;; `start-server' was re-defined.  Emacs versions prior to 23 don't seem to like
-;; this for 'server, for some reason (it doesn't run my lambda).
-(defadvice server-start (after tell-server-start preactivate)
-  "Alter the (default) frame titles when the Emacs server status changes."
-  (on-server-state-change))
+;; We use `eval-after-load' here because `ad-handle-definition' prints a
+;; (harmless, but) noticeable message on Emacs start-up about how `start-server'
+;; was re-defined.
+(eval-after-load 'server
+  '(defadvice server-start (after tell-server-start activate compile)
+     "Alter the (default) frame titles when the Emacs server status changes."
+     (on-server-state-change)))
 
-(defadvice gud-display-line (after my-gud-highlight preactivate)
+(defadvice gud-display-line (after my-gud-highlight activate compile)
   "Highlight current line.
 
 The highlight will apply to all debuggers that `gud-mode' supports.  This
@@ -1549,7 +1556,7 @@ behavior and contention around those global variables."
                     (+ (line-end-position) 1)
                     (current-buffer)))))
 
-(defadvice gud-sentinel (after my-gud-sentinel preactivate)
+(defadvice gud-sentinel (after my-gud-sentinel activate compile)
   "Remove the highlight when the sentinel detects a dead process."
 
   (if (null gud-overlay-arrow-position)
