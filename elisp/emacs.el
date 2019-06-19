@@ -698,6 +698,10 @@ is light.")
    ;; was changed in Emacs 22.
    next-line-add-newlines       t
 
+   ;; The default is T, which I lived with for a while, but the indentation
+   ;; seems like a pointless waste of space.
+   org-adapt-indentation        nil
+
    ;; Smart quotes are just plain better than straight quotes (if I could get it
    ;; to put in &ensp; after punctuation, so much the better).
    org-export-with-smart-quotes t
