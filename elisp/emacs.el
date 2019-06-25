@@ -56,12 +56,8 @@
 ;;; To-do:
 
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
-;; - `pop' doesn't exist in older Emacs, so command-line function should change!
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
 ;; - Consolodate various background-color detection functionality.
-;; - Some bits of `customize-font-lock' make global changes based on what
-;;   happens to be the current frame.  The same goes for toolbar and menu
-;;   alterations.
 
 ;;; Code:
 
@@ -181,6 +177,16 @@ compile time."
 
 ) ;; END eval-when-compile
 
+(defmacro terminal-frame-p (&optional frame)
+  "Determine if FRAME shows on a terminal (and not a window manager).  If FRAME
+is not specified, this uses the currently selected frame."
+
+  ;; NOTE: The display type is only *sometimes* encoded in the frame.  Most
+  ;; notably, when I start Emacs in a terminal, then create a new GUI frame, it
+  ;; sets the display type incorrectly.  The `tty-type' function seems to work
+  ;; all the time.
+  `(not (null (compat-tty-type ,(or frame '(selected-frame))))))
+
 ;; -----------------------------------------------------------------------------
 ;; Compatibility functions:
 ;;
@@ -207,25 +213,29 @@ compatibility purposes."
 This function does so in a way that is compatible with all versions of Emacs.
 Before version 21, the font system had a different set of APIs."
 
-  ;; TODO: XEmacs is hard-coded :(
   (if-running-xemacs
-    256
+    (or (device-color-cells frame) 16)
     (version-if (< 20 emacs-major-version)
       (display-color-cells frame)
-      (length (x-defined-colors frame))))) ; Very approximate...
+      ;; `x-defined-colors' does not exist in Emacs 20 on the Windows console.
+      (if (fboundp #'x-defined-colors)
+          (length (x-defined-colors frame)) ; Very approximate...
+        16))))
 
-(defun compat-font-exists-p (font-name)
-  "Determine if a font (given by FONT-NAME) exists by its name.
+(defun compat-font-exists-p (font-name &optional frame)
+  "Determine if a font (given by FONT-NAME) exists by its name on FRAME.
 
 This function does so in a way that is compatible with all versions of Emacs.
-Before version 22, the font system had a different set of APIs."
+Before version 22, the font system had a different set of APIs.
+
+This uses the specified FRAME, or the current frame, if none was specified."
 
   (version-if (< 22 emacs-major-version)
-    (find-font (font-spec :name font-name))
+    (find-font (font-spec :name font-name) frame)
     (not (null
           (if-running-xemacs
-              (list-fonts font-name)
-            (x-list-fonts font-name nil nil 1)))))) ; Never actually fails :(
+              (list-fonts font-name frame)
+            (x-list-fonts font-name nil frame 1)))))) ; Never actually fails :(
 
 (version-if (not (fboundp 'declare-function))
   ;; taken from Emacs 22.2, not present in 22.1:
@@ -249,6 +259,17 @@ and still remain compatible with Emacs 22."
   (defmacro set-specifier (&rest _args)
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
     nil))
+
+(defmacro compat-tty-type (&optional terminal)
+  "Return the type of TTY device that TERMINAL uses.  Returns nil if TERMINAL is
+not on a TTY device.
+
+This function adds functionality that was not present in Emacs versions prior to
+23.1."
+  (version-if (< 22 emacs-major-version)
+    `(tty-type ,terminal)
+    ;; This just happens to be a clue in Emacs 22 and before (XEmacs as well).
+    `(null (frame-parameter ,terminal 'window-id))))
 
 (unless-running-xemacs
   (version-if (> 22 emacs-major-version)
@@ -291,6 +312,7 @@ were not introduced until Emacs 22."
 
       (require 'battery)
       (require 'cc-vars)
+      (require 'compile)
       (require 'desktop)
       (require 'dired)
       (require 'inf-lisp)
@@ -299,6 +321,7 @@ were not introduced until Emacs 22."
       (require 'time)
 
       (when (< 20 emacs-major-version)
+        (require 'cc-fonts)
         (require 'emacs)
         (require 'newcomment)
         ;; Legacy: replaced with `display-battery-mode'.
@@ -337,7 +360,10 @@ windows.")
 (defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
 
-(defvar server-title-mark " [%N]"
+(defvar server-title-mark
+  (version-if (< 22 emacs-major-version)
+    (if (daemonp) " <%N>" " [%N]")
+    " [%N]")
   "This text will be added to frame titles when Emacs runs in `server-mode'.
 
 The string is printed verbatim, except if it contains a formatter string.  Aside
@@ -803,9 +829,7 @@ is light.")
   (put 'scroll-right    'disabled nil)
 
   ;; Some additional major customizations based on display capabilities:
-  (if terminal-frame
-      (custom-configure-for-terminal)
-    (custom-configure-for-xwindows))
+  (custom-configure-display)
 
   ;; Descend into version-specific customizations.
   (version-if (< 19 emacs-major-version) (custom-configure-emacs-20))
@@ -840,15 +864,14 @@ is light.")
   (eval-after-load 'gud        '(merge-font-lock-settings gud-faces))
   (eval-after-load 'whitespace '(merge-font-lock-settings whitespace-faces))
 
-  (unless terminal-frame
-    (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
+  (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
-    ;; Enable wheelmouse support by default.
-    (mwheel-install)
+  ;; Enable wheelmouse support by default.
+  (mwheel-install)
 
-    (if-running-xemacs
-        (set-specifier default-toolbar-visible-p nil)
-      (tool-bar-mode -1)))
+  (if-running-xemacs
+    (set-specifier default-toolbar-visible-p nil)
+    (tool-bar-mode -1))
 
   (unless-running-xemacs
     (blink-cursor-mode -1)
@@ -971,41 +994,9 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
    ;; Leave this many of the oldest versions
    kept-old-versions 2))
 
-(defun custom-configure-for-terminal ()
-  "Configure setting that only apply to Emacs when run in a terminal."
-
-  (menu-bar-mode -1)
-
-  ;; TODO: Should probably consolodate all this into dark-background-p.
-  (if (eq system-type 'darwin)
-      (setq frame-background-mode (get-macos-terminal-bg-mode))
-    (set-bg-mode-from-colorfgbg))
-
-  (version-when (< 24 emacs-major-version)
-    ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore the
-    ;; frameset that was saved in the desktop, it must call
-    ;; `desktop-restoring-frameset-p', which in turn checks the function
-    ;; `display-graphic-p'.  This essentially means that, even though restoring
-    ;; the frameset works on the TTY (providing
-    ;; `desktop-restore-forces-onscreen' is NIL), it NEVER runs.  So we get the
-    ;; full desktop, but none of the frames.  FIXING THIS NOW.
-    (setq desktop-restore-forces-onscreen nil)
-    (add-hook 'desktop-after-read-hook
-     #'(lambda ()
-         (frameset-restore
-          desktop-saved-frameset
-          :reuse-frames (eq desktop-restore-reuses-frames t)
-          :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
-          :force-display desktop-restore-in-current-display
-          :force-onscreen desktop-restore-forces-onscreen))))
-
-  ;; On the terminal, Emacs does not reliably detect the color scheme until late
-  ;; in the initialization, causing us to potentially put in the wrong colors.
-  (add-hook 'window-setup-hook #'customize-font-lock))
-
-(defun custom-configure-for-xwindows ()
-  "Configure settings that only apply to Emacs when run in (X) Windows."
-
+(defun custom-configure-display ()
+  "Configure settings that apply to how Emacs behaves on various kinds of
+display."
   (setq
    ;; Why was this turned off in Emacs 24.1?
    mouse-drag-copy-region       t
@@ -1013,68 +1004,149 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
    ;; Quite an assumption, but there's really no uniform way to tell (even the
    ;; Emacs docs say this).
    focus-follows-mouse          (or (eq system-type 'windows-nt)
-                                    (eq system-type 'darwin))
-
-   ;; Let's set up some universal window (frame) attributes.
-   default-frame-alist
-   (cons
-    '(cursor-type . box)
-
-    (cond
-     ((eq system-type 'windows-nt)
-      ;; Preserve the background at configuration time for future frames.
-      ;; Because there's no .Xdefaults, we rely on command-line arguments.
-      `((background-color
-         . ,(frame-parameter (selected-frame) 'background-color))
-
-        ;; Determine the font we can use somewhat dynamically by falling through
-        ;; until we find one that exists on our system.
-        (font
-         . ,(find-first-defined-font
-             "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
-             '(;; Consolas 11
-               "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
-               ;; Liberation Mono 9
-               "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
-               ;; Lucida Console 8 (thinner)
-               "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")))
-
-       ;; TODO: Perhaps this hard coded value should be given in a hook, or in
-       ;; initial-frame-alist?
-       (height . 70)
-       (width  . 81)))
-     ((eq system-type 'darwin)
-      `((font . ,(find-first-defined-font "Menlo 12" '("DejaVu Sans Mono 9")))
-        (height . 60)
-        (width  . 81)))
-     (t
-      `(,(if (eq system-type 'cygwin)
-             `(font . ,(find-first-defined-font "8x13" '("Consolas 9")))
-           `(font .
-             ,(find-first-defined-font
-               "8x13"
-               '("DejaVu Sans Mono 9"; 10"
-                 "FreeMono 10"
-                 "Nimbus Mono L 10"
-                 "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1"))
-             ))
-        (height . ,(frame-parameter (selected-frame) 'height))
-        (width  . ,(frame-parameter (selected-frame) 'width)))))))
+                                    (eq system-type 'darwin)))
 
   ;; Print the name of the visited file in the title of the window...
   (set-emacs-title-format emacs-title-format)
 
-  ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
-  ;; unless the background is pure black.
-  (unless-running-xemacs
-    (let ((frame-params (frame-parameters)))
-      (if (eq 'dark (cdr (assq 'background-mode frame-params)))
-          (let ((fg-color (cdr (assq 'foreground-color frame-params))))
-            (set-cursor-color fg-color)
-            (set-mouse-color  fg-color)))))
+  (let ((terminal-frame-p (terminal-frame-p))
+        (daemon-p         (version-if (< 22 emacs-major-version) (daemonp) nil))
+        (selected-frame   (selected-frame)))
+    (when terminal-frame-p
+      (version-when (< 24 emacs-major-version)
+        ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore
+        ;; the frameset that was saved in the desktop, it must call
+        ;; `desktop-restoring-frameset-p', which in turn checks the function
+        ;; `display-graphic-p'.  This essentially means that, even though
+        ;; restoring the frameset works on the TTY (providing
+        ;; `desktop-restore-forces-onscreen' is NIL), it NEVER runs.  So we get
+        ;; the full desktop, but none of the frames.  FIXING THIS NOW.
+        (setq desktop-restore-forces-onscreen nil)
+        (add-hook
+         'desktop-after-read-hook
+         #'(lambda ()
+             (frameset-restore
+              desktop-saved-frameset
+              :reuse-frames (eq desktop-restore-reuses-frames t)
+              :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
+              :force-display desktop-restore-in-current-display
+              :force-onscreen desktop-restore-forces-onscreen)))))
 
-  ;; Can't customize font lock until we load the libary (and faces) first
+    ;; Add hooks for setting up frames lazily (run once, as
+    ;; `after-make-frame-functions' does not run on the first frame).
+    (add-hook 'after-make-frame-functions #'custom-configure-frame)
+    (custom-configure-frame selected-frame)
+
+   ;; Hack attack!  On older Emacs versions, something kicks `menu-bar-mode' to
+   ;; on after the initial frame's configuration (I don't think it's me).  As a
+   ;; result, just set `menu-bar-mode' to whatever `custom-configure-frame'
+   ;; would have set it, and that first frame won't be clobbered.
+   (unless-running-xemacs (menu-bar-mode (if terminal-frame-p -1 1)))
+    (if (or terminal-frame-p daemon-p)
+        ;; Set a hook that removes itself prior to executing.  It only runs when
+        ;; there is frame on a windowing system.
+        (add-hook 'after-make-frame-functions #'exec-on-first-gui)
+      ;; Else, skip the hook, and configure the GUI right now.
+      (custom-configure-on-first-gui selected-frame)))
+
+  ;; Can't customize font lock until we load the libary (and faces) first.  On
+  ;; the terminal, Emacs does not reliably detect the color scheme until late in
+  ;; the initialization, causing us to potentially put in the wrong colors.
   (add-hook 'window-setup-hook #'customize-font-lock))
+
+(defun custom-configure-frame (frame)
+  "Modify the current configuration for the frame, FRAME."
+
+  (let ((terminal-frame-p (terminal-frame-p frame)))
+    (modify-frame-parameters
+     frame `((menu-bar-lines . ,(if terminal-frame-p 0 1))))
+
+    ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
+    ;; unless the background is pure black.
+    (unless-running-xemacs
+      ;; Only capture a GUI's parameters -- capturing them from the terminal
+      ;; will mess things up.
+      (unless terminal-frame-p
+        (let ((frame-params (frame-parameters frame)))
+          (if (eq 'dark (cdr (assq 'background-mode frame-params)))
+              (let ((fg-color (cdr (assq 'foreground-color frame-params))))
+                (set-cursor-color fg-color)
+                (set-mouse-color  fg-color))))))))
+
+(defun custom-configure-on-first-gui (frame)
+  "Configure the window-system options (lazily) when the first such frame is
+created.  This function uses FRAME, which is the newly created UI frame.
+
+This functionality is needed for a few reasons.  Most notably, the
+`find-first-defined-font' actually crashes the Emacs process if it executes on a
+terminal frame.  We only need this information once, so it can be gathered as
+soon as there is a windowed frame to use, and it can then be stashed into
+`default-frame-alist'.
+
+Beside this, the function sets other aspects of `default-frame-alist' that
+require a windowed frame, like the default frame geometry (which is based on the
+first created frame)."
+
+  ;; Determine the font we can use somewhat dynamically by falling through until
+  ;; we find one that exists on our system.
+  (let ((chosen-gui-font
+         (cond
+          ((eq system-type 'windows-nt)
+           (find-first-defined-font
+            "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
+            '(;; Consolas 11
+              "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
+              ;; Liberation Mono 9
+              "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
+              ;; Lucida Console 8 (thinner)
+              "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
+            frame))
+          ((eq system-type 'darwin)
+           (find-first-defined-font "Menlo 12" '("DejaVu Sans Mono 9") frame))
+          ((eq system-type 'cygwin)
+           (find-first-defined-font "8x13" '("Consolas 9") frame))
+          (t
+           (find-first-defined-font
+            "8x13"
+            '("DejaVu Sans Mono 9"
+              "FreeMono 10"
+              "Nimbus Mono L 10"
+              "-Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1")
+            frame)))))
+    ;; Let's set up some universal window (frame) attributes.
+    (setq default-frame-alist
+          (append
+           `((cursor-type . box)
+             (font . ,chosen-gui-font))
+           (cond
+            ((eq system-type 'windows-nt)
+             ;; Preserve the background at configuration time for future frames.
+             ;; Because there's no .Xdefaults on older version of Windows Emacs,
+             ;; we rely on command-line arguments.
+             `((background-color . ,(frame-parameter frame 'background-color))
+
+               ;; TODO: Perhaps this hard coded value should be given in a hook,
+               ;; or in initial-frame-alist?
+               (height . 70)
+               (width  . 81)))
+            ((eq system-type 'darwin)
+             `((height . 60)
+               (width  . 81)))
+            (t
+             ;; Just make all the windows the same size (hopefully configured in
+             ;; .Xdefaults).
+             `((height . ,(frame-parameter frame 'height))
+               (width  . ,(frame-parameter frame 'width)))))))
+    ;; This function runs after the frame has been modified, so apply whatever
+    ;; settings needed from `default-frame-alist' here.
+    (modify-frame-parameters frame default-frame-alist)))
+
+(defun exec-on-first-gui (frame)
+  "Execute a hook in `after-make-frame-functions' on FRAME one time.  After this
+execution, the hook removes itself."
+  (unless (terminal-frame-p frame)
+    (remove-hook 'after-make-frame-functions #'exec-on-first-gui)
+    (custom-configure-on-first-gui frame)))
 
 ;; -----------------------------------------------------------------------------
 ;; Font-lock Customization:
@@ -1113,10 +1185,13 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
   ;; Syntax highlighting -- I just find syntax highlighting annoying on the
   ;; Windows terminal, so disable it by default there.
   ;;
-  ;; NOTE: This is kind of a bug in that global-font-lock mode will not be
-  ;; enabled on Windows Emacs GUIs because we've already disabled it on the TTY.
+  ;; NOTE: This is kind of a bug in that `global-font-lock mode' will not be
+  ;; enabled on Windows Emacs GUIs (should I start a server there, and then
+  ;; launch a GUI frame) because we've already disabled it on the TTY.  There
+  ;; doesn't seem to be a means of disabling `font-lock-mode' on specific
+  ;; frames instead of specific buffers.
   (global-font-lock-mode
-   (if (and terminal-frame (eq system-type 'windows-nt)) -1 1))
+   (if (and (eq system-type 'windows-nt) (terminal-frame-p)) -1 1))
 
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
@@ -1219,14 +1294,21 @@ refers to the 'doxygen comment style, as they will do extra work."
   "Customize the color settings on a per-frame basis.
 
 The FRAME parameter specifies which frame will be altered."
-  (if (< 255 (compat-display-color-cells frame))
-      ;; Give me some nice pretty colors...
-      (update-emacs-font-lock-faces
-       (if (dark-background-p frame) bg-dark-faces bg-light-faces)
-       ;; There's no good hook for frame creation in XEmacs, seemingly, so just
-       ;; set the font-lock settings universally (by passing NIL for the frame).
-       ;; For GNU Emacs, we can proceed normally.
-       (if-running-xemacs nil frame))))
+  (when (< 255 (compat-display-color-cells frame))
+    (when (terminal-frame-p frame)
+      (if (eq system-type 'darwin)
+          ;; TODO: Should consolodate this into `dark-background-p'?
+          (modify-frame-parameters
+           frame `((background-mode . ,(get-macos-terminal-bg-mode))))
+        (set-bg-mode-from-colorfgbg frame)))
+
+    ;; Give me some nice pretty colors...
+    (update-emacs-font-lock-faces
+     (if (dark-background-p frame) bg-dark-faces bg-light-faces)
+     ;; There's no good hook for frame creation in XEmacs, seemingly, so just
+     ;; set the font-lock settings universally (by passing NIL for the frame).
+     ;; For GNU Emacs, we can proceed normally.
+     (if-running-xemacs nil frame))))
 
 (defun modify-face-compat (face fg bg bold-p italic-p underline-p frame)
   "Modify a FACE on a specific FRAME in a backward-compatible way.
@@ -1469,11 +1551,12 @@ a similar alias to avoid bucking the trend.")
    #'(lambda (&optional count)
      "Select another window in reverse cyclic ordering of windows."
      (interactive "p")
-     (other-window (- (if (null count) 1 count)))))
+     (other-window (- (or count 1)))))
   (global-set-key "\C-x9" #'delete-other-windows-vertically)
 
-  ;; Frames too!
-  (define-key ctl-x-5-map "p" #'backward-other-frame)
+  ;; Intuitively, frame swtiching seems backwards on the terminal to me.
+  (define-key ctl-x-5-map "o" #'backward-other-frame)
+  (define-key ctl-x-5-map "p" #'other-frame)
 
   (global-set-key "\C-c\C-v"
    #'(lambda ()
@@ -1481,24 +1564,18 @@ a similar alias to avoid bucking the trend.")
      (interactive)
      (when buffer-file-name (kill-new (file-truename buffer-file-name)))))
 
-  ;; Make sure there is no confusion about delete characters
-  (if terminal-frame
-      (set-key-bindings-term)
-      (set-key-bindings-xwin)))
+  ;; TODO: These used to be required, but now Emacs and the console have figured
+  ;; out how to play nice.  Re-enable these (with an appropriate conditional)
+  ;; when we encounter another terminal / keyboard issue.
+;;(set-key-bindings-term)
+  (set-key-bindings-xwin))
 
 (defun set-key-bindings-term ()
   "Set key bindings to make Emacs work well on the terminal."
 
-  ;; Intuitively, frame swtiching seems backwards on the terminal to me.
-  (define-key ctl-x-5-map "o" #'backward-other-frame)
-  (define-key ctl-x-5-map "p" #'other-frame)
-
-  ;; TODO: These used to be required, but now Emacs and the console have figured
-  ;; out how to play nice.  Re-enable these (with an appropriate conditional)
-  ;; when we encounter another terminal / keyboard issue.
-; (global-set-key "\C-h" #'delete-backward-char)
-; (global-set-key "\C-?" #'delete-char)
-)
+  ;; Make sure there is no confusion about delete characters
+  (global-set-key "\C-h" #'delete-backward-char)
+  (global-set-key "\C-?" #'delete-char))
 
 (defun set-key-bindings-xwin ()
   "Set key bindings that are specific to graphical Emacs instances."
@@ -1653,14 +1730,15 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
 
   (unless tgt-frame-width (setq tgt-frame-width (ideal-frame-width 3)))
 
-  (when terminal-frame
+  (when (terminal-frame-p)
     (when (/= tgt-frame-width (frame-parameter (selected-frame) 'width))
       (user-error
        (format "Frame width must be %d on TTY to use this layout"
                tgt-frame-width))))
 
-  (let ((frame (if make-new-frame (make-frame) (selected-frame))))
-    (unless terminal-frame
+  (let* ((frame (if make-new-frame (make-frame) (selected-frame)))
+         (terminal-frame-p (terminal-frame-p frame)))
+    (unless terminal-frame-p
       (set-frame-size frame tgt-frame-width (frame-parameter frame 'height)))
 
     (if make-new-frame (select-frame frame) (delete-other-windows))
@@ -1669,7 +1747,7 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
     ;; so we must as well.  Use a negative number to explicitly specify the
     ;; right side window's size.
     (split-window (selected-window)
-                  (* -1 (+ ideal-window-columns 1 (if terminal-frame 0 5)))
+                  (* -1 (+ ideal-window-columns 1 (if terminal-frame-p 0 5)))
                   t)
 
     (other-window 1) ;; Split the smaller window vertically.
@@ -1789,25 +1867,34 @@ This method is like `desktop-restore-file-buffer', and so BUFFER-FILENAME
 specifies a file (which will be ignored, and should be NIL), BUFFER-NAME
 specifies the name of the buffer that will be created, and BUFFER-MISC is any
 additional data."
+  ;; This variable only exists when the desktop is actively being processed, so
+  ;; ignore warnings about it being a free variable.
+  (eval-when-compile (defvar desktop-buffer-major-mode))
+
   (let ((buf (get-buffer-create buffer-name)))
     (switch-to-buffer buf)
     (unless (eq major-mode desktop-buffer-major-mode)
       (funcall desktop-buffer-major-mode))
     buf))
 
-(defun find-first-defined-font (default-font-name font-names)
+(defun find-first-defined-font (default-font-name font-names &optional display)
   "Search the provided list of font name (strings, named in FONT-NAMES),
 returning the name of the first font that Emacs can find on this system.  If it
-finds no fonts, it uses the DEFAULT-FONT-NAME."
+finds no fonts, it uses the DEFAULT-FONT-NAME.  This uses the specified DISPLAY,
+or the current frame's display, if none was specified."
 
   (if (null font-names) default-font-name
 
-    (let ((font-name       (car font-names))
+    (let ((display         (or display (selected-frame)))
+          (font-name       (car font-names))
           (rest-font-names (cdr font-names)))
-      (if (compat-font-exists-p font-name) font-name ;; <- Found it.
+      (if (compat-font-exists-p font-name display) font-name ;; <- Found it.
         (if (null rest-font-names) default-font-name ;; <- Found nothing...
           ;; Keep searching...
-          (find-first-defined-font default-font-name rest-font-names))))))
+          (find-first-defined-font
+           default-font-name
+           rest-font-names
+           display))))))
 
 (defun ideal-frame-width (window-count)
   "Compute the width in 'columns' that a frame must be to accommodate
@@ -1823,7 +1910,7 @@ width."
   ;; value (5), and on TTY, it's always a single character.
   (+ (* ideal-window-columns window-count)
      window-count
-     (* (if terminal-frame 1 5) (- window-count 1))))
+     (* (if (terminal-frame-p) 1 5) (- window-count 1))))
 
 (defun get-macos-terminal-bg-mode ()
   "Retrieves the background 'mode' for the Terminal application on MacOS."
@@ -1871,18 +1958,26 @@ for configuration of this behavior."
   ;; changes, for example, changing buffers.  Don't know why.
   (set-emacs-title-format emacs-title-format))
 
-(defun set-bg-mode-from-colorfgbg ()
-  "Only XTerm seems to properly inform Emacs what its color scheme is.
+(defun set-bg-mode-from-colorfgbg (frame)
+  "Set the FRAME background-mode based on the `COLORFGBG' environment variable.
 
-For other terminals, we can check this COLORFGBG environment variable.  Using
-EVs are dicey, and a last resort."
+Only XTerm seems to properly inform Emacs what its color scheme is.  For other
+terminals, we can check this COLORFGBG environment variable.  Using EVs are
+dicey, and a last resort.
+
+This function is only reliable when FRAME is a terminal frame.  Otherwise, UI
+frames started from emacsclient in daemon-based processes will report
+environment variables for the terminal that may not match the actual color
+scheme of the Emacs UI (e.g., when set via Xdefaults)."
 
   ;; Only doing this for Konsole at the moment.
-  (if (and (not (null (getenv "COLORFGBG")))
-           (not (null (getenv "KONSOLE_PROFILE_NAME"))))
+  (unless (or (null (getenv "COLORFGBG"))
+              (null (getenv "KONSOLE_PROFILE_NAME")))
       (let ((fg-color-16 (string-to-number
                           (car (split-string (getenv "COLORFGBG")  ";" )))))
-        (setq frame-background-mode (if (< 8 fg-color-16) 'dark 'light)))))
+        (modify-frame-parameters
+         frame
+         `((background-mode . ,(if (< 8 fg-color-16) 'dark 'light)))))))
 
 (defun set-emacs-title-format (title-format)
   "Set the title for Emacs frames (iconized or not).
