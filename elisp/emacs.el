@@ -237,8 +237,14 @@ This uses the specified FRAME, or the current frame, if none was specified."
               (list-fonts font-name frame)
             (x-list-fonts font-name nil frame 1)))))) ; Never actually fails :(
 
+(version-if (not (fboundp 'daemonp))
+  (defmacro daemonp ()
+    "Always return nil.  Emacs as a daemon does not exist until Emacs 23.1, so
+this is a compatibility function."
+    nil))
+
 (version-if (not (fboundp 'declare-function))
-  ;; taken from Emacs 22.2, not present in 22.1:
+  ;; Taken from Emacs 22.2, not present in 22.1:
   (defmacro declare-function (&rest _args)
     "In Emacs 22, does nothing.  In 23, it will suppress byte-compiler warnings.
 
@@ -353,22 +359,17 @@ were not introduced until Emacs 22."
   "This is the file containing generated autoload content for my own custom set
 of modules.")
 
+(defconst daemon-frame (if (daemonp) terminal-frame)
+  "The pseudo-frame used by Emacs daemon.  This frame is not a real frame,
+but (if nothing else) the daemon process uses it to keep Emacs alive when all
+other frames have closed.")
+
 (defconst ideal-window-columns 80
   "I think all source code should be 80 columns, and that's how large I like my
 windows.")
 
 (defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
-
-(defvar server-title-mark
-  (version-if (< 22 emacs-major-version)
-    (if (daemonp) " <%N>" " [%N]")
-    " [%N]")
-  "This text will be added to frame titles when Emacs runs in `server-mode'.
-
-The string is printed verbatim, except if it contains a formatter string.  Aside
-from those available to `frame-title-format', this function supports %N, which
-displays the `server-name' in the title.")
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
@@ -414,6 +415,13 @@ the time being.")
 (defvar emacs-title-format "%b"
   "Used to set the title for Emacs frames (iconized or not).  See
 `set-emacs-title-format' for details.")
+
+(defvar server-title-mark (if (daemonp) " <%N>" " [%N]")
+  "This text will be added to frame titles when Emacs runs in `server-mode'.
+
+The string is printed verbatim, except if it contains a formatter string.  Aside
+from those available to `frame-title-format', this function supports %N, which
+displays the `server-name' in the title.")
 
 ;; =========================================================
 ;; Font coloring configuration:
@@ -1010,10 +1018,27 @@ display."
   (set-emacs-title-format emacs-title-format)
 
   (let ((terminal-frame-p (terminal-frame-p))
-        (daemon-p         (version-if (< 22 emacs-major-version) (daemonp) nil))
+        (daemon-p         (daemonp))
         (selected-frame   (selected-frame)))
-    (when terminal-frame-p
-      (version-when (< 24 emacs-major-version)
+    (version-when (< 24 emacs-major-version)
+      ;; Saving the display is nice, but since I tend to do a lot of work over
+      ;; SSH-tunneled displays, the value is invariably wrong (the display is
+      ;; generated dynamically).  To make matters worse, I would think
+      ;; `desktop-restore-in-current-display' would just solve the problem, but
+      ;; it doesn't seem to.  I'm therefore skipping the ability to restore to
+      ;; multiple displays (so I can make remote displays show up) by keeping
+      ;; the `display' property out of saved framesets..
+      (add-to-list 'frameset-filter-alist '(display . :never))
+
+      ;; Restoring the frameset under Emacs daemon kills the daemon "frame", and
+      ;; results in closing the last frame causing Emacs to exit.  This is not
+      ;; what we want at all.  Instead, force the desktop to keep around the old
+      ;; frames instead of trying to resuse them.
+      (when daemon-p
+        (modify-frame-parameters daemon-frame '((desktop-dont-save . t)))
+        (setq desktop-restore-reuses-frames 'keep))
+
+      (when terminal-frame-p
         ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore
         ;; the frameset that was saved in the desktop, it must call
         ;; `desktop-restoring-frameset-p', which in turn checks the function
@@ -1314,7 +1339,7 @@ The FRAME parameter specifies which frame will be altered."
   "Modify a FACE on a specific FRAME in a backward-compatible way.
 
 This function behaves similarly to the interactive function, `modify-face',
-(which is not preferred for non-interactive use).  It would be best to use
+\(which is not preferred for non-interactive use).  It would be best to use
 `set-face-attributes', but this function is not present until after Emacs 20.
 The parameters FG and BG specify the face names for foreground and background
 colors, and they may be NIL.  BOLD-P, ITALIC-P, and UNDERLINE-P enable or
@@ -1433,7 +1458,7 @@ a similar alias to avoid bucking the trend.")
 
   ;; I usually use an "instance" ID with dev environments, so there's no need to
   ;; repeat similar information by adding "%N" to the title.
-  (setq server-title-mark " []")
+  (setq server-title-mark (if (daemonp) " <>" " []"))
 
   ;; VMware's coding style is sufficiently unique to warrant its own C style
   ;; definition.
