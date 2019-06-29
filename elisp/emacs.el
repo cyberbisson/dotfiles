@@ -416,6 +416,10 @@ the time being.")
   "Used to set the title for Emacs frames (iconized or not).  See
 `set-emacs-title-format' for details.")
 
+(defvar last-restored-frameset nil
+  "The last frameset restored by a `desktop-read'.  This will be consulted by
+functions like `restore-last-desktop-frameset'")
+
 (defvar server-title-mark (if (daemonp) " <%N>" " [%N]")
   "This text will be added to frame titles when Emacs runs in `server-mode'.
 
@@ -1021,6 +1025,12 @@ display."
         (daemon-p         (daemonp))
         (selected-frame   (selected-frame)))
     (version-when (< 24 emacs-major-version)
+      ;; TODO: Desktop functionality needs to be organized a bit more so it's
+      ;; not randomly triggered from `custom-configure-display'.
+      (add-hook 'desktop-after-read-hook
+                #'(lambda ()
+                    (setq last-restored-frameset desktop-saved-frameset)))
+
       ;; Saving the display is nice, but since I tend to do a lot of work over
       ;; SSH-tunneled displays, the value is invariably wrong (the display is
       ;; generated dynamically).  To make matters worse, I would think
@@ -1788,6 +1798,18 @@ they are symbols, so they are not sorted alphabetically."
   (interactive)
   (message "Current feature set: %s"
            (sort (mapcar #'symbol-name features) #'string<)))
+
+(defun restore-last-desktop-frameset ()
+  "Restore the last frameset encountered by `desktop-read'."
+  (interactive)
+
+  (if (null last-restored-frameset)
+      (user-error "No desktop was loaded, or there was no frameset present"))
+
+  ;; TODO: We could probably configure this with interactive parameters to keep
+  ;; frames, reuse them, and so on.
+  (frameset-restore last-restored-frameset :reuse-frames nil :cleanup-frames nil
+                    :force-display nil :force-onscreen t))
 
 (defun set-active-frame-width-for-parallel-windows (window-count)
   "Set the width of the frame to allow WINDOW-COUNT parallel windows to have a
