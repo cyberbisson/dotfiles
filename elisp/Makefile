@@ -6,7 +6,13 @@
 # Utilities:
 ################################################################################
 
-EMACS = emacs
+MACOS_EMACS = /Applications/Emacs.app/Contents/MacOS/Emacs
+ifneq ("$(wildcard $(MACOS_EMACS))","")
+    EMACS = $(MACOS_EMACS)
+else
+    EMACS = emacs
+endif
+
 RM    = rm
 
 ################################################################################
