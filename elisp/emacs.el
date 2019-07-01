@@ -1581,6 +1581,10 @@ a similar alias to avoid bucking the trend.")
                           t)))
      (when confirmed (delete-other-windows))))
 
+  ;; Sometimes I want a new frame with a different color scheme (e.g., when
+  ;; exporting "htmlized" text from `org-mode').
+  (define-key ctl-x-5-map "3" #'make-reversed-frame)
+
   ;; It helps to go backwards sometimes.
   (global-set-key "\C-xp"
    #'(lambda (&optional count)
@@ -1787,6 +1791,30 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
 
     (other-window 1) ;; Split the smaller window vertically.
     (split-window)))
+
+(defun make-reversed-frame ()
+  "Return a newly created frame where the background and foreground colors are
+the reverse of the currently selected frame.  The frame must not be a terminal
+frame."
+  (interactive)
+
+  (let* ((frame (selected-frame))
+         (bg-mode (frame-parameter frame 'background-mode)))
+    ;; This check is mostly because some terminals don't like to have their
+    ;; background changed, but also because some terminals rely on EVs to
+    ;; interrogate the background mode.
+    (if (terminal-frame-p frame)
+        (user-error "Current display must not be a terminal"))
+
+    ;; This is not OK...
+    (if (null bg-mode) (error "Current background mode is unknown"))
+
+    (setq frame
+          (make-frame
+           `((foreground-color . ,(frame-parameter frame 'background-color))
+             (background-color . ,(frame-parameter frame 'foreground-color))
+             (background-mode  . ,(if (eq 'dark bg-mode) 'light 'dark)))))
+    (select-frame frame)))
 
 (defun print-features-list ()
   "Print a sorted list of the currently loaded features.
