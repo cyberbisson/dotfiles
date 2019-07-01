@@ -584,7 +584,6 @@ is light.")
 
   ;; Set up my Palm development environment
   (when (getenv "USE_HOLLY")
-    (require 'gud) ;; TODO: Needed??
     (add-to-list 'custom-environments 'palm-dev))
 
   (when (getenv "VMWARE_CODE")
@@ -843,6 +842,9 @@ is light.")
   ;; Some additional major customizations based on display capabilities:
   (custom-configure-display)
 
+  ;; Special configurations for saved Emacs sessions.
+  (unless-running-xemacs (custom-configure-desktop)) ; Doesn't exist in XEmacs.
+
   ;; Descend into version-specific customizations.
   (version-if (< 19 emacs-major-version) (custom-configure-emacs-20))
 
@@ -1006,6 +1008,80 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
    ;; Leave this many of the oldest versions
    kept-old-versions 2))
 
+(defun custom-configure-desktop ()
+  "Set up `desktop-mode' functionality."
+
+  (setup-desktop-restore-transient-buffer 'compilation-mode)
+
+  (version-when (< 24 emacs-major-version)
+    ;; Save this off for things like `restore-last-desktop-frameset'.
+    (add-hook 'desktop-after-read-hook
+              #'(lambda ()
+                  (setq last-restored-frameset desktop-saved-frameset)))
+
+    ;; Saving the display is nice, but since I tend to do a lot of work over
+    ;; SSH-tunneled displays, the value is invariably wrong (the display is
+    ;; generated dynamically).  To make matters worse, I would think
+    ;; `desktop-restore-in-current-display' would just solve the problem, but
+    ;; it doesn't seem to.  I'm therefore skipping the ability to restore to
+    ;; multiple displays (so I can make remote displays show up) by keeping
+    ;; the `display' property out of saved framesets..
+    (add-to-list 'frameset-filter-alist '(display . :never))
+
+    ;; Restoring the frameset under Emacs daemon kills the daemon "frame", and
+    ;; results in closing the last frame causing Emacs to exit.  This is not
+    ;; what we want at all.  Instead, force the desktop to keep around the old
+    ;; frames instead of trying to resuse them.
+    (when (daemonp)
+      (modify-frame-parameters daemon-frame '((desktop-dont-save . t)))
+      (setq desktop-restore-reuses-frames 'keep))
+
+    (when (terminal-frame-p)
+      ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore
+      ;; the frameset that was saved in the desktop, it must call
+      ;; `desktop-restoring-frameset-p', which in turn checks the function
+      ;; `display-graphic-p'.  This essentially means that, even though
+      ;; restoring the frameset works on the TTY (providing
+      ;; `desktop-restore-forces-onscreen' is NIL), it NEVER runs.  So we get
+      ;; the full desktop, but none of the frames.  FIXING THIS NOW.
+      (setq desktop-restore-forces-onscreen nil)
+      (add-hook
+       'desktop-after-read-hook
+       #'(lambda ()
+           (frameset-restore
+            desktop-saved-frameset
+            :reuse-frames (eq desktop-restore-reuses-frames t)
+            :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
+            :force-display desktop-restore-in-current-display
+            :force-onscreen desktop-restore-forces-onscreen)))))
+
+  ;; Set everything up for us to use a desktop (saved session) if asked.
+  ;;
+  ;; NOTE: Calling `desktop-read' should be the last thing the init-file does so
+  ;; that all modes are fully configured prior to resurrecting any stateful
+  ;; buffers from the desktop.  Otherwise, we get things like `whitespace-mode'
+  ;; with all the settings we don't want to have enabled.
+  ;;
+  ;; It is also important to have this run after the hooks are installed for
+  ;; `customize-font-lock-on-frame', or else the colors will look right on the
+  ;; first frame, but none of the subsequent frames will be right.
+  ;; Consequently, see `customize-font-lock' for where `desktop-read' gets
+  ;; invoked.
+  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
+    (if (and env-dt-dir
+             (file-exists-p env-dt-dir)
+             (not (member "--no-desktop" command-line-args)))
+        (setq desktop-path (list env-dt-dir))
+      ;; Clear out the EV that causes `desktop-read' on the false path.
+      (setenv "EMACS_DESKTOP_DIR" nil))
+
+    ;; Because we're handling the desktop load manually, passing "--no-desktop"
+    ;; works just fine, but gives a spurrious warning about how the desktop
+    ;; isn't loaded.  Go ahead and delete it like `desktop' would do.
+    (when (member "--no-desktop" command-line-args)
+      (unless (featurep 'desktop)
+        (setq command-line-args (delete "--no-desktop" command-line-args))))))
+
 (defun custom-configure-display ()
   "Configure settings that apply to how Emacs behaves on various kinds of
 display."
@@ -1022,62 +1098,18 @@ display."
   (set-emacs-title-format emacs-title-format)
 
   (let ((terminal-frame-p (terminal-frame-p))
-        (daemon-p         (daemonp))
         (selected-frame   (selected-frame)))
-    (version-when (< 24 emacs-major-version)
-      ;; TODO: Desktop functionality needs to be organized a bit more so it's
-      ;; not randomly triggered from `custom-configure-display'.
-      (add-hook 'desktop-after-read-hook
-                #'(lambda ()
-                    (setq last-restored-frameset desktop-saved-frameset)))
-
-      ;; Saving the display is nice, but since I tend to do a lot of work over
-      ;; SSH-tunneled displays, the value is invariably wrong (the display is
-      ;; generated dynamically).  To make matters worse, I would think
-      ;; `desktop-restore-in-current-display' would just solve the problem, but
-      ;; it doesn't seem to.  I'm therefore skipping the ability to restore to
-      ;; multiple displays (so I can make remote displays show up) by keeping
-      ;; the `display' property out of saved framesets..
-      (add-to-list 'frameset-filter-alist '(display . :never))
-
-      ;; Restoring the frameset under Emacs daemon kills the daemon "frame", and
-      ;; results in closing the last frame causing Emacs to exit.  This is not
-      ;; what we want at all.  Instead, force the desktop to keep around the old
-      ;; frames instead of trying to resuse them.
-      (when daemon-p
-        (modify-frame-parameters daemon-frame '((desktop-dont-save . t)))
-        (setq desktop-restore-reuses-frames 'keep))
-
-      (when terminal-frame-p
-        ;; THIS COULD NOT BE STUPIDER.  In order for `desktop-read' to restore
-        ;; the frameset that was saved in the desktop, it must call
-        ;; `desktop-restoring-frameset-p', which in turn checks the function
-        ;; `display-graphic-p'.  This essentially means that, even though
-        ;; restoring the frameset works on the TTY (providing
-        ;; `desktop-restore-forces-onscreen' is NIL), it NEVER runs.  So we get
-        ;; the full desktop, but none of the frames.  FIXING THIS NOW.
-        (setq desktop-restore-forces-onscreen nil)
-        (add-hook
-         'desktop-after-read-hook
-         #'(lambda ()
-             (frameset-restore
-              desktop-saved-frameset
-              :reuse-frames (eq desktop-restore-reuses-frames t)
-              :cleanup-frames (not (eq desktop-restore-reuses-frames 'keep))
-              :force-display desktop-restore-in-current-display
-              :force-onscreen desktop-restore-forces-onscreen)))))
-
     ;; Add hooks for setting up frames lazily (run once, as
     ;; `after-make-frame-functions' does not run on the first frame).
     (add-hook 'after-make-frame-functions #'custom-configure-frame)
     (custom-configure-frame selected-frame)
 
-   ;; Hack attack!  On older Emacs versions, something kicks `menu-bar-mode' to
-   ;; on after the initial frame's configuration (I don't think it's me).  As a
-   ;; result, just set `menu-bar-mode' to whatever `custom-configure-frame'
-   ;; would have set it, and that first frame won't be clobbered.
-   (unless-running-xemacs (menu-bar-mode (if terminal-frame-p -1 1)))
-    (if (or terminal-frame-p daemon-p)
+    ;; Hack attack!  On older Emacs versions, something kicks `menu-bar-mode' to
+    ;; on after the initial frame's configuration (I don't think it's me).  As a
+    ;; result, just set `menu-bar-mode' to whatever `custom-configure-frame'
+    ;; would have set it, and that first frame won't be clobbered.
+    (unless-running-xemacs (menu-bar-mode (if terminal-frame-p -1 1)))
+    (if (or terminal-frame-p (daemonp))
         ;; Set a hook that removes itself prior to executing.  It only runs when
         ;; there is frame on a windowing system.
         (add-hook 'after-make-frame-functions #'exec-on-first-gui)
@@ -1231,25 +1263,10 @@ execution, the hook removes itself."
   (customize-font-lock-on-frame (selected-frame))
   (add-hook 'after-make-frame-functions #'customize-font-lock-on-frame)
 
-  ;; TODO: Figure out how to move this `desktop-mode' stuff somewhere else!
-  (unless-running-xemacs ; Not figuring out `desktop-mode' for XEmacs.
-    (setup-desktop-restore-transient-buffer 'compilation-mode))
-
-  ;; Set everything up for us to use a desktop (saved session) if asked.
-  ;;
-  ;; This should be the last thing the init-file does so that all modes are
-  ;; fully configured prior to resurrecting any stateful buffers from the
-  ;; desktop.  Otherwise, we get things like whitespace-mode with all the
-  ;; settings we don't want to have enabled.
-  ;;
-  ;; It is also important to have this run after the hooks are installed for
-  ;; `customize-font-lock-on-frame', or else the colors will look right on the
-  ;; first frame, but none of the subsequent frames will be right.
-  (let ((env-dt-dir (getenv "EMACS_DESKTOP_DIR")))
-    (when (and env-dt-dir
-               (file-exists-p env-dt-dir)
-               (not (member "--no-desktop" command-line-args)))
-      (setq desktop-path (list env-dt-dir)) (desktop-read))))
+  ;; NOTE: `desktop-read' must come late, so we have it here.  See
+  ;; `custom-configure-desktop' for rationale, and for where everything gets set
+  ;; for this invocation.
+  (unless-running-xemacs (if (getenv "EMACS_DESKTOP_DIR") (desktop-read))))
 
 (defun add-doxygen-comment-style ()
   "Add a new Doxygen comment style, and apply it to C/C++ files.
@@ -1329,6 +1346,10 @@ refers to the 'doxygen comment style, as they will do extra work."
   "Customize the color settings on a per-frame basis.
 
 The FRAME parameter specifies which frame will be altered."
+  ;; TODO: There is a bug here.  When `frameset-restore' restores a frame with a
+  ;; `background-mode' that doesn't match the default, this function applies the
+  ;; wrong color scheme.  It seems the frame parameters are not correct when
+  ;; this hook runs.
   (when (< 255 (compat-display-color-cells frame))
     (when (terminal-frame-p frame)
       (if (eq system-type 'darwin)
@@ -1603,7 +1624,7 @@ a similar alias to avoid bucking the trend.")
      (interactive)
      (when buffer-file-name (kill-new (file-truename buffer-file-name)))))
 
-  ;; TODO: These used to be required, but now Emacs and the console have figured
+  ;; XXX: These used to be required, but now Emacs and the console have figured
   ;; out how to play nice.  Re-enable these (with an appropriate conditional)
   ;; when we encounter another terminal / keyboard issue.
 ;;(set-key-bindings-term)
