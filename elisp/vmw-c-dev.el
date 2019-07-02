@@ -13,8 +13,8 @@
 ;; The following code will allow proper expansion of macros:
 ;;   (require 'vmw-c-dev)
 ;;   (vmw-update-cpp-and-flags)
-;;   (add-hook 'c-mode-hook   'vmw-set-cmacexp-data)
-;;   (add-hook 'c++-mode-hook 'vmw-set-cmacexp-data)
+;;   (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
+;;   (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data)
 
 ;;; BUGS:
 ;; - Currently $VMWARE_SRCDIR has to be defined as the path where your source
@@ -112,8 +112,8 @@ arguments required to preprocess VMware sources."
 
   (let ((compcache-map
          (mapcar
-         #'(lambda (pair-in)
-            (cons (car pair-in) (vmw-find-first-ob (cdr pair-in))))
+          #'(lambda (pair-in)
+              (cons (car pair-in) (vmw-find-first-ob (cdr pair-in))))
           '(;; Shared components
             (boost . "/build/mts/sharedcompcache/cayman_boost")
             (glibc . "/build/mts/sharedcompcache/cayman_esx_glibc")
@@ -259,8 +259,8 @@ This information is left in the variables, `vmw-cached-cpp-file' and
   (when (not vmw-added-cc-mode-hooks)
     (add-hook 'c-initialization-hook
               #'(lambda ()
-                (define-key c-mode-map   "\C-c\C-e" #'vmw-c-macro-expand)
-                (define-key c++-mode-map "\C-c\C-e" #'vmw-c-macro-expand)))
+                  (define-key c-mode-map   "\C-c\C-e" #'vmw-c-macro-expand)
+                  (define-key c++-mode-map "\C-c\C-e" #'vmw-c-macro-expand)))
     (setq vmw-added-cc-mode-hooks t))
 
   t)
