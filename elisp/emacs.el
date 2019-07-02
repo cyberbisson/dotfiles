@@ -616,7 +616,7 @@ is light.")
     (if (file-exists-p "~/elisp/gtags.elc")
         (add-hook 'c-mode-common-hook #'gtags-mode)
       (if (file-exists-p "~/elisp/xcscope.elc")
-          (eval-after-load 'cc-mode '(require 'xcscope)))))
+          (eval-after-load 'cc-mode #'(require 'xcscope)))))
 
   ;; Perforce is a horrible version control system -- it has an Emacs mode.
   (if (file-exists-p "~/elisp/p4.elc") ;; 2 slow
@@ -872,11 +872,11 @@ is light.")
 (defun custom-configure-emacs-21 ()
   "Customizations that are only applicable to Emacs 21 and above."
 
-  (eval-after-load 'diff-mode  '(merge-font-lock-settings diff-faces))
-  (eval-after-load 'ebrowse    '(merge-font-lock-settings ebrowse-faces))
-  (eval-after-load 'ediff      '(merge-font-lock-settings ediff-faces))
-  (eval-after-load 'gud        '(merge-font-lock-settings gud-faces))
-  (eval-after-load 'whitespace '(merge-font-lock-settings whitespace-faces))
+  (eval-after-load 'diff-mode  #'(merge-font-lock-settings diff-faces))
+  (eval-after-load 'ebrowse    #'(merge-font-lock-settings ebrowse-faces))
+  (eval-after-load 'ediff      #'(merge-font-lock-settings ediff-faces))
+  (eval-after-load 'gud        #'(merge-font-lock-settings gud-faces))
+  (eval-after-load 'whitespace #'(merge-font-lock-settings whitespace-faces))
 
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
@@ -1384,10 +1384,12 @@ symbol 'ign' does nothing."
     (progn
       (unless (eq fg 'ign) (set-face-foreground face fg frame))
       (unless (eq bg 'ign) (set-face-background face bg frame))))
-  (unless-running-xemacs
-    (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
-    (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
-  (unless (eq underline-p 'ign) (set-face-underline-p face underline-p frame)))
+  (with-no-warnings ; "-p" functions are marked obsolete in Emacs 24.
+    (unless-running-xemacs
+      (unless (eq bold-p 'ign) (set-face-bold-p face bold-p frame))
+      (unless (eq italic-p 'ign) (set-face-italic-p face italic-p frame)))
+    (unless (eq underline-p 'ign)
+      (set-face-underline-p face underline-p frame))))
 
 (defun merge-font-lock-settings (settings-alist)
   "Merge a list of faces for into `bg-light-faces' and `bg-dark-faces'.
@@ -1585,7 +1587,7 @@ a similar alias to avoid bucking the trend.")
     (global-set-key [C-S-next]  #'(lambda () (interactive) (scroll-left 1 t)))
     (global-set-key [C-S-prior] #'(lambda () (interactive) (scroll-right 1 t))))
 
-  (global-set-key "\C-c\C-r" #'recompile)
+  (eval-after-load 'compile #'(global-set-key "\C-c\C-r" #'recompile))
 
   ;; I use this function often, and not all terminals allow C-M-%.
   (define-key ctl-x-5-map "%" #'query-replace-regexp)
@@ -1663,9 +1665,9 @@ a similar alias to avoid bucking the trend.")
 ;; (harmless, but) noticeable message on Emacs start-up about how `start-server'
 ;; was re-defined.
 (eval-after-load 'server
-  '(defadvice server-start (after tell-server-start activate compile)
-     "Alter the (default) frame titles when the Emacs server status changes."
-     (on-server-state-change)))
+  #'(defadvice server-start (after tell-server-start activate compile)
+      "Alter the (default) frame titles when the Emacs server status changes."
+      (on-server-state-change)))
 
 (defadvice gud-display-line (after my-gud-highlight activate compile)
   "Highlight current line.
