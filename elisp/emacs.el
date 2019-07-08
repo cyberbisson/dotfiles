@@ -515,6 +515,11 @@ is light.")
     (light . ((gdb-selection ign "DarkSeaGreen3" ign ign ign))))
   "Custom faces for `gud-mode'.  These are modified lazily.")
 
+(defconst org-faces
+  '((dark  . ((org-ellipsis "LightGoldenrod" nil t nil nil)))
+    (light . ((org-ellipsis "DarkSlateBlue"  nil t nil nil))))
+  "Custom faces for `org-mode' buffers.")
+
 (defconst whitespace-faces
   '((light . ((whitespace-line "Red1" nil t nil nil))))
   "Custom faces for `whitespace-mode'.  These are modified lazily.")
@@ -555,7 +560,7 @@ is light.")
   "Faces introduced in Emacs v21.")
 
 (defconst faces-version-25
-  '(ebrowse-root-class font-lock-constant-face whitespace-line)
+  '(ebrowse-root-class font-lock-constant-face org-ellipsis whitespace-line)
   "Faces introduced in Emacs v25.")
 
 ;; -----------------------------------------------------------------------------
@@ -748,6 +753,11 @@ is light.")
    ;; seems like a pointless waste of space.
    org-adapt-indentation        nil
 
+   ;; You can change how collapsed nodes are indicated in `org-mode', but more
+   ;; than this, the custom `org-ellipsis' face is not used unless this is set
+   ;; for some reason.
+   org-ellipsis                 "[+]"
+
    ;; Smart quotes are just plain better than straight quotes (if I could get it
    ;; to put in &ensp; after punctuation, so much the better).
    org-export-with-smart-quotes t
@@ -885,6 +895,7 @@ is light.")
   (eval-after-load 'ebrowse    '(merge-font-lock-settings ebrowse-faces))
   (eval-after-load 'ediff      '(merge-font-lock-settings ediff-faces))
   (eval-after-load 'gud        '(merge-font-lock-settings gud-faces))
+  (eval-after-load 'org-faces  '(merge-font-lock-settings org-faces))
   (eval-after-load 'whitespace '(merge-font-lock-settings whitespace-faces))
 
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
