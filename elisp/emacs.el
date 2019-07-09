@@ -516,8 +516,26 @@ is light.")
   "Custom faces for `gud-mode'.  These are modified lazily.")
 
 (defconst org-faces
-  '((dark  . ((org-ellipsis "LightGoldenrod" nil t nil nil)))
-    (light . ((org-ellipsis "DarkSlateBlue"  nil t nil nil))))
+  '((dark
+     . ((org-ellipsis "LightGoldenrod" nil t   nil nil)
+        (org-level-1  "Aquamarine2"    nil nil nil nil)
+        (org-level-2  "LightCoral"     nil nil nil nil)
+        (org-level-3  "LightSkyBlue"   nil nil nil nil)
+        (org-level-4  "LightSalmon"    nil nil nil nil)
+        (org-level-5  "PaleTurquoise"  nil nil nil nil)
+        (org-level-6  "Violet"         nil nil nil nil)
+        (org-level-7  "Turquoise"      nil nil nil nil)
+        (org-level-8  "Pink"           nil nil nil nil)))
+    (light
+     . ((org-ellipsis "DarkSlateBlue"  nil t   nil nil)
+        (org-level-1  "OrangeRed2"     nil nil nil nil)
+        (org-level-2  "DodgerBlue4"    nil nil nil nil)
+        (org-level-3  "FireBrick"      nil nil nil nil)
+        (org-level-4  "DarkGreen"      nil nil nil nil)
+        (org-level-5  "Maroon"         nil nil nil nil)
+        (org-level-6  "CadetBlue"      nil nil nil nil)
+        (org-level-7  "Chocolate"      nil nil nil nil)
+        (org-level-8  "Red"            nil nil nil nil))))
   "Custom faces for `org-mode' buffers.")
 
 (defconst whitespace-faces
@@ -559,8 +577,15 @@ is light.")
           mode-line-inactive)))
   "Faces introduced in Emacs v21.")
 
+(defconst faces-version-22
+  '(org-ellipsis
+    ;; All the structural faces for `org-mode':
+    org-level-1 org-level-2 org-level-3 org-level-4 org-level-5 org-level-6
+    org-level-7 org-level-8)
+  "Faces introduced in Emacs v22.")
+
 (defconst faces-version-25
-  '(ebrowse-root-class font-lock-constant-face org-ellipsis whitespace-line)
+  '(ebrowse-root-class font-lock-constant-face whitespace-line)
   "Faces introduced in Emacs v25.")
 
 ;; -----------------------------------------------------------------------------
@@ -895,7 +920,7 @@ is light.")
   (eval-after-load 'ebrowse    '(merge-font-lock-settings ebrowse-faces))
   (eval-after-load 'ediff      '(merge-font-lock-settings ediff-faces))
   (eval-after-load 'gud        '(merge-font-lock-settings gud-faces))
-  (eval-after-load 'org-faces  '(merge-font-lock-settings org-faces))
+  (eval-after-load 'org        '(merge-font-lock-settings org-faces))
   (eval-after-load 'whitespace '(merge-font-lock-settings whitespace-faces))
 
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
@@ -936,10 +961,6 @@ is light.")
   (unless-running-xemacs (global-whitespace-mode 1))
   (setq whitespace-style '(face trailing table lines empty tab-mark))
 
-  (version-if (< 22 emacs-major-version) (custom-configure-emacs-23)))
-
-(defun custom-configure-emacs-23 ()
-  "Customizations that are only applicable to Emacs 23 and above."
   ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
   ;; the `auto-mode-alist'.
   (setq auto-mode-alist (append `(("\\.org$" . ,#'org-mode)) auto-mode-alist)))
@@ -1449,8 +1470,10 @@ WHICH-FRAME parameter specifies the frame whose faces will be altered."
       (modify-font-lock-faces faces-alist faces-version-20-2 which-frame))
     (version-when (< 20 emacs-major-version)
       (modify-font-lock-faces faces-alist faces-version-21 which-frame)
-      (version-when (< 24 emacs-major-version)
-        (modify-font-lock-faces faces-alist faces-version-25 which-frame)))))
+      (version-when (< 21 emacs-major-version)
+        (modify-font-lock-faces faces-alist faces-version-22 which-frame)
+        (version-when (< 24 emacs-major-version)
+          (modify-font-lock-faces faces-alist faces-version-25 which-frame))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Location-specific development environment configurations:
