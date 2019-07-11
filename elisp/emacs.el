@@ -330,6 +330,7 @@ were not introduced until Emacs 22."
       (require 'compile)
       (require 'desktop)
       (require 'dired)
+      (require 'ediff)
       (require 'inf-lisp)
       (require 'server)
       (require 'term)
@@ -492,15 +493,16 @@ is light.")
 
 ;; On dark colored terminals, the diff colors are purple and teal, which is
 ;; horrible.  They look fine on X, but it's so bad on the terminal, I'm changing
-;; it.
+;; it.  In some cases, the terminal supports colors that look good, but there's
+;; no "name" for it, so I'm using just the hex value.
 (defconst diff-faces
   '((dark . ((diff-added   ign "DarkGreen" ign ign ign)
-             (diff-removed ign "DarkRed"   ign ign ign))))
+             (diff-removed ign "#5f0000"   ign ign ign))))
   "Custom faces for `diff-mode'.  These are modified lazily.")
 
 (defconst ediff-faces
   '((dark
-     . ((ediff-current-diff-A         ign "DarkRed"   ign ign ign)
+     . ((ediff-current-diff-A         ign "#5f0000"   ign ign ign)
         (ediff-current-diff-B         ign "DarkGreen" ign ign ign)
         (ediff-current-diff-Ancestor  ign "DarkGreen" ign ign ign))))
   "Custom faces for `ediff-mode'.  These are modified lazily.")
@@ -751,6 +753,10 @@ is light.")
 ;  display-time-day-and-date    t
 ;  display-time-format          "%a-%Y/%m/%d-%H:%M"
    display-time-format          "%H:%M/%a"
+
+   ;; This isn't working on FVWM.  It's taking my mouse and putting it at the
+   ;; bottom left corner of the screen, then the desktop jumps.
+   ediff-grab-mouse             nil
 
    ;; So you're not supposed to make this longer than 65 because it looks better
    ;; in apropos for documentation, but I really haven't noticed anything odd in
@@ -1167,7 +1173,11 @@ display."
 
   (let ((terminal-frame-p (terminal-frame-p frame)))
     (modify-frame-parameters
-     frame `((menu-bar-lines . ,(if terminal-frame-p 0 1))))
+     frame `((menu-bar-lines
+              . ,(if (or terminal-frame-p
+                         ;; Don't mess with the ediff control frame.
+                         (string= (frame-parameter frame 'name) "Ediff"))
+                     0 1))))
 
     ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
     ;; unless the background is pure black.
