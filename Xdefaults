@@ -110,9 +110,9 @@ Emacs*Foreground:     gray81
 Emacs*toolbar:        0
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! Annoying hack for Emacs-24.4
-!Emacs.default.attributeBackground: gray20
-!Emacs.default.attributeForeground: gray81
+!! Annoying hack for Emacs-24.4 (and KDE??)
+Emacs.default.attributeBackground: gray20
+Emacs.default.attributeForeground: gray81
 
 !! Now in lower case, for some reason...
 !emacs*geometry:            81x60
