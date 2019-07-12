@@ -1,6 +1,10 @@
-
+#!/bin/zsh -x
 # .alias.zsh
-# This file defines all the aliases for my CSH type environments.
+################################################################################
+# Aliases set during .zshrc.
+#
+# This file defines all the aliases for my ZSH type environments.
+################################################################################
 # Matt Bisson
 
 # ClearCase aliases
@@ -19,10 +23,9 @@ alias gboy='xgnuboy --scale=2 --bind alt +a --bind ctrl +b'
 alias snes='snes9x -r 7'
 alias ls='ls -Fv'                       # Place chars after certain file types
 
-# This is where emacs lives if compiled natively on MacOS
-CARBON_EMACS_DIR="/Applications/Emacs.app/Contents/MacOS"
-if [ -d ${CARBON_EMACS_DIR} ] ; then
-    alias emacs="${CARBON_EMACS_DIR}/Emacs"
+# This is where emacs lives if compiled natively on MacOS.
+if [ -x "${CARBON_EMACS_DIR}/Emacs" ] ; then
+    alias emacs="Emacs"
 fi
 
 # Make shorter names for Emacs client/server commands.

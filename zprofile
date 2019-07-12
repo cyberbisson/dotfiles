@@ -275,7 +275,17 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
         CPU=`machine`
     fi
     machtype='osx_'${CPU}
-    machdirs=( '/Library/TeX/texbin' )
+
+    # This is where emacs lives if compiled natively on MacOS
+    export CARBON_EMACS_DIR="/Applications/Emacs.app/Contents/MacOS"
+    if [ -x "${CARBON_EMACS_DIR}/Emacs" ] ; then
+        export EDITOR='Emacs'
+        export VISUAL='Emacs'
+        export WINEDITOR='Emacs'
+    fi
+
+    machdirs=( '/Library/TeX/texbin' "${CARBON_EMACS_DIR}" \
+                                     "${CARBON_EMACS_DIR}/bin" )
     unset CPU
     ;;
 
@@ -690,11 +700,7 @@ fi
 # simplification because (at least) Git on Cygwin doesn't like to use the
 # Windows Emacs when it exists in the path.  If a valid Emacs lives in a custom
 # location, we can make fixes at that time.
-if [ -x "/Applications/Emacs.app/Contents/MacOS/Emacs" ] ; then
-    export EDITOR='/Applications/Emacs.app/Contents/MacOS/Emacs'
-    export VISUAL='/Applications/Emacs.app/Contents/MacOS/Emacs'
-    export WINEDITOR='/Applications/Emacs.app/Contents/MacOS/Emacs'
-elif [ -x /usr/bin/emacs ] ; then
+if [ -x /usr/bin/emacs ] ; then
     export EDITOR='emacs'
     export VISUAL='emacs'
     export WINEDITOR='emacs'
