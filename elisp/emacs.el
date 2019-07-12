@@ -1180,16 +1180,21 @@ display."
                      0 1))))
 
     ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
-    ;; unless the background is pure black.
+    ;; unless the background is pure black.  TODO: There is something wrong
+    ;; somewhere here -- maybe with Xresources?
     (unless-running-xemacs
       ;; Only capture a GUI's parameters -- capturing them from the terminal
       ;; will mess things up.
       (unless terminal-frame-p
         (let ((frame-params (frame-parameters frame)))
           (if (eq 'dark (cdr (assq 'background-mode frame-params)))
-              (let ((fg-color (cdr (assq 'foreground-color frame-params))))
+              (let ((fg-color (cdr (assq 'foreground-color frame-params)))
+                    (bg-color (cdr (assq 'background-color frame-params))))
                 (set-cursor-color fg-color)
-                (set-mouse-color  fg-color))))))))
+                (set-mouse-color  fg-color)
+                ;; Reversed color looks best for scroll bars...
+                (set-face-foreground 'scroll-bar bg-color frame)
+                (set-face-background 'scroll-bar fg-color frame))))))))
 
 (defun custom-configure-on-first-gui (frame)
   "Configure the window-system options (lazily) when the first such frame is
