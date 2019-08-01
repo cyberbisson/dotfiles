@@ -42,6 +42,10 @@ elif [ ! "${ignore_gnome}" ] && [ `command -v gnome-session` ] ; then
     # TODO: UNTESTED...
     exec gnome-session >> ${log_file} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
+    # This will be ignored on non-KDE systems, but when running KDE
+    # applications, the preferences are not applied unless this is set.
+    export KDE_FULL_SESSION='true'
+
     # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
     # or else, what's the point?
     if [ `command -v urxvtd` ] ; then
