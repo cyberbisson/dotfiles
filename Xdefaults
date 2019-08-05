@@ -88,11 +88,12 @@ sshxterm*toolBar:     false
 !! Set up some emacs stuff.  Note, set geometry with "." instead of "*".
 Emacs.geometry:       81x60
 !Emacs.geometry:      81x70
+Emacs*FontBackend:    xft
+Emacs*Font:           DejaVu Sans Mono 9
 !Emacs*Font:          8x13
 !Emacs*Font:          -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
 !Emacs*Font:          Consolas 9
 !Emacs*Font:          Nimbus Mono L 10
-Emacs*Font:           DejaVu Sans Mono 9
 !Emacs*Font:          FreeMono 10
 !Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 !! Black on gray
@@ -108,6 +109,20 @@ Emacs*Font:           DejaVu Sans Mono 9
 Emacs*Background:     gray20
 Emacs*Foreground:     gray81
 Emacs*toolbar:        0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Motif...
+Emacs.pane.menubar.*.fontList:   -*-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
+Emacs.pane.menubar.*.shadowThickness: 1
+Emacs.pane.scrollbar.*.shadowThickness: 1
+
+Emacs.pane.menubar.*.Foreground: gray20
+Emacs.pane.menubar.*.Background: gray81
+
+!Emacs.*.renderTable:          emacs
+!Emacs.*.renderTable.fontType: FONT_IS_XFT
+!Emacs.*.renderTable.fontName: DejaVu Sans Mono
+!Emacs.*.renderTable.fontSize: 9
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Annoying hack for Emacs-24.4 (and KDE??)

@@ -17,6 +17,7 @@ chmod 600 ${log_file}
 
 # Not the most flexible way to do this, but it will work for now.  Define
 # "ignore" variables to skip WMs that you don't want to use.
+ignore_cde=1
 ignore_compiz=1
 #ignore_fvwm=1
 ignore_gnome=1
@@ -32,6 +33,8 @@ source "${HOME}/.zprofile" >> ${log_file} 2>&1
 # Try a number of window managers until finally falling back to twm.
 if [ ! "${ignore_openwin}" ] && [ `command -v olwm` ] ; then
     exec olwm >> ${log_file} 2>&1
+elif [ ! "${ignore_cde}" ] && [ -x '/usr/dt/bin/Xsession' ] ; then
+    exec '/usr/dt/bin/Xsession' >> ${log_file} 2>&1
 elif [ ! "${ignore_compiz}" ] && [ `command -v beryl-xgl` ] ; then
 #   WINDOW_MANAGER="beryl-manager" exec gnome-session >> ${log_file} 2>&1
     beryl-xgl --replace  >> ${log_file} 2>&1 &
