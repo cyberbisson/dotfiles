@@ -1,8 +1,21 @@
-!!  .Xdefaults
+!! .Xdefaults
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  Set up my X windows environment and make it cool looking
+!! Set up my X windows environment and make it cool looking
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!  Matt Bisson		10/15/2000
+!! Matt Bisson		10/15/2000
+
+!! Set up CDE terminal, since this file dates back to the mid-1990s...
+Dtterm*geometry:     128x60
+Dtterm*saveLines:    2048
+Dtterm*title:        Desktop Terminal
+Dtterm*userFontList: \
+-dt-interface user-medium-r-normal-xs*-*-*-*-*-m-*:\n\
+-dt-interface user-medium-r-normal-s*-*-*-*-*-m-*:\n\
+-dt-interface user-medium-r-normal-m*-*-*-*-*-m-*:\n\
+-dt-interface user-medium-r-normal-l*-*-*-*-*-m-*:\n\
+-dt-interface user-medium-r-normal-xl*-*-*-*-*-m-*:\n\
+-dt-interface user-medium-r-normal-xxl*-*-*-*-*-m-*:
+Dtterm*userFont:     7x13
 
 !! Set up the Xterm
 xterm*background:  gray20
@@ -49,9 +62,9 @@ urxvt.scrollBar:   true
 urxvt.title:       RXVT (Unicode)
 !! Trying to make the color palate match XTerm.  One might do this if, say, a
 !! (terminal) Emacs session is shared between two computers, one of which runs
-!! XTerm.  It's probably easier to set the URxvt colors here, than it is to set
-!! every terminal emulator's settings to look like URxvt, even though I like the
-!! URxvt ones better.
+!! XTerm.  It is probably easier to set the URxvt colors here, than it is to set
+!! the settings for every terminal emulator to look like URxvt, even though I
+!! like the URxvt ones better.
 !urxvt.color4:      rgb:00/00/ee
 !urxvt.color8:      rgb:7f/7f/7f
 !urxvt.color12:     rgb:5c/5c/ff
@@ -85,84 +98,90 @@ sshxterm*scrollBar:   true
 sshxterm*termName:    xterm-256color
 sshxterm*toolBar:     false
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! GNU Emacs Resources:
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 !! Set up some emacs stuff.  Note, set geometry with "." instead of "*".
 Emacs.geometry:       81x60
 !Emacs.geometry:      81x70
-Emacs*FontBackend:    xft
-Emacs*Font:           DejaVu Sans Mono 9
-!Emacs*Font:          8x13
-!Emacs*Font:          -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
-!Emacs*Font:          Consolas 9
-!Emacs*Font:          Nimbus Mono L 10
-!Emacs*Font:          FreeMono 10
-!Emacs*Font:         -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
-!! Black on gray
-!Emacs*Background:    gray75
-!Emacs*Foreground:    black
-!! White on green
-!Emacs*Background:    #374D4E
-!Emacs*Foreground:    white
-!! Grey on white
-!Emacs*Background:    white
-!Emacs*Foreground:    gray75
-!! Light grey on dark
-Emacs*Background:     gray20
-Emacs*Foreground:     gray81
-Emacs*toolbar:        0
+Emacs*toolBar:        false
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! Motif...
-Emacs.pane.menubar.*.fontList:   -*-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
-Emacs.pane.menubar.*.shadowThickness: 1
-Emacs.pane.scrollbar.*.shadowThickness: 1
+!! Construct the "default" font/frame settings for Emacs.  TODO: This does not
+!! work on Emacs 23 and before (replacing "default" with "*" does, but breaks
+!! Motif font selection).  Setting just "Emacs*Font" is also not working because
+!! it fights with the Motif font selection process, meaning one or the other
+!! setting can function, but not both!
+Emacs.default.attributeFont: DejaVu Sans Mono 9
+!Emacs*attributeFont:        DejaVu Sans Mono 9
+!Emacs*attributeFont:        DejaVu Sans Mono 9
+!Emacs*attributeFont:        8x13
+!Emacs*attributeFont:        -*-Consolas-*-r-*-*-12-90-*-*-c-*-iso8859-1
+!Emacs*attributeFont:        Consolas 9
+!Emacs*attributeFont:        Nimbus Mono L 10
+!Emacs*attributeFont:        FreeMono 10
+!Emacs*attributeFont:        -Misc-Fixed-normal-normal-normal-*-13-*-*-*-c-*-iso10646-1
 
-Emacs.pane.menubar.*.Foreground: gray20
-Emacs.pane.menubar.*.Background: gray81
+!! TODO: In Emacs 24+, the default font "attribute" governs the frame color
+!! scheme.  In 23 and below, it does not, but specifying "*Foreground" seems to
+!! clobber the Motif text coloration on various widgets, making everything
+!! unreadable.
 
-!Emacs.*.renderTable:          emacs
-!Emacs.*.renderTable.fontType: FONT_IS_XFT
-!Emacs.*.renderTable.fontName: DejaVu Sans Mono
-!Emacs.*.renderTable.fontSize: 9
+!! Light grey on dark:
+Emacs.default.attributeBackground:  gray20
+Emacs.default.attributeForeground:  gray81
+!! Black on gray:
+!Emacs.default.attributeBackground: gray75
+!Emacs.default.attributeForeground: black
+!! White on green:
+!Emacs.default.attributeBackground: #374D4E
+!Emacs.default.attributeForeground: white
+!! Grey on white:
+!Emacs.default.attributeBackground: white
+!Emacs.default.attributeForeground: gray75
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! Annoying hack for Emacs-24.4 (and KDE??)
-Emacs.default.attributeBackground: gray20
-Emacs.default.attributeForeground: gray81
-
-!! Now in lower case, for some reason...
+!! TODO: Now in lower case, for some reason?
 !emacs*geometry:            81x60
 !emacs*Font:                DejaVu Sans Mono 9
 !emacs*Background:          gray20
 !emacs*Foreground:          gray81
-!emacs*toolbar:             0
+!emacs*toolBar:             0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Motif...
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!! XEmacs needs its own set of resources, or it refuses to start because you're
+!! Just in case XFT does not work, fall back to a smaller font than the default.
+Emacs*fontList: -*-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
+
+!! Ubiquitous shadow decrease makes the pop-up menu (apparently not "popup")
+!! look better, but makes the scroll bar look weird.
+Emacs*menubar*shadowThickness: 1
+!Emacs*shadowThickness:        1
+
+Emacs*renderTable:          emacs
+Emacs*renderTable.fontType: FONT_IS_XFT
+Emacs*renderTable.fontName: sans
+Emacs*renderTable.fontSize: 9
+
+!! Since we set the XFT fonts to "sans" above, return some fields to a
+!! fixed-width font.
+Emacs*XmList*renderTable.fontName:      mono
+Emacs*XmTextField*renderTable.fontName: mono
+
+!! XEmacs needs its own set of resources, or it refuses to start because you are
 !! not technically supposed to set Emacs*geometry:
 !! https://www.xemacs.org/Documentation/21.5/html/xemacs_30.html#Geometry-Resources
 !!
-!! I'm specifying them by name (instead of the XEmacs class) so XEmacs can have
+!! I am specifying them by name (instead of the XEmacs class) so XEmacs can have
 !! its own look and feel, and named resource take precedence over classes in
 !! XRDB.
 xemacs.geometry:      81x60
 xemacs*Font:          8x13
-xemacs.toolbar:       0
+xemacs.toolBar:       false
 !! Black on gray
 xemacs*Background:    gray75
 xemacs*Foreground:    black
 !! White on black
 !xemacs*Background:    gray20
 !xemacs*Foreground:    gray81
-
-!! Set up CDE terminal, since this file dates back to the mid-1990s...
-Dtterm*geometry:     128x60
-Dtterm*saveLines:    2048
-Dtterm*title:        Desktop Terminal
-Dtterm*userFontList: \
--dt-interface user-medium-r-normal-xs*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-s*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-m*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-l*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-xl*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-xxl*-*-*-*-*-m-*:
-Dtterm*userFont:      7x13
