@@ -51,6 +51,9 @@ elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
     # This will be ignored on non-KDE systems, but when running KDE
     # applications, the preferences are not applied unless this is set.
     export KDE_FULL_SESSION='true'
+    # xdg-open does bad things when KDE_FULL_SESSION is true, but nothing else
+    # is set.
+    export XDG_CURRENT_DESKTOP='X-Generic'
 
     # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
     # or else, what's the point?
