@@ -23,17 +23,11 @@ aixterm*foreground:      lightgray
 aixterm*renderFont:      false
 
 !! Set up CDE terminal, since this file dates back to the mid-1990s...
-Dtterm*geometry:     128x60
-Dtterm*saveLines:    2048
-Dtterm*title:        Desktop Terminal
-Dtterm*userFontList: \
--dt-interface user-medium-r-normal-xs*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-s*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-m*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-l*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-xl*-*-*-*-*-m-*:\n\
--dt-interface user-medium-r-normal-xxl*-*-*-*-*-m-*:
-Dtterm*userFont:     7x13
+Dtterm*enableThinThickness: true
+Dtterm*geometry:            128x60
+Dtterm*saveLines:           2048
+Dtterm*title:               Desktop Terminal
+Dtterm*userFont:            7x13
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! XTerm Resources:
