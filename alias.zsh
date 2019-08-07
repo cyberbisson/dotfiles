@@ -21,7 +21,13 @@ alias hi=history
 alias nes='tuxnes -E2'
 alias gboy='xgnuboy --scale=2 --bind alt +a --bind ctrl +b'
 alias snes='snes9x -r 7'
-alias ls='ls -Fv'                       # Place chars after certain file types
+
+# Place chars after certain file types
+if [ `uname -s` = 'Linux' ] ; then
+    alias ls='ls -Fv'
+else
+    alias ls='ls -F'
+fi
 
 # This is where emacs lives if compiled natively on MacOS.
 if [ -x "${CARBON_EMACS_DIR}/Emacs" ] ; then

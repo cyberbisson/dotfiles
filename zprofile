@@ -147,7 +147,7 @@ case ${sysname} in
 ########################################
 ## FreeBSD
 ########################################
-'FreeBSD')
+'FreeBSD'|'OpenBSD')
     shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
     machtype='bsd'${shortrel}'-'${hwclass}
     unset shortrel
