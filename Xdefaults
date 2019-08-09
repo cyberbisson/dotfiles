@@ -4,6 +4,22 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Matt Bisson		10/15/2000
 
+!! Random Motif Settings:
+
+*enableThinThickness: true
+
+!! TODO: This should be exported dynamically from FVWM to xrdb.
+!*XmRowColumn*Background:            #aeb2c3
+!*XmScrollBar*Background:            #aeb2c3
+!Emacs.menu.attributeBackground:     #aeb2c3
+!Emacs.scrollBarBackground:          #aeb2c3
+!Emacs.tool-bar.attributeBackground: #aeb2c3
+!!Emacs*XmScrollBar*TroughColor:     #5d6069 !! Does not work !!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Misc Terminal Resources:
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 !! Set up a cool AIX term
 Aixterm*font:            7x13
 Aixterm*fullCursor:      true
@@ -165,11 +181,6 @@ Emacs.default.attributeForeground:  gray81
 !! Just in case XFT does not work, fall back to a smaller font than the default.
 Emacs*fontList: -*-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*
 
-!! Ubiquitous shadow decrease makes the pop-up menu (apparently not "popup")
-!! look better, but makes the scroll bar look weird.
-Emacs*menubar*shadowThickness: 1
-!Emacs*shadowThickness:        1
-
 Emacs*renderTable:          emacs
 Emacs*renderTable.fontType: FONT_IS_XFT
 Emacs*renderTable.fontName: sans
@@ -179,6 +190,14 @@ Emacs*renderTable.fontSize: 9
 !! fixed-width font.
 Emacs*XmList*renderTable.fontName:      mono
 Emacs*XmTextField*renderTable.fontName: mono
+
+Emacs*menubar*shadowThickness: 1
+Emacs*enableThinThickness:     true
+!! TODO: "Thin" thickness looks good, but the scrollBarWidth is 4px too much.
+!! Unfortunately, setting this for GTK+ Emacsen results in weird looks, so I'm
+!! disabling this until I can discern one scroll-bar from the other.  Perhaps
+!! this is best accomplished with the scroll-bar-width frame parameter.
+!Emacs*scrollBarWidth: 12
 
 !! XEmacs needs its own set of resources, or it refuses to start because you are
 !! not technically supposed to set Emacs*geometry:

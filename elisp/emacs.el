@@ -1193,8 +1193,9 @@ display."
                 (set-cursor-color fg-color)
                 (set-mouse-color  fg-color)
                 ;; Reversed color looks best for scroll bars...
-                (set-face-foreground 'scroll-bar bg-color frame)
-                (set-face-background 'scroll-bar fg-color frame))))))))
+                (unless (boundp 'motif-version-string)
+                  (set-face-foreground 'scroll-bar bg-color frame)
+                  (set-face-background 'scroll-bar fg-color frame)))))))))
 
 (defun custom-configure-on-first-gui (frame)
   "Configure the window-system options (lazily) when the first such frame is
