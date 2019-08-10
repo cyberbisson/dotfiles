@@ -480,19 +480,23 @@ fi
 ########################################
 ## Basic X-windows stuff
 ########################################
-if [ -d '/usr/bin/X11' ] ; then
-    xdirs=( '/usr/bin/X11' '/usr/bin/X11/demos' )
+
+if [ -d /usr/X11* ] ; then
+    xdirs=( /usr/X11* )
 
     for dir in ${xdirs} ; do
-        if [ -d ${dir} ] ; then
-            _path="${_path}:${dir}"
+        if [ -d ${dir}/bin ] ; then
+            _path="${_path}:${dir}/bin"
+        fi
+        if [ -d ${xdirs}/demos ] ; then
+            _path="${_path}:${dir}/demos"
+        fi
+        if [ -d ${xdirs}/man ] ; then
+            _manpath="${_manpath}:${dir}/man"
         fi
     done
 
     unset xdirs
-fi
-if [ -d '/usr/X11/bin' ] ; then
-    _path="${_path}:/usr/X11/bin"
 fi
 
 ########################################
