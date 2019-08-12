@@ -481,23 +481,22 @@ fi
 ## Basic X-windows stuff
 ########################################
 
-if [ -d /usr/X11* ] ; then
-    xdirs=( /usr/X11* )
-
-    for dir in ${xdirs} ; do
-        if [ -d ${dir}/bin ] ; then
-            _path="${_path}:${dir}/bin"
-        fi
-        if [ -d ${xdirs}/demos ] ; then
-            _path="${_path}:${dir}/demos"
-        fi
-        if [ -d ${xdirs}/man ] ; then
-            _manpath="${_manpath}:${dir}/man"
-        fi
-    done
-
-    unset xdirs
-fi
+# Turn off errors when the wildcard does not match (re-enable it after).
+setopt +o nomatch
+xdirs=( /usr/X11* )
+for dir in ${xdirs} ; do
+    if [ -d ${dir}/bin ] ; then
+        _path="${_path}:${dir}/bin"
+    fi
+    if [ -d ${xdirs}/demos ] ; then
+        _path="${_path}:${dir}/demos"
+    fi
+    if [ -d ${xdirs}/man ] ; then
+        _manpath="${_manpath}:${dir}/man"
+    fi
+done
+unset xdirs
+setopt -o nomatch
 
 ########################################
 ## Any GNU stuff that's been broken out...
