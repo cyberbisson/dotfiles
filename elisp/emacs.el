@@ -187,6 +187,12 @@ is not specified, this uses the currently selected frame."
   ;; all the time.
   `(not (null (compat-tty-type ,(or frame '(selected-frame))))))
 
+(defmacro thin-thickness-p ()
+  "Return T if the Motif `enableThinThickness' resource has been set to `true'."
+  `(and (boundp 'motif-version-string)
+        x-initialized
+        (string= "true" (x-get-resource "enableThinThickness" "Emacs"))))
+
 ;; -----------------------------------------------------------------------------
 ;; Compatibility functions:
 ;;
@@ -380,6 +386,11 @@ windows.")
 
 (defconst running-xemacs (running-xemacs-p)
   "Evaluates to t if this is the (obviously inferior) XEmacs.")
+
+(defconst scroll-bar-fudge (if (thin-thickness-p) 4 5)
+  "The amount of space between graphical windows on a frame.  GUI scroll bars
+  are measured in text columns, and different GUI systems have different
+  measurements.")
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
@@ -1261,6 +1272,16 @@ first created frame)."
              ;; .Xdefaults).
              `((height . ,(frame-parameter frame 'height))
                (width  . ,(frame-parameter frame 'width)))))))
+
+    ;; Assuming that the "enableThinThickness" resource is "true", the Motif
+    ;; scroll bars will be too fat, so reconfigure them for all frames here if
+    ;; we detect Motif.  Ideally, this setting would live in the Xdefaults file
+    ;; with the other setting, but it is not possible to determine Emacs's Motif
+    ;; support from Xdefaults.
+    (when (thin-thickness-p)
+      (setq default-frame-alist
+            (append default-frame-alist '((scroll-bar-width . 13)))))
+
     ;; This function runs after the frame has been modified, so apply whatever
     ;; settings needed from `default-frame-alist' here.
     (modify-frame-parameters frame default-frame-alist)))
@@ -1867,7 +1888,8 @@ If TGT-FRAME-WIDTH is unset, a window large enough to fit 240 columns will be
     ;; so we must as well.  Use a negative number to explicitly specify the
     ;; right side window's size.
     (split-window (selected-window)
-                  (* -1 (+ ideal-window-columns 1 (if terminal-frame-p 0 5)))
+                  (* -1 (+ ideal-window-columns 1
+                           (if terminal-frame-p 0 scroll-bar-fudge)))
                   t)
 
     (other-window 1) ;; Split the smaller window vertically.
@@ -2066,7 +2088,7 @@ width."
   ;; value (5), and on TTY, it's always a single character.
   (+ (* ideal-window-columns window-count)
      window-count
-     (* (if (terminal-frame-p) 1 5) (- window-count 1))))
+     (* (if (terminal-frame-p) 1 scroll-bar-fudge) (- window-count 1))))
 
 (defun get-macos-terminal-bg-mode ()
   "Retrieves the background 'mode' for the Terminal application on MacOS."
