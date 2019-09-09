@@ -12,6 +12,15 @@
 !*XmRowColumn*Background:            #aeb2c3
 !*XmScrollBar*Background:            #aeb2c3
 !Emacs.menu.attributeBackground:     #aeb2c3
+!Emacs.scrollBarForeground:          #aeb2c3
+!Emacs.scrollBarBackground:          #9397a5
+!XConsole*background: #fffff0
+!XConsole*foreground: black
+
+!! Prior to a fix I made, the resources were ignored for the trough, and the
+!! background was the truck/button foreground.  Use this is my fix is not
+!! present.
+!Emacs.scrollBarForeground:          #9397a5
 !Emacs.scrollBarBackground:          #aeb2c3
 !Emacs.tool-bar.attributeBackground: #aeb2c3
 !!Emacs*XmScrollBar*TroughColor:     #5d6069 !! Does not work !!
@@ -124,6 +133,18 @@ urxvt.foreground:  gray81
 urxvt-lt.background:  rgb:ff/fa/fa
 urxvt-lt.cursorColor: orange
 urxvt-lt.foreground:  black
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! XConsole
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+XConsole.geometry:              480x480-0+0
+XConsole.notify:                true
+XConsole.verbose:               true
+
+!! The scroll bar should never be needed unless we disable word-wrapping.
+XConsole.text.scrollHorizontal: whenNeeded
+XConsole.text.wrap:             line
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! GNU Emacs Resources:
