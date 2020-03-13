@@ -488,10 +488,10 @@ for dir in ${xdirs} ; do
     if [ -d ${dir}/bin ] ; then
         _path="${_path}:${dir}/bin"
     fi
-    if [ -d ${xdirs}/demos ] ; then
+    if [ -d ${dir}/demos ] ; then
         _path="${_path}:${dir}/demos"
     fi
-    if [ -d ${xdirs}/man ] ; then
+    if [ -d ${dir}/man ] ; then
         _manpath="${_manpath}:${dir}/man"
     fi
 done
