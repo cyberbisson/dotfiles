@@ -1699,6 +1699,9 @@ a similar alias to avoid bucking the trend.")
   (define-key ctl-x-5-map "o" #'backward-other-frame)
   (define-key ctl-x-5-map "p" #'other-frame)
 
+  ;; Add custom commands to the Buffer Menu.
+  (define-key Buffer-menu-mode-map "R" #'Buffer-menu-revert-unmodified-buffers)
+
   (global-set-key "\C-c\C-v"
    #'(lambda ()
      "Copy the buffer's full path into the kill-ring."
@@ -1980,8 +1983,8 @@ commands to use in that buffer.
      (list (read-from-minibuffer "Prefix (may be empty): ")
            (read-from-minibuffer "Run program: "
                                  (or explicit-shell-file-name
-                                     (getenv "ESHELL")
-                                     (getenv "SHELL")
+                                     (getenv "ESHELL" (selected-frame))
+                                     (getenv "SHELL" (selected-frame))
                                      "/bin/sh")))))
 
   (let ((term-name
@@ -2028,6 +2031,17 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
                ((null buf-file1) nil)
                ((null buf-file2) t)
                (t (string< buf-file1 buf-file2)))))))
+
+(defun Buffer-menu-revert-unmodified-buffers ()
+  "Update all marked buffers that have not been modified."
+  (interactive)
+  (save-excursion
+    (let ((buffers (mapcan #'(lambda (buf)
+                               (if (not (buffer-modified-p buf)) `(,buf)))
+                           (Buffer-menu-marked-buffers))))
+      (dolist (buf buffers buffers)
+        (set-buffer buf)
+        (revert-buffer :ignore-auto :noconfirm :preserve-modes)))))
 
 (defun dark-background-p (frame)
   "Determine if Emacs considers the background color to be 'dark'.
@@ -2149,10 +2163,11 @@ environment variables for the terminal that may not match the actual color
 scheme of the Emacs UI (e.g., when set via Xdefaults)."
 
   ;; Only doing this for Konsole at the moment.
-  (unless (or (null (getenv "COLORFGBG"))
-              (null (getenv "KONSOLE_PROFILE_NAME")))
+  (unless (or (null (getenv "COLORFGBG" (selected-frame)))
+              (null (getenv "KONSOLE_PROFILE_NAME" (selected-frame))))
       (let ((fg-color-16 (string-to-number
-                          (car (split-string (getenv "COLORFGBG")  ";" )))))
+                          (car (split-string
+                                (getenv "COLORFGBG" (selected-frame)) ";" )))))
         (modify-frame-parameters
          frame
          `((background-mode . ,(if (< 8 fg-color-16) 'dark 'light)))))))
