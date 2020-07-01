@@ -27,6 +27,7 @@ ELISP_FILES = \
     markdown-mode.el \
     media-wiki.el \
     mud.el \
+    output-org.el \
     p4.el \
     sql.el \
     undo-tree.el \
