@@ -643,11 +643,11 @@ is light.")
       (add-hook 'c-initialization-hook
         #'(lambda ()
             (require 'vmw-c-dev)
-            (condition-case err (vmw-update-cpp-and-flags)
+            (condition-case err (vmw-c-macro-initialize t t)
               (error (message "Cannot use C++ preprocessor (yet): %s"
                               (error-message-string err))))
-            (add-hook 'c-mode-hook   #'vmw-set-cmacexp-data)
-            (add-hook 'c++-mode-hook #'vmw-set-cmacexp-data)))
+            (add-hook 'c-mode-hook   #'vmw-c-macro-initialize)
+            (add-hook 'c++-mode-hook #'vmw-c-macro-initialize)))
        (message "Wouldn't it be nice if there were a VMware mode..."))
     (add-to-list 'custom-environments 'vmware-dev))
 
