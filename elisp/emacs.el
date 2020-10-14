@@ -1424,6 +1424,19 @@ refers to the 'doxygen comment style, as they will do extra work."
   "Customize the color settings on a per-frame basis.
 
 The FRAME parameter specifies which frame will be altered."
+  ;; For some reason Emacs does not propagate the environment from one frame
+  ;; to the next.  On Emacs client windows, that means the environment where
+  ;; the client was started makes it to the initial frame, but no frames
+  ;; created thereafter (think: a console session, where we check `COLORFGBG'
+  ;; for settings, and get the value from the default environment only).  In
+  ;; this callback, the `selected-frame' is the frame that is behind the
+  ;; current frame.  For the first frame, the environment will be set in the
+  ;; frame-parameters, so no action is needed.
+  (if (null (frame-parameter frame 'environment))
+    (modify-frame-parameters
+     frame
+     `((environment . ,(frame-parameter (selected-frame) 'environment)))))
+
   ;; TODO: There is a bug here.  When `frameset-restore' restores a frame with a
   ;; `background-mode' that doesn't match the default, this function applies the
   ;; wrong color scheme.  It seems the frame parameters are not correct when
@@ -2161,13 +2174,12 @@ This function is only reliable when FRAME is a terminal frame.  Otherwise, UI
 frames started from emacsclient in daemon-based processes will report
 environment variables for the terminal that may not match the actual color
 scheme of the Emacs UI (e.g., when set via Xdefaults)."
-
   ;; Only doing this for Konsole at the moment.
-  (unless (or (null (getenv "COLORFGBG" (selected-frame)))
-              (null (getenv "KONSOLE_PROFILE_NAME" (selected-frame))))
+  (unless (or (null (getenv "COLORFGBG" frame))
+              (null (getenv "KONSOLE_PROFILE_NAME" frame)))
       (let ((fg-color-16 (string-to-number
                           (car (split-string
-                                (getenv "COLORFGBG" (selected-frame)) ";" )))))
+                                (getenv "COLORFGBG" frame) ";" )))))
         (modify-frame-parameters
          frame
          `((background-mode . ,(if (< 8 fg-color-16) 'dark 'light)))))))
