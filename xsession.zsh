@@ -31,6 +31,7 @@ ignore_compiz=1
 ignore_gnome=1
 ignore_kde=1
 ignore_openwin=1
+ignore_xfce4=1
 
 source "${HOME}/.zprofile" >>${log_file} >${console_log} 2>&1
 
@@ -52,6 +53,8 @@ elif [ ! "${ignore_kde}" ] && [ `command -v startkde` ] ; then
 elif [ ! "${ignore_gnome}" ] && [ `command -v gnome-session` ] ; then
     # TODO: UNTESTED...
     exec gnome-session >>${log_file} >${console_log} 2>&1
+elif [ ! "${ignore_xfce4}" ] && [ `command -v xfce4-session` ] ; then
+    exec xfce4-session >>${log_file} >${console_log} 2>&1
 elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
     # This will be ignored on non-KDE systems, but when running KDE
     # applications, the preferences are not applied unless this is set.
