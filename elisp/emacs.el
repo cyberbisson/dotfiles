@@ -473,7 +473,13 @@ displays the `server-name' in the title.")
 
     ;; Changing the background here:
     (highlight                    ign "CadetBlue" ign ign ign)
-    (region                       ign "Firebrick" ign ign ign))
+    (region                       ign "Firebrick" ign ign ign)
+
+    ;; Setting this is "optional," but if you start emacs (daemon) on a light
+    ;; background, clients started on a dark background unfortunately take on
+    ;; the light color scheme, which is very difficult to tell apart.
+    (mode-line                     "Black"  "Grey75" ign ign ign)
+    (mode-line-inactive            "Grey80" "Grey30" ign ign ign))
   "The complete set of `font-lock-mode' faces for Emacs used when the background
 is dark.")
 
@@ -2174,15 +2180,19 @@ This function is only reliable when FRAME is a terminal frame.  Otherwise, UI
 frames started from emacsclient in daemon-based processes will report
 environment variables for the terminal that may not match the actual color
 scheme of the Emacs UI (e.g., when set via Xdefaults)."
-  ;; Only doing this for Konsole at the moment.
-  (unless (or (null (getenv "COLORFGBG" frame))
-              (null (getenv "KONSOLE_PROFILE_NAME" frame)))
+  ;; First check the frame's environment, then check the process environment.
+  ;; If there is no frame environment, the current frame is on the same terminal
+  ;; window as the one that provided `process-environment'.
+  (let ((color-fgbg (or (getenv "COLORFGBG" frame) (getenv "COLORFGBG"))))
+    (when (and color-fgbg
+               ;; Only doing this for Konsole at the moment.
+               (or (getenv "KONSOLE_PROFILE_NAME" frame)
+                   (getenv "KONSOLE_PROFILE_NAME")))
       (let ((fg-color-16 (string-to-number
-                          (car (split-string
-                                (getenv "COLORFGBG" frame) ";" )))))
+                          (car (split-string color-fgbg ";" )))))
         (modify-frame-parameters
          frame
-         `((background-mode . ,(if (< 8 fg-color-16) 'dark 'light)))))))
+         `((background-mode . ,(if (< 8 fg-color-16) 'dark 'light))))))))
 
 (defun set-emacs-title-format (title-format)
   "Set the title for Emacs frames (iconized or not).
