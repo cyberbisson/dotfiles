@@ -1,0 +1,23 @@
+!! .Xresources
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Provides resource settings for use in the Xrdb database (as opposed to
+!! .Xdefaults, which is loaded simply by Xlib on application startup).  This
+!! file is supposed to support "high" DPI and the plain boring old DPI that *NIX
+!! has always supported.
+!!
+!! Note that this file consists solely of preprocessor directives.  The
+!! reasoning here is that if xrdb happens to not support preprocessing, this
+!! file should do nothing, rather than half the job.  Do not add resource
+!! statements here directly.  Instead, keep high-DPI settings in that file, and
+!! all other settings in the (Xlib) .Xdefaults file, which is nicer for
+!! troubleshooting.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Matt Bisson		5/18/2021
+
+#define INCLUDED_XRESOURCES
+
+#if (HEIGHT > 1200)
+#   include "sb/dotfiles/Xresources_hidpi"
+#endif
+
+#include "sb/dotfiles/Xdefaults"

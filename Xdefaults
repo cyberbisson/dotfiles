@@ -1,7 +1,7 @@
 !! .Xdefaults
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! Set up my X windows environment and make it cool looking
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Set up my X windows environment and make it cool looking.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Matt Bisson		10/15/2000
 
 !! Random Motif Settings:
@@ -215,7 +215,7 @@ Emacs*XmTextField*renderTable.fontName: mono
 Emacs*menubar*shadowThickness: 1
 Emacs*enableThinThickness:     true
 !! TODO: "Thin" thickness looks good, but the scrollBarWidth is 4px too much.
-!! Unfortunately, setting this for GTK+ Emacsen results in weird looks, so I'm
+!! Unfortunately, setting this for GTK+ Emacsen results in weird looks, so I am
 !! disabling this until I can discern one scroll-bar from the other.  Perhaps
 !! this is best accomplished with the scroll-bar-width frame parameter.
 !Emacs*scrollBarWidth: 12

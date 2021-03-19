@@ -63,6 +63,10 @@ elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
     # is set.
     export XDG_CURRENT_DESKTOP='X-Generic'
 
+    if [ `command -v xrdb` ] && [ -f "${HOME}/.Xresources" ] ; then
+        xrdb -merge  "${HOME}/.Xresources" >>${log_file} >${console_log} 2>&1
+    fi
+
     # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
     # or else, what's the point?
     if [ `command -v urxvtd` ] ; then

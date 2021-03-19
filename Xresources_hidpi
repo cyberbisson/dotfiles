@@ -1,0 +1,28 @@
+!! Xresources_hidpi
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Customizes the X Windows resources for screens with high pixel density.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Matt Bisson		5/18/2021
+
+#ifndef INCLUDED_XRESOURCES
+#   error "This file must be included as part of .Xresources"
+#endif
+
+!! The following section tries different settings for various monitors to make
+!! high resolution displays a little nicer.
+!!
+!! - 5K iMac is 5120x2880.
+!! - Retina iMac 2880x1800.
+!!
+!! Note: Specify DPI setting in multiples of 96 if possible.
+#if (HEIGHT > 1880)
+Xft.dpi: 192
+#elif (HEIGHT > 1200)
+Xft.dpi: 168
+#endif
+
+Rxvt.thickness:        16
+XTerm*scrollbar.width: 24
+
+!! As noted in .Xdefaults, this looks OK in GTK, but not other toolkits.
+Emacs*scrollBarWidth:  24
