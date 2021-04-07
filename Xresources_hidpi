@@ -14,11 +14,16 @@
 !! - 5K iMac is 5120x2880.
 !! - Retina iMac 2880x1800.
 !!
-!! Note: Specify DPI setting in multiples of 96 if possible.
+!! Note:
+!! - Specify DPI setting in multiples of 96 if possible.
+!! - If DPI does not work, likely Infinality (LCD hinting software) has
+!!   overridden it, so use the .scale resource.
 #if (HEIGHT > 1880)
 Xft.dpi: 192
+!Xft.scale: 2.0
 #elif (HEIGHT > 1200)
 Xft.dpi: 168
+!Xft.scale: 1.75
 #endif
 
 Rxvt.thickness:        16
@@ -26,3 +31,17 @@ XTerm*scrollbar.width: 24
 
 !! As noted in .Xdefaults, this looks OK in GTK, but not other toolkits.
 Emacs*scrollBarWidth:  24
+
+!! Need to specify a cursor theme to get the ".size" resource to function.
+Xcursor.theme: whiteglass
+Xcursor.size:  32
+
+!! Annoyingly, XConsole does not use XFT, so find a bitmapped font that is not
+!! microscopic.
+XConsole.geometry: 1024x300-0+0
+XConsole*font:     -*-lucidatypewriter-medium-*-*-*-*-140-*-*-*-*-*-*
+
+!! "Thick" thickness looks like "thin" in high resolution.
+*enableThinThickness:       false
+Dtterm*enableThinThickness: false
+Emacs*enableThinThickness:  false

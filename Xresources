@@ -16,8 +16,8 @@
 
 #define INCLUDED_XRESOURCES
 
+#include "sb/dotfiles/Xdefaults"
+
 #if (HEIGHT > 1200)
 #   include "sb/dotfiles/Xresources_hidpi"
 #endif
-
-#include "sb/dotfiles/Xdefaults"

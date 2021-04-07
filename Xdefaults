@@ -8,23 +8,6 @@
 
 *enableThinThickness: true
 
-!! TODO: This should be exported dynamically from FVWM to xrdb.
-!*XmRowColumn*Background:            #aeb2c3
-!*XmScrollBar*Background:            #aeb2c3
-!Emacs.menu.attributeBackground:     #aeb2c3
-!Emacs.scrollBarForeground:          #aeb2c3
-!Emacs.scrollBarBackground:          #9397a5
-!XConsole*background: #fffff0
-!XConsole*foreground: black
-
-!! Prior to a fix I made, the resources were ignored for the trough, and the
-!! background was the truck/button foreground.  Use this is my fix is not
-!! present.
-!Emacs.scrollBarForeground:          #9397a5
-!Emacs.scrollBarBackground:          #aeb2c3
-!Emacs.tool-bar.attributeBackground: #aeb2c3
-!!Emacs*XmScrollBar*TroughColor:     #5d6069 !! Does not work !!
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Misc Terminal Resources:
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
