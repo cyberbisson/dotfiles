@@ -3,7 +3,7 @@
 ################################################################################
 # Z-Shell Interactive start-up script:
 #
-# This is the script that zhs reads when starting an interactive shell.  It is
+# This is the script that zsh reads when starting an interactive shell.  It is
 # supposed to be read after .zprofile.  Place configuration in this file that
 # customizes how you interact with your shell (prompt, completions, etc.).
 ################################################################################
@@ -43,7 +43,7 @@ xterm | xterm-*color | xterm-xfree86)
     ;;
 esac
 
-# For terminal emulators that advertize their color scheme with $COLORFGBG
+# For terminal emulators that advertise their color scheme with $COLORFGBG
 # (rxvt, for one), having a value of "default" means it cannot represent the
 # background color from 0-15.  This will be a problem for (terminal) Emacs and
 # friends.

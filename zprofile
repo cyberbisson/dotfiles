@@ -34,7 +34,7 @@ else
 fi
 
 ################################################################################
-# Perform machine specific initializations
+# Perform machine specific initialization
 ################################################################################
 
 hwclass=`uname -m`
