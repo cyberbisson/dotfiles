@@ -64,7 +64,11 @@ elif [ ! "${ignore_fvwm}" ] && [ `command -v fvwm` ] ; then
     export XDG_CURRENT_DESKTOP='X-Generic'
 
     if [ `command -v xrdb` ] && [ -f "${HOME}/.Xresources" ] ; then
-        xrdb -merge  "${HOME}/.Xresources" >>${log_file} >${console_log} 2>&1
+        xrdb -merge "${HOME}/.Xresources" >>${log_file} >${console_log} 2>&1
+        if [ -f "${HOME}/.Xresources.generated" ] ; then
+            xrdb -merge "${HOME}/.Xresources.generated" \
+                 >>${log_file} >${console_log} 2>&1
+        fi
     fi
 
     # Just using URxvt on FVWM for now -- I guess TWM should use "plain" XTerm,
