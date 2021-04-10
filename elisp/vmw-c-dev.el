@@ -68,10 +68,12 @@
             "_SVID_SOURCE"
             "_XOPEN_SOURCE=700"
             "linux"))
+    ;; TODO: lists should cascate instead of first-match.
     ("bora/esx/apps/.*/ipcManager" . ("CUSTOMIZABLE_ENVIRONMENT"
                                       "STATIC_IPC_MANAGER_API"
                                       "STATIC_IPC_MANAGER_CPP_API"))
-    ("bora/esx/apps/dp/iofilter" . ("VMK_DEVKIT_HAS_API_VMKAPI_BASE"
+    ("bora/esx/apps/dp/iofilter" . ("CUSTOMIZABLE_ENVIRONMENT"
+                                    "VMK_DEVKIT_HAS_API_VMKAPI_BASE"
                                     "VMK_DEVKIT_USES_PUBLIC_APIS"
                                     "VMK_DEVKIT_USES_BINARY_COMPATIBLE_APIS"
                                     "VMIOF_NAME=vmwarelwd"
@@ -79,7 +81,8 @@
                                     "VMIOF_VERSION=xyz"
                                     "VMIOF_API_VERSION=1.0",
                                     "VMIOF_CLASS=replication"
-                                    "USE_ROARING")))
+                                    "USE_ROARING"))
+    ("bora/esx/apps/dp/" . ("CUSTOMIZABLE_ENVIRONMENT")))
   "An association list that maps a source tree to its preprocessor definitions.
 
 The key for the list is a regular expression, and files will be compared against
@@ -87,7 +90,7 @@ that as they are processed.  Note that only the first match will apply to the
 file.  The NIL entry applies globally to all buffers.")
 
 (defvar vmw-c-macro-explicit-build-alist
-  '()
+  '((toolchain . "ob-15599702"))
   "Explicitly specifies official build numbers for GOBUILD dependencies.")
 
 (defvar vmw-c-macro-include-alist
@@ -109,11 +112,12 @@ file.  The NIL entry applies globally to all buffers.")
             "bora/build/build/HEADERS/lib-vmksysinfo-headers/uw64/obj"
             "bora/build/build/LIBRARIES/vmodl/generic/obj"
             "bora/vim/lib/public"))
-    ("bora/esx/apps/.*/ipcManager" . ("bora/esx/apps/dp/include"))
-    ("bora/esx/apps/dp/iofilter"
-     . ("bora/esx/apps/dp/include"
-        "bora/lib/vmkuser/include/public"
-        "bora/build/build/HEADERS/dp-proto/uw64/obj")))
+    ;; TODO: lists should cascate instead of first-match.
+    ("bora/esx/apps/dp/iofilter" . ("bora/esx/apps/dp/include"
+                                    "bora/build/build/HEADERS/dp-proto/uw64/obj"
+                                    "bora/lib/vmkuser/include/public"))
+    ("bora/esx/apps/dp/" . ("bora/esx/apps/dp/include"
+                            "bora/build/build/HEADERS/dp-proto/uw64/obj")))
   "An association list that maps a source tree to its include paths.
 
 The key for the list is a regular expression, and files will be compared against
@@ -196,6 +200,8 @@ defaults to `vmw-c-macro-include-alist'."
                    "linux64/esx64+gcc6/usr/include/minizip")
            (concat (alist-get 'openssl vmw-c-macro-compcache)
                    "/linux64/esx64+gcc6/include")
+           (concat (alist-get 'croaring vmw-c-macro-compcache)
+                   "/linux-centos8/esx64+glibc217+gcc6/include")
            (concat (alist-get 'boost vmw-c-macro-compcache)
                    "/linux-centos8/include")
            (concat (alist-get 'googletest vmw-c-macro-compcache)
@@ -229,6 +235,7 @@ as this operation may take some time."
            (openssl . "/build/mts/sharedcompcache/cayman_openssl")
            (toolchain . "/build/mts/sharedcompcache/cayman_esx_toolchain")
            ;; Non-shared components
+           (croaring . "cayman_croaring")
            (googletest . "cayman_googletest")
            (protobuf . "cayman_protobuf")
            (protobuf-c . "cayman_protobuf_c")
@@ -265,7 +272,7 @@ the function falls back to automatic detection."
                                   (alist-get explicit-build-key
                                              explicit-build-alist))))
          (if explicit-build
-             (let ((explicit-dir (concat my-dirname explicit-build)))
+             (let ((explicit-dir (concat my-dirname "/" explicit-build)))
                (if (file-exists-p explicit-dir) explicit-dir))))
        ;; ... or return a dynamically discovered directory.
        (car (sort
