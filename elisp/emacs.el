@@ -949,7 +949,9 @@ is light.")
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
   ;; Enable wheelmouse support by default.
-  (mwheel-install)
+  (version-if (< 26 emacs-major-version)
+    (mouse-wheel-mode 1)
+    (mwheel-install))
 
   (if-running-xemacs
     (set-specifier default-toolbar-visible-p nil)
@@ -1761,6 +1763,23 @@ a similar alias to avoid bucking the trend.")
 ;; flag, taking the one-time hit in the current Emacs session.  Hopefully these
 ;; advice definitions only really refer to already compiled functions elsewhere.
 ;; -----------------------------------------------------------------------------
+
+(defvar hidden-minor-mode-lighters
+  '(abbrev-mode eldoc-mode global-whitespace-mode)
+  "Minor modes that need not be shown in the mode-line.")
+
+(defadvice add-minor-mode (after hide-minor-mode-lighters activate compile)
+  "Remove minor-mode noise from the mode-line."
+
+  ;; Remove unwanted minor-mode lighters (text that appears in the mode-line for
+  ;; active minor-modes) from the association list.  These are added when
+  ;; `add-minor-mode' executes.  Maybe of them are basically useless settings
+  ;; that I either don't use, or assume are active, and they just end up pushing
+  ;; important information off the mode-line, like the clock.
+  (mapc #'(lambda (to-remove-minor-mode)
+            (setq minor-mode-alist
+                  (assq-delete-all to-remove-minor-mode minor-mode-alist)))
+        hidden-minor-mode-lighters))
 
 ;; We use `eval-after-load' here because `ad-handle-definition' prints a
 ;; (harmless, but) noticeable message on Emacs start-up about how `start-server'
