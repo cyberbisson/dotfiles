@@ -415,6 +415,7 @@ be utilized any time after that.")
     "~/elisp/media-wiki.el"
     "~/elisp/mud.el"
     "~/elisp/p4.el"
+    "~/elisp/protobuf-mode.el"
     "~/elisp/sql.el"
     "~/elisp/undo-tree.el"
     "~/elisp/visual-basic-mode.el"
