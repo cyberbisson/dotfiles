@@ -44,7 +44,7 @@
 ;;   problem.
 ;;
 ;; - This file should only use `declare-function' or `defvar' to stifle warnings
-;;   from other modules when those modules are loaded expliclty, and they are
+;;   from other modules when those modules are loaded explicitly, and they are
 ;;   not available in the source code repo (e.g., a file loaded from
 ;;   "/ccs/etc/dotfiles" is not going to be available outside of the
 ;;   Northeastern CCS network).
@@ -57,7 +57,7 @@
 
 ;; - Can `font-lock-function' customization optimize font-lock coloration?
 ;; - Illogical location to set `inferior-lisp-program' (after `file-exists-p').
-;; - Consolodate various background-color detection functionality.
+;; - Consolidate various background-color detection functionality.
 
 ;;; Code:
 
@@ -153,7 +153,7 @@ version on which it was compiled."))
   (if lock-dotfile-version emacs-major-version nil))
 
 (defmacro version-if (cond then &rest else)
-  "If COND yeilds non-nil, do THEN, else do ELSE...
+  "If COND yields non-nil, do THEN, else do ELSE...
 
 This function is specifically designed for Emacs version checks.  This interacts
 with `lock-dotfile-version' to either behave like a normal `if' statement, or to
@@ -206,7 +206,7 @@ is not specified, this uses the currently selected frame."
   "Replace `called-interactively-p' with a function that take no parameters.
 
 Prior to Emacs 23.2, `called-interactively-p' took no parameters, but they made
-a backwards-incompitable change to add a parameter, so this macro exists for
+a backwards-incompatible change to add a parameter, so this macro exists for
 compatibility purposes."
   (version-if (or (and (= 23 emacs-major-version) (< 1 emacs-minor-version))
                   (< 23 emacs-major-version))
@@ -389,8 +389,8 @@ windows.")
 
 (defconst scroll-bar-fudge (if (thin-thickness-p) 4 5)
   "The amount of space between graphical windows on a frame.  GUI scroll bars
-  are measured in text columns, and different GUI systems have different
-  measurements.")
+are measured in text columns, and different GUI systems have different
+measurements.")
 
 ;; -----------------------------------------------------------------------------
 ;; Global variables:
@@ -761,7 +761,7 @@ is light.")
    ;; I don't like that I can delete the prompt in the shell.
    comint-prompt-read-only      t
 
-   ;; I've always prefered the -F postfixes in ls output.
+   ;; I've always preferred the -F postfixes in ls output.
    dired-listing-switches       (if (eq system-type 'darwin)
                                     "-aFhlv" "-aDFhlv")
    dired-ls-F-marks-symlinks    (eq system-type 'darwin)
@@ -949,7 +949,7 @@ is light.")
 
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
-  ;; Enable wheelmouse support by default.
+  ;; Enable mouse wheel support by default.
   (version-if (< 26 emacs-major-version)
     (mouse-wheel-mode 1)
     (mwheel-install))
@@ -1069,7 +1069,7 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
    ;; saves the LAST version...
    delete-old-versions t
 
-   ;; Keep this many of the the latest versions
+   ;; Keep this many of the latest versions
    kept-new-versions 2
 
    ;; Leave this many of the oldest versions
@@ -1092,13 +1092,13 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
     ;; `desktop-restore-in-current-display' would just solve the problem, but
     ;; it doesn't seem to.  I'm therefore skipping the ability to restore to
     ;; multiple displays (so I can make remote displays show up) by keeping
-    ;; the `display' property out of saved framesets..
+    ;; the `display' property out of saved framesets.
     (add-to-list 'frameset-filter-alist '(display . :never))
 
     ;; Restoring the frameset under Emacs daemon kills the daemon "frame", and
     ;; results in closing the last frame causing Emacs to exit.  This is not
     ;; what we want at all.  Instead, force the desktop to keep around the old
-    ;; frames instead of trying to resuse them.
+    ;; frames instead of trying to reuse them.
     (when (daemonp)
       (modify-frame-parameters daemon-frame '((desktop-dont-save . t)))
       (setq desktop-restore-reuses-frames 'keep))
@@ -1143,8 +1143,8 @@ Specify the directory where Emacs creates backup files with CUSTOM-BACKUP-DIR."
       (setenv "EMACS_DESKTOP_DIR" nil))
 
     ;; Because we're handling the desktop load manually, passing "--no-desktop"
-    ;; works just fine, but gives a spurrious warning about how the desktop
-    ;; isn't loaded.  Go ahead and delete it like `desktop' would do.
+    ;; works just fine, but gives a spurious warning about how the desktop isn't
+    ;; loaded.  Go ahead and delete it like `desktop' would do.
     (when (member "--no-desktop" command-line-args)
       (unless (featurep 'desktop)
         (setq command-line-args (delete "--no-desktop" command-line-args))))))
@@ -1183,7 +1183,7 @@ display."
       ;; Else, skip the hook, and configure the GUI right now.
       (custom-configure-on-first-gui selected-frame)))
 
-  ;; Can't customize font lock until we load the libary (and faces) first.  On
+  ;; Can't customize font lock until we load the library (and faces) first.  On
   ;; the terminal, Emacs does not reliably detect the color scheme until late in
   ;; the initialization, causing us to potentially put in the wrong colors.
   (add-hook 'window-setup-hook #'customize-font-lock))
@@ -1417,7 +1417,7 @@ refers to the 'doxygen comment style, as they will do extra work."
             (c-font-lock-doc-comments
              "/\\(//[^/]\\|\\*[\\*!][^\\*!]\\)"
              limit doxygen-font-lock-doc-comments))))
-    "A regular expression that identifies Doxygen-speicifc comments.")
+    "A regular expression that identifies Doxygen-specific comments.")
 
   ;; For those `c-default-style' variants that already have 'doxygen set, you
   ;; can safely remove these hooks, as they will only do extra work.
@@ -1453,7 +1453,7 @@ The FRAME parameter specifies which frame will be altered."
   (when (< 255 (compat-display-color-cells frame))
     (when (terminal-frame-p frame)
       (if (eq system-type 'darwin)
-          ;; TODO: Should consolodate this into `dark-background-p'?
+          ;; TODO: Should consolidate this into `dark-background-p'?
           (modify-frame-parameters
            frame `((background-mode . ,(get-macos-terminal-bg-mode))))
         (set-bg-mode-from-colorfgbg frame)))
@@ -1717,7 +1717,7 @@ a similar alias to avoid bucking the trend.")
      (other-window (- (or count 1)))))
   (global-set-key "\C-x9" #'delete-other-windows-vertically)
 
-  ;; Intuitively, frame swtiching seems backwards on the terminal to me.
+  ;; Intuitively, frame switching seems backwards on the terminal to me.
   (define-key ctl-x-5-map "o" #'backward-other-frame)
   (define-key ctl-x-5-map "p" #'other-frame)
 
@@ -2011,9 +2011,8 @@ uniform `ideal-window-columns' column width"
   (if (compat-called-interactively-p) (list-buffers)))
 
 (defun term-named (name-prefix program)
-  "Start a terminal-emulator in a new buffer, prefixed by
-NAME-PREFIX.  The buffer is in Term mode; see `term-mode' for the
-commands to use in that buffer.
+  "Start a terminal-emulator in a new buffer, prefixed by NAME-PREFIX.  The
+buffer is in Term mode; see `term-mode' for the commands to use in that buffer.
 
 \\<term-raw-map>Type \\[switch-to-buffer] to switch to another buffer."
   (interactive
@@ -2137,7 +2136,7 @@ width."
 
   ;; We compute the number of chars for all columns, plus one "\" column for
   ;; when lines wrap, plus window-count columns (minus one) for the divider
-  ;; between windows.  On a GUI, this divider collumn is given an approximate
+  ;; between windows.  On a GUI, this divider column is given an approximate
   ;; value (5), and on TTY, it's always a single character.
   (+ (* ideal-window-columns window-count)
      window-count
@@ -2228,7 +2227,7 @@ The parameter TITLE-FORMAT should be specified as in `frame-title-format'."
                                                desktop-restore-func)
   "Enables `desktop-read' to restore buffers with no file.
 
-The destop restoration process does not typically save or restore buffers that
+The desktop restoration process does not typically save or restore buffers that
 are not associated with an underlying file.  This can be annoying for certain
 desktops where the same layout is desired, for example, if the compilation
 buffer should always be on frame 0, top left window.  This function enables such
@@ -2236,7 +2235,7 @@ restoration in a generic manner, so any buffers that apply can be saved and
 restored.
 
 The BUF-MAJOR-MODE parameter should specify the major mode of the buffer being
-processed.  INIT-HOOK optionally speicifies the name of the hook that
+processed.  INIT-HOOK optionally specifies the name of the hook that
 BUF-MAJOR-MODE runs during initialization (this is needed for the saving
 process).  If unspecified, it will be generated from BUF-MAJOR-MODE and '-hook'.
 DESKTOP-RESTORE-FUNC specifies the function that will be run during desktop
