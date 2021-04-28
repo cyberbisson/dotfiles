@@ -184,11 +184,11 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
 
     shortrel=`echo $OSrelease | awk -F. '{print $1}'`
     machtype='sun'${shortrel}
+    if [ "${hwclass}" = "i86pc" ] ; then
+        machtype="${machtype}-x86"
+    fi
 
     if [ ${shortrel} -gt 4 ] ; then
-        machdirs=( '/usr/ccs/bin' '/opt/SUNWspro/bin' '${OPENWINHOME}/bin' )
-        export LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"
-
         # Look for the Sun Java packages
         if [ -d '/opt/java122' ] ; then
             machdirs=( ${machdirs} '/opt/java122/bin' )
@@ -198,8 +198,21 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
         fi
     fi
 
-    machman=( '/opt/SUNWspro/man' ${OPENWINHOME}/man )
-    export XTERM="${OPENWINHOME}/bin/xterm"
+    if [ -x "${OPENWINHOME}/bin/xterm" ] ; then
+        export XTERM="${OPENWINHOME}/bin/xterm"
+    fi
+
+    # Find the compiler (CCs) and Sun IDE (SUNWspro), as well as OpenWindows UI,
+    # and any post-Solaris distributions' add-ons ("ooce": OmniOS).
+    machdirs=( '/usr/ccs/bin' \
+               '/opt/SUNWspro/bin' \
+               "${OPENWINHOME}/bin" \
+               '/opt/ooce/bin' )
+    machman=( '/opt/SUNWspro/man' "${OPENWINHOME}/man" '/opt/ooce/share/man' )
+
+    # We should NOT need this...
+    #export LD_LIBRARY_PATH=\
+    #       "/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"
 
     unset shortrel
     ;;

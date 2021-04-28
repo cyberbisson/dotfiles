@@ -35,7 +35,7 @@ fi
 
 case ${TERM} in
 cygwin | dtterm | eterm-color | linux | rxvt | rxvt-unicode | rxvt-*color | \
-xterm | xterm-*color | xterm-xfree86)
+sun-color | xterm | xterm-*color | xterm-xfree86)
     PROMPT=%{$'\e[01;39m'%}${BASE_PROMPT}%{$'\e[00m'%}' '
     ;;
 *)
