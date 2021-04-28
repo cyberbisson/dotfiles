@@ -265,7 +265,15 @@ and still remain compatible with Emacs 22."
 
 ;; `mapc' is a built-in function only starting with Emacs 21, and we use it
 ;; extensively in this file.
-(version-if (> 21 emacs-major-version) (require 'cl))
+(version-if (and (> 21 emacs-major-version) (< 27 emacs-major-version))
+  (require 'cl))
+
+(defmacro compat-mwheel-install ()
+  "Enable the mouse wheel.  The name of this change in version 27 Emacs, and it
+may also not be present if it was not added at compilation time."
+  (version-if (< 26 emacs-major-version)
+    (version-if (fboundp 'mouse-wheel-mode) '(mouse-wheel-mode 1))
+    (version-if (fboundp 'mwheel-install) '(mwheel-install))))
 
 ;; These functions are obsolete in Emacs v24.3 and 24.4.
 (unless-running-xemacs
@@ -280,6 +288,12 @@ and still remain compatible with Emacs 22."
   (defmacro set-specifier (&rest _args)
     "Ignore extra configuration functions from XEmacs when in GNU Emacs."
     nil))
+
+(defmacro compat-tool-bar-mode (arg)
+  "Enable the tool-bar if ARG is positive; disable it otherwise."
+  (if-running-xemacs
+    `(set-specifier default-toolbar-visible-p ,(> arg 0))
+    (version-if (fboundp 'tool-bar-mode) `(tool-bar-mode ,arg) arg)))
 
 (defmacro compat-tty-type (&optional terminal)
   "Return the type of TTY device that TERMINAL uses.  Returns nil if TERMINAL is
@@ -949,14 +963,9 @@ is light.")
 
   (eval-when-compile (defvar default-toolbar-visible-p)) ; XEmacs noise...
 
-  ;; Enable mouse wheel support by default.
-  (version-if (< 26 emacs-major-version)
-    (mouse-wheel-mode 1)
-    (mwheel-install))
-
-  (if-running-xemacs
-    (set-specifier default-toolbar-visible-p nil)
-    (tool-bar-mode -1))
+  ;; Enable mouse wheel support by default; disable the tool bar.
+  (compat-mwheel-install)
+  (compat-tool-bar-mode -1)
 
   (unless-running-xemacs
     (blink-cursor-mode -1)
