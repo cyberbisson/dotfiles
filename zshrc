@@ -30,7 +30,7 @@ if [ ${+VMWARE_PROFILE} -ne 0 ] ; then
 fi
 
 ################################################################################
-# Miscellaneous settings
+# Terminal-specific customization
 ################################################################################
 
 case ${TERM} in

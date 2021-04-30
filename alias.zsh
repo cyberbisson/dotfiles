@@ -45,7 +45,7 @@ if [ -d ${VPNDIR} ] ; then
 fi
 
 if [ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ] ; then
-    alias  more=less                    # Less IS more...
+    alias more=less                     # Less IS more...
 fi
 
 # TTY Setting aliases

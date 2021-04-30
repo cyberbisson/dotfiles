@@ -48,6 +48,7 @@ case ${sysname} in
 ########################################
 'Linux')
     export XENVIRONMENT="${HOME}/.Xdefaults"
+
     if [ -f '/etc/gentoo-release' ] ; then
 
         distro='gentoo'
@@ -167,7 +168,7 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
     # in ':' where there were ';'.
     windows_path=( `${winpath}/cmd /c path                 | \
                     sed 's/^PATH\=/;/'                     | \
-                    sed 's/ /%/g'                          |\
+                    sed 's/ /%/g'                          | \
                     sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
                     sed 's/\\\\/\//g'                      | \
                     sed 's/[^;]*cygwin[^;]*;//g'           | \
@@ -279,7 +280,7 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
     ;;
 
 ########################################
-##  Mac OS X
+## Mac OS X
 ########################################
 'Darwin')
     # What type of CPU
@@ -713,8 +714,8 @@ umask 022
 if [ -x '/usr/local/bin/less' ] || [ -x '/usr/bin/less' ] ; then
     export PAGER=less
 
-    # -X tends to needlessly clear the screen, so add -F to allow a single
-    # -screenful print and quit...
+    # X tends to needlessly clear the screen, so add -F to allow a single
+    # screenful print and quit...
     export LESS="${LESS} -F -M -R -X"
 fi
 
@@ -755,13 +756,13 @@ if [ ${isatty} ] ; then
     tmp=`uname`
 
     # ^H isn't right for Linux, it wants ^? instead
-    if [ "${tmp}" != "Linux" ] ; then
+#   if [ "${tmp}" != "Linux" ] ; then
 #       export STTY_PARAM="${STTY_PARAM} erase ^H"
-    fi
+#   fi
 
     # OS Specific stuff
     case ${tmp} in
-        OSF)
+        OSF1)
             export STTY_PARAM="${STTY_PARAM} status ^T"
             ;;
         *)
