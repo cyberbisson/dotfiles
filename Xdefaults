@@ -5,8 +5,22 @@
 !! Matt Bisson		10/15/2000
 
 !! Random Motif Settings:
-
 *enableThinThickness: true
+
+!! Configure CDE
+*0*ColorPalette:                Mustard.dp
+Dtwm*0*ws0*backdrop*image:      Ankh
+Dtwm*0*ws1*backdrop*image:      Toronto
+Dtwm*0*ws2*backdrop*image:      BrickWall
+Dtwm*0*ws3*backdrop*image:      Lattice
+Dtwm*0*initialWorkspace:        ws0
+Dtwm*0*workspaceCount:          4
+
+Dtwm*focusAutoRaise:            False
+Dtwm*moveOpaque:                True
+Dtwm.keyboardFocusPolicy:       pointer
+
+dtsession*sessionLanguage:      C
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! Misc Terminal Resources:

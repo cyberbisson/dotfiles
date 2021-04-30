@@ -1,3 +1,4 @@
+# ===-- .dtprofile -------------------------------------------- -*- sh -*- --===
 #############################################################################
 ###
 ###   .dtprofile
@@ -11,7 +12,7 @@
 ###   (c) Copyright 1993, 1994 Sun Microsystems, Inc.
 ###   (c) Copyright 1993, 1994 Novell, Inc.
 ###
-### 
+###
 ###   $Revision: 1.1 $
 ###
 #############################################################################
@@ -20,10 +21,10 @@
 #############################################################################
 ###
 ###   Your $HOME/.dtprofile is read each time you login to the Common Desktop
-###   Enviroment (CDE) and is the place to set or override desktop 
+###   Enviroment (CDE) and is the place to set or override desktop
 ###   environment variables for your session. Environment variables set in
 ###   $HOME/.dtprofile are made available to all applications on the desktop.
-###   The desktop will accept either sh or ksh syntax for the commands in 
+###   The desktop will accept either sh or ksh syntax for the commands in
 ###   $HOME/.dtprofile.
 ###
 ###   By default, the desktop does not read your standard $HOME/.profile
@@ -32,7 +33,7 @@
 ###   desktop reads .profile if your $SHELL is "sh" or "ksh", or .login
 ###   if your $SHELL is "csh".
 ###
-###   The desktop reads the .dtprofile and .profile/.login without an 
+###   The desktop reads the .dtprofile and .profile/.login without an
 ###   associated terminal emulator such as xterm or dtterm. This means
 ###   there is no available command line for interaction with the user.
 ###   This being the case, these scripts must avoid using commands that
@@ -48,19 +49,19 @@
 ###   with an "if" statement that checks for the setting of the "DT"
 ###   environment variable. When the desktop reads your .profile or .login
 ###   file, it will set "DT" to a non-empty value for which your .profile or
-###   .login can test. 
-###   
+###   .login can test.
+###
 ###   example for sh/ksh
-###   
+###
 ###     if [ ! "$DT" ]; then
 ###       #
 ###       # commands and environment variables not appropriate for desktop
 ###       #
 ###       stty ...
-###	   tset ...
-###	   DISPLAY=mydisplay:0
-###	   ...
-###     fi	    
+###       tset ...
+###       DISPLAY=mydisplay:0
+###       ...
+###     fi
 ###
 ###     #
 ###     # environment variables common to both desktop and non-desktop
@@ -69,7 +70,7 @@
 ###     MYVAR=value
 ###     export MYVAR
 ###     ...
-###	  
+###
 ###   example for csh
 ###
 ###     if ( ! ${?DT} ) then
@@ -88,7 +89,7 @@
 ###     setenv PATH $HOME/bin:$PATH
 ###     setenv MYVAR value
 ###     ...
-###  
+###
 ###   Errors in .dtprofile or .profile (.login) may prevent a successful
 ###   login. If after you login, your session startup terminates and you
 ###   are presented with the login screen, this might be the cause. If this
@@ -97,11 +98,50 @@
 ###   $HOME/.dt/errorlog files may be helpful in identifying errors.
 ###
 ##############################################################################
+DTSOURCEPROFILE=false
 
-#
-#  If $HOME/.profile (.login) has been edited as described above, uncomment
-#  the following line.
-#
-# DTSOURCEPROFILE=true
-ENV="~/.profile"
-export ENV
+# NOTE: This setting isn't super-useful, at least for ZSH profiles.  As
+# .zprofile does a lot of my heavy lifting, it's not practical to just copy the
+# environment settings into here, and simply sourcing the file doesn't seem to
+# do much.  The above setting really only helps if the shell is some form of
+# (K)SH or CSH.
+
+##############################################################################
+###
+###  Random stdout and stderr output from apps started by Session Mgr or
+###  by actions via front panel or workspace menu can be directed into
+###  the user's $HOME/.dt/sessionlogs directory.  By default this output
+###  is not recorded.  Instead it is sent off to /dev/null (Unix's "nothing"
+###  device).
+###
+###  If this random application output is wanted (usually only wanted for
+###  debugging purposes), commenting out following "dtstart_sessionlogfile"
+###  lines will send output to your $HOME/.dt/sessionlogs directory.
+###
+###  Alternatively, can change "/dev/null" to "/dev/console" to see this
+###  debugging output on your console device.  Can start a console via the
+###  Workspace programs menu or via Application Mgr's Desktop Tools
+###  "Terminal Console" icon.
+###
+##############################################################################
+
+echo "This session log file is currently disabled."  >  $dtstart_sessionlogfile
+echo "To enable logging, edit $HOME/.dtprofile and"  >> $dtstart_sessionlogfile
+echo "remove dtstart_sessionlogfile=/dev/null line." >> $dtstart_sessionlogfile
+
+export dtstart_sessionlogfile="/dev/null"
+
+##############################################################################
+###
+### So beginneth my own settings, after we've taken care of basic stuff.
+###
+##############################################################################
+
+# CDE decided for some reason to use xrdb on .Xdefaults, and completely ignore
+# .Xresources.  I would like to read .Xresources, but there doesn't seem to be a
+# place to do this, as .dtprofile is too early, and things get ignored.  By
+# setting XENVIRONMENT, we force resources to be read on any application start
+# instead of loading the wrong file into xrdb, but this means that my resources
+# aren't present in the RESOURCE_MANAGER.  The .Xresources file is not
+# processed.
+export XENVIRONMENT="$HOME/sb/dotfiles/Xdefaults"

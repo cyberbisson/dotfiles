@@ -473,7 +473,7 @@ unset commonman
 ########################################
 if [ -d '/usr/dt' ] ; then
     cdedirs=( '/usr/dt/bin' )
-    cdeman=( '/usr/dt/man' )
+    cdeman=( '/usr/dt/man' '/usr/dt/share/man' )
 
     for dir in ${cdedirs} ; do
         if [ -d ${dir} ] ; then
@@ -716,7 +716,7 @@ fi
 # simplification because (at least) Git on Cygwin doesn't like to use the
 # Windows Emacs when it exists in the path.  If a valid Emacs lives in a custom
 # location, we can make fixes at that time.
-if [ -x /usr/bin/emacs ] ; then
+if [ -x '/usr/bin/emacs' ] || [ -x '/usr/local/bin/emacs' ] ; then
     export EDITOR='emacs'
     export VISUAL='emacs'
     export WINEDITOR='emacs'
