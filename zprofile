@@ -297,8 +297,14 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
         export WINEDITOR='Emacs'
     fi
 
+    sdkdir='/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk'
+    if [ -d "${sdkdir}" ] ; then
+        machman=( "${sdkdir}/usr/share/man" )
+    fi
+
     machdirs=( '/Library/TeX/texbin' "${CARBON_EMACS_DIR}" \
                                      "${CARBON_EMACS_DIR}/bin" )
+    unset sdkdir
     unset CPU
     ;;
 
