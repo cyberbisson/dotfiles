@@ -37,6 +37,11 @@ fi
 # Perform machine specific initialization
 ################################################################################
 
+# Sometimes this is missing...
+if [ ${+HOSTNAME} -eq 0 ] ; then
+    export HOSTNAME=`hostname`
+fi
+
 hwclass=`uname -m`
 sysname=`uname -s`
 OSrelease=`uname -r`
@@ -205,11 +210,13 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
 
     # Find the compiler (CCs) and Sun IDE (SUNWspro), as well as OpenWindows UI,
     # and any post-Solaris distributions' add-ons ("ooce": OmniOS).
-    machdirs=( '/usr/ccs/bin' \
+    machdirs=( ${machdirs} \
+               '/usr/ccs/bin' \
                '/opt/SUNWspro/bin' \
                "${OPENWINHOME}/bin" \
                '/opt/ooce/bin' )
-    machman=( '/opt/SUNWspro/man' "${OPENWINHOME}/man" '/opt/ooce/share/man' )
+    machman=( ${machman} '/opt/SUNWspro/man' "${OPENWINHOME}/man" \
+              '/opt/ooce/share/man' )
 
     # We should NOT need this...
     #export LD_LIBRARY_PATH=\
@@ -741,6 +748,9 @@ fi
 ################################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...
 ################################################################################
+
+# TODO: This should perhaps not be in the log-in script (e.g., when the
+# profile/login is used during X Windows session start).
 
 # Make sysV braindamage look like berzerkeley braindamage
 export TTY=`tty`

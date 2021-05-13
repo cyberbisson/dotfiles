@@ -1,22 +1,26 @@
 #!/bin/tcsh -X
 # .login
-###############################################################################
+################################################################################
 # Login script:
-# This file is read by csh/tcsh when you have started a "login" shell. 
-# It will do more serious initialization in .tcshrc
-###############################################################################
+#
+# This is the file that [t]csh reads first when invoked as a "log-in" shell.
+# Put any common initialization tasks in this file (like setting up the PATH),
+# while leaving things specific to "interactive" shell set-up in .[t]cshrc.
+################################################################################
 # For CCS machines:
-# This file loads the central .login that is stored in /ccs/etc/dotfiles.
-# This is done because the Systems Group will occasionally update that 
-# file to reflect changes in the network, and you may be better off if
-# those changes are made for you, but it is doubtful.
-###############################################################################
+# This file loads the central .login that is stored in /ccs/etc/dotfiles.  This
+# is done because the Systems Group will occasionally update that file to
+# reflect changes in the network, and you may be better off if those changes are
+# made for you, but it is doubtful.
+################################################################################
 # Matt Bisson
 
+#echo '******** IN      login '`date '+%M:%S.%N'`
 if (${?SAW_LOGIN_SCRIPT}) then
     exit
 endif
 
+#echo '******** RUNNING login '`date '+%M:%S.%N'`
 setenv SAW_LOGIN_SCRIPT 1
 
 # Read the CCS's .login file
@@ -34,95 +38,89 @@ if ( -f "${HOME}/.cvsrc.csh" ) then
     source "${HOME}/.cvsrc.csh"
 endif
 
-###############################################################################
+################################################################################
 # If TERM is undefined, or it is not an acceptable type
-###############################################################################
+################################################################################
 
-# Annoying
 if (0 == ${?TERM}) then
+    echo "Changing terminal type..."
     setenv TERM "vt100"
 else if (("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
     ("network" == ${TERM})) then
+    echo "Changing terminal type..."
     setenv TERM "vt100"
 endif
 
-#if ((0 == ${?TERM}) && (("unknown" == ${TERM}) || ("ANSI" == ${TERM}) || \
-#    ("network" == ${TERM}))) then
+################################################################################
+# Perform machine specific initializations
+################################################################################
 
-#    echo "Note: Changing terminal type..."
-#    set   noglob
-#    eval `tset -s -I -Q "vt100"`
-#    unset noglob
-
-#endif
-
-###############################################################################
-# Get computer information
-###############################################################################
-
-# This is a fix for cygwin so that we don't pick up the Windows native whoami,
-# which will give a different result than cygwin commands.
-# NOTE: Use -f because there is a cygwin bug where /bin executables are 000!
-if (-f '/bin/whoami') then
-    set WHOAMI='/bin/whoami'
-else
-    set WHOAMI='whoami'
+# Sometimes this is missing...
+if (! ${?HOSTNAME}) then
+    setenv HOSTNAME `hostname`
 endif
 
 set hwclass=`uname -m`
-set host=`uname -n | awk -F. '{print $1}'`
+set sysname=`uname -s`
 set OSrelease=`uname -r`
-set OSname=`uname -s`
-set OSver=`uname -v`
-set curuser=`${WHOAMI} | sed 's/\\/\//g'`
 
-# Make sysV braindamage look like berzerkeley braindamage
-setenv TTY `tty`
-if (${status} == 0) then
-    set isatty="1"
-else
-    set isatty="0"
-endif
+set machdirs=( )
+set machman=( )
 
-# What type of CPU
-if ((-x '/bin/machine') || (-x '/usr/bin/machine') || \
-    (-x '/usr/local/bin/machine') || (-x "${HOME}/machine")) then
-    setenv CPU  `machine`
-    setenv CCPU ${CPU}
-endif
-
-###############################################################################
-# Perform machine specific initializations
-###############################################################################
-switch (${OSname})
+switch (${sysname})
 
 ########################################
 ## Linux
 ########################################
-case "Linux"
-
-    set machdirs=(  )
-    set machman=(  )
+case "Linux":
     setenv XENVIRONMENT "${HOME}/.Xdefaults"
 
-    if      (-f '/etc/gentoo-release') then
+    if (-f '/etc/gentoo-release') then
+
         set distro="gentoo"
 
-        if (-f '/usr/bin/kde4') then
+        if (-f '/usr/bin/kde5') then
+            set kdever=5
+        else if (-f '/usr/bin/kde4') then
             set kdever=4
         else
             # Nothing better to do...
             set kdever=3.5
         endif
 
+        # TODO: All these hard-coded paths are silly and wrong.
         set machdirs=( /opt/bin /usr/kde/${kdever}/sbin /usr/kde/${kdever}/bin /usr/qt/3/bin /opt/vmware/workstation/bin /opt/ghc/bin /usr/games/bin )
         set machman=( /usr/local/share/man /usr/share/man /usr/share/binutils-data/i686-pc-linux-gnu/2.17/man /usr/share/gcc-data/i686-pc-linux-gnu/4.1.2/man /opt/sun-jdk-1.4.2.13/man /etc/java-config/system-vm/man /usr/kde/${kdever}/share/man /usr/qt/3/doc/man /opt/vmware/workstation/man /opt/bin )
         unset kdever
 
-        if (-x /usr/bin/gcc-config) then
-            set machdirs=( ${machdirs} `/usr/bin/gcc-config -B` )
-            set machman=( ${machman} "`/usr/bin/gcc-config -B`/man" )
+        # Try to read configuration files to determine where GCC is.  Failing
+        # this, use the gcc-config command, which is much slower.
+        if (-x '/etc/env.d/gcc' ) then
+            foreach file ( "/etc/env.d/gcc/`uname -m`-*-linux-gnu-*" )
+                set tmp_gccpath=`grep '^GCC_PATH=' ${file} | \
+                                 sed 's/^GCC_PATH=//' | sed 's/"//g'`
+                set tmp_manpath=`grep '^MANPATH=' ${file} | \
+                                 sed 's/^MANPATH=//' | sed 's/"//g'`
+                set machdirs=( ${machdirs} ${tmp_gccpath} )
+                set machman=( ${machman} ${tmp_manpath} )
+                unset tmp_gccpath
+                unset tmp_manpath
+            end
+        else if (-x '/usr/bin/gcc-config') then
+            set gcc_config=`/usr/bin/gcc-config -B`
+            set machdirs=( ${machdirs} ${gcc_config} )
+            set machman=( ${machman} ${gcc_config}/man )
+            unset gcc_config
         endif
+
+        # Don't have a clever script for LLVM, but here's where it should be.
+        if (-d '/usr/lib/llvm') then
+            set clang_dir=/usr/lib/llvm/`ls /usr/lib/llvm | sort -V -r | head -1`
+            set machdirs=( ${machdirs} ${clang_dir}/bin )
+            set machman=( ${machman} ${clang_dir}/share/man )
+            unset clang_dir
+        endif
+
     else if (-f '/etc/redhat-release') then
         set tmp=`grep -q Enterprise /etc/redhat-release`
         if (0 == ${status}) then
@@ -142,13 +140,14 @@ case "Linux"
     else if (-f '/etc/mandrake-release') then
         set distro="mndrk"
     else if (-f '/etc/SuSE-release') then
+
         set ver=`grep VERSION /etc/SuSE-release | awk '{print $3}' | awk -F. '{print $1}'`
 
-        grep -q openSUSE /etc/SuSE-release
+        grep -q 'openSUSE' '/etc/SuSE-release'
         if (0 == ${status}) then
-            set machtype="openSuSE-${ver}"
+            set machtype='openSuSE-'${ver}
         else
-            set machtype="sles${ver}"
+            set machtype='sles'${ver}
         endif
 
         set machdirs=( /opt/gnome/sbin /opt/gnome/bin /opt/kde3/sbin /opt/kde3/bin )
@@ -176,9 +175,29 @@ case "Linux"
 case "FreeBSD":
     set shortrel=`echo $OSrelease | sed 's/\([0-9]*\.[0-9]*\).*/\1/'`
     set machtype="bsd${shortrel}-${hwclass}"
-    set machdirs=(  )
-    set machman=(  )
     unset shortrel
+    breaksw
+
+########################################
+## CygWin (for Win2k & XP)
+########################################
+case "CYGWIN_NT-*":
+case "CYGWIN_NT-*-WOW64":
+    set machtype='cygwin-'${hwclass}
+    set winpath=`cygpath -u -S`
+
+    # Invoke the Windows command interpreter, and call the PATH command.  Then
+    # strip off the "PATH=" bit, change "X:" to "/cygdrive/x", and '\' to '/'.
+    # Remove any cygwin stuff in the Windows path, since it will be redundant in
+    # our Cygwin environment.  Lastly, throw in ' ' where there were ';'.
+    set windows_path=( `${winpath}/cmd /c path                 | \
+                        sed 's/^PATH\=/;/'                     | \
+                        sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
+                        sed 's/\\/\//g'                        | \
+                        sed 's/[^;]*cygwin[^;]*;//g'           | \
+                        sed 's/ /\\ /g'                        | \
+                        sed 's/;/ /g'`)
+    unset winpath
     breaksw
 
 ########################################
@@ -188,25 +207,38 @@ case "SunOS":
     setenv OPENWINHOME "/usr/openwin"
 
     set shortrel=`echo $OSrelease | awk -F. '{print $1}'`
-    set machtype=sun${shortrel}
-
-    if (${shortrel} >= 5) then
-        set machdirs=( /usr/ccs/bin /opt/SUNWspro/bin ${OPENWINHOME}/bin )
-        setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"
-
-        # Look for the Sun Java packages
-        if ( -d /opt/java122 ) then
-            set machdirs=( $machdirs /opt/java122/bin )
-        endif
-        if ( -d /opt/JDK120 ) then
-            set machdirs=( $machdirs /opt/JDK120/bin )
-        endif
-    else
-        set machdirs=(  )
+    set machtype='sun'${shortrel}
+    if ("${hwclass}" == "i86pc") then
+        set machtype="${machtype}-x86"
     endif
 
-    set machman= ( /opt/SUNWspro/man ${OPENWINHOME}/man )
-    setenv XTERM ${OPENWINHOME}/bin/xterm
+    if (${shortrel} > 4) then
+        # Look for the Sun Java packages
+        if (-d '/opt/java122') then
+            set machdirs=( $machdirs /opt/java122/bin )
+        endif
+        if (-d '/opt/JDK120') then
+            set machdirs=( $machdirs /opt/JDK120/bin )
+        endif
+    endif
+
+    if (-x "${OPENWINHOME}/bin/xterm") then
+        setenv XTERM "${OPENWINHOME}/bin/xterm"
+    fi
+
+    # Find the compiler (CCs) and Sun IDE (SUNWspro), as well as OpenWindows UI,
+    # and any post-Solaris distributions' add-ons ("ooce": OmniOS).
+    set machdirs=( ${machdirs} \
+                   '/usr/ccs/bin' \
+                   '/opt/SUNWspro/bin' \
+                   "${OPENWINHOME}/bin"
+                   '/opt/ooce/bin' )
+    set machman=( ${machman} '/opt/SUNWspro/man' "${OPENWINHOME}/man" \
+                  '/opt/ooce/share/man' )
+
+    # We should NOT need this...
+    #setenv LD_LIBRARY_PATH \
+    #    "/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"
 
     unset shortrel
     breaksw
@@ -217,17 +249,17 @@ case "SunOS":
 case "HP-UX":
     set shortrel=`echo ${OSrelease} | awk -F. '{print $2}'`
     if (`echo ${hwclass} | awk -F/ '{print " "$2}' | grep " 8"`) then
-        set tempCPU=800
+        set tempCPU='800'
     else
-        set tempCPU=pa
+        set tempCPU='pa'
     endif
 
-    set machtype=hp${shortrel}_${tempCPU}
+    set machtype='hp'${shortrel}_${tempCPU}
     unset shortrel
     unset tempCPU
 
-    set machdirs=( /usr/contrib/bin )
-    set machman=( /usr/contrib )
+    set machdirs=( '/usr/contrib/bin' )
+    set machman=( '/usr/contrib' )
     breaksw
 
 ########################################
@@ -236,28 +268,25 @@ case "HP-UX":
 case "IRIX":
 case "IRIX64":
     set shortrel=`echo $OSrelease | awk -F. '{print $1}'`
-    set machtype=sgi${shortrel}
+    set machtype='sgi'${shortrel}
     unset shortrel
 
-    set machdirs=( /usr/bsd )
-    set machman=(  )
+    set machdirs=( '/usr/bsd' )
     breaksw
 
 ########################################
 ## IBM AIX
 ########################################
 case "AIX":
-    set machtype=aix${OSver}_power
+    set machtype='aix'${OSver}'_power'
 
     if ( -d /usr/lpp/cmvc/bin ) then
-        set cmvcpath=( /usr/lpp/cmvc/bin /usr/lpp/cmvc/samples )
+        set cmvcpath=( '/usr/lpp/cmvc/bin' '/usr/lpp/cmvc/samples' )
     else
         set cmvcpath=(  )
     endif
 
-    set machdirs=( /usr/include/X11/bitmaps /usr/lib/X11 /usr/lib/X11/app-defaults ${cmvcpath} )
-    set machman=(  )
-
+    set machdirs=( '/usr/include/X11/bitmaps' '/usr/lib/X11' '/usr/lib/X11/app-defaults' ${cmvcpath} )
     unset cmvcpath
     breaksw
 
@@ -265,36 +294,52 @@ case "AIX":
 ## Digital/Compaq UNIX
 ########################################
 case "OSF1":
-    set machtype=osf1_axp
-    set machdirs=( /usr/bin/mh )
-    set machman=(  )
+    set machtype='osf1_axp'
+    set machdirs=( '/usr/bin/mh' )
     breaksw
 
 ########################################
 ## SCO UNIXWare
 ########################################
 case "UnixWare":
-    set machtype=uw2_x86
-    set machdirs=(  )
-    set machman=(  )
+    set machtype='uw2_x86'
     breaksw
 
 ########################################
 ##  Mac OS X
 ########################################
 case "Darwin":
-    set machtype="osx_${CPU}"
-    set machdirs=(  )
-    set machman=(  )
+    # What type of CPU
+    if ((-x '/bin/machine') || (-x '/usr/bin/machine') || \
+        (-x '/usr/local/bin/machine') || (-x "${HOME}/machine")) then
+        set CPU=`machine`
+    endif
+    set machtype='osx_'${CPU}
+
+    # This is where emacs lives if compiled natively on MacOS
+    setenv CARBON_EMACS_DIR "/Applications/Emacs.app/Contents/MacOS"
+    if (-x "${CARBON_EMACS_DIR}/Emacs") then
+        setenv EDITOR 'Emacs'
+        setenv VISUAL 'Emacs'
+        setenv WINEDITOR 'Emacs'
+    endif
+
+    set sdkdir='/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk'
+    if (-d "${sdkdir}") then
+        set machman=( "${sdkdir}/usr/share/man" )
+    endif
+
+    set machdirs=( '/Library/TeX/texbin' "${CARBON_EMACS_DIR}" \
+                                         "${CARBON_EMACS_DIR}/bin" )
+    unset sdkdir
+    unset CPU
     breaksw
 
 ########################################
 ## System V type UNIX
 ########################################
 case "UNIX_SV":
-    set machtype=att3_x86
-    set machdirs=(  )
-    set machman=(  )
+    set machtype='att3_x86'
     breaksw
 
 ########################################
@@ -302,49 +347,25 @@ case "UNIX_SV":
 ########################################
 case "SINIX-N":
     set shortrel=`echo $OSrelease | awk -F. '{print  $1}'`
-    set machtype=sni${shortrel}
-
+    set machtype='sni'${shortrel}
     unset shortrel
-
-    set machdirs=(  )
-    set machman=(  )
     breaksw
-
-########################################
-## CygWin (for Win2k & XP)
-########################################
-case "CYGWIN_NT-6.1":
-case "CYGWIN_NT-6.1-WOW64":
-case "CYGWIN_NT-6.0":
-case "CYGWIN_NT-5.1":
-    set machtype="cygwin-${hwclass}"
-    set winpath=`cygpath -u -S`
-    set windows_path=( `${winpath}/cmd /c path               | \
-                      sed 's/^PATH\=/;/'                     | \
-                      sed 's/\([A-Za-z]\):/\/cygdrive\/\1/g' | \
-                      sed 's/\\/\//g'                        | \
-                      sed 's/[^;]*cygwin[^;]*;//g'           | \
-                      sed 's/ /\\ /g'                        | \
-                      sed 's/;/ /g'`)
-    set machdirs=( )
-    set machman=( )
-
-    unset winpath
-    breaksw;
 
 ########################################
 ## Undeterminable UNIX type
 ########################################
 default:
-    set machdirs=(  )
-    set machman=(  )
     breaksw
+
 endsw
 
-###############################################################################
+unset hwclass
+unset OSrelease
+
+################################################################################
 # Build paths and man pages paths (This is a lot of optimized crap so that I
 # can go onto any other computer and not have a 10 line path).
-###############################################################################
+################################################################################
 
 ########################################
 ## Root doesn't get to use '.'
@@ -390,9 +411,9 @@ unset baseman
 ########################################
 ## Search the /usr/local area
 ########################################
-if (-d /usr/local) then
-    set localdirs=( /usr/local/bin /usr/local/sbin )
-    set localman=( /usr/local/man )
+if (-d '/usr/local') then
+    set localdirs=( '/usr/local/bin' '/usr/local/sbin' )
+    set localman=( '/usr/local/man' )
 
     foreach dir ( ${localdirs} )
         if (-d ${dir}) then
@@ -412,9 +433,9 @@ endif
 ########################################
 ## If a root-local dir exists
 ########################################
-if (-d /local) then
-    set localdirs=( /local/bin /local/gnu/bin /local/apps/mh )
-    set localman=( /local/man /local/apps/X11R5/man /local/gnu/man /local/apps/mh/man )
+if (-d '/local') then
+    set localdirs=( '/local/bin' '/local/gnu/bin' '/local/apps/mh' )
+    set localman=( '/local/man' '/local/apps/X11R5/man' '/local/gnu/man' '/local/apps/mh/man' )
 
     foreach dir ( ${localdirs} )
         if (-d ${dir}) then
@@ -435,7 +456,7 @@ endif
 ## VMware-specific areas
 ########################################
 if (-d /mts/git) then
-    set gitdirs=( /mts/git/tools/bin )
+    set gitdirs=( '/mts/git/tools/bin' )
     set gitman=( )
     foreach dir ( ${gitdirs} )
         if (-d ${dir}) then
@@ -472,8 +493,8 @@ unset machman
 ########################################
 ## These are very common dirs
 ########################################
-set commondirs=( /usr/sbin /usr/ucb /bin /sbin /usr/bin /usr/share/bin )
-set commonman=( /usr/man /usr/share/man /usr/catman )
+set commondirs=( '/usr/sbin' '/usr/ucb' '/bin' '/sbin' '/usr/bin' '/usr/share/bin' )
+set commonman=( '/usr/share/man' '/usr/man' '/usr/catman' )
 
 foreach dir ( ${commondirs} )
     if (-d ${dir}) then
@@ -514,24 +535,30 @@ endif
 ########################################
 ## Basic X-windows stuff
 ########################################
-if (-d /usr/bin/X11) then
-    set xdirs=( /usr/bin/X11 /usr/bin/X11/demos )
 
-    foreach dir ( ${xdirs} )
-        if (-d ${dir}) then
-            set _path="${_path}:${dir}"
-        endif
-    end
-
-    unset xdirs
-endif
+# Turn off errors when the wildcard does not match (re-enable it after).
+set nonomatch=1
+set xdirs=( /usr/X11* )
+foreach dir ( ${xdirs} )
+    if (-d ${dir}/bin) then
+        set _path="${_path}:${dir}/bin"
+    endif
+    if (-d ${dir}/demos) then
+        set _path="${_path}:${dir}/demos"
+    endif
+    if (-d ${dir}/man) then
+        set _manpath="${_manpath}:${dir}/man"
+    endif
+end
+unset xdirs
+unset nonomatch
 
 ########################################
 ## Any GNU stuff that's been broken out...
 ########################################
-if (-d /usr/gnu) then
-    set gnudirs=( /usr/gnu/bin /usr/gnu/bin )
-    set gnuman=( /usr/gnu/man )
+if (-d '/usr/gnu') then
+    set gnudirs=( '/usr/gnu/bin' '/usr/gnu/bin' )
+    set gnuman=( '/usr/gnu/man' )
 
     foreach dir ( ${gnudirs} )
         if (-d ${dir}) then
@@ -573,9 +600,9 @@ endif
 ########################################
 ## Northeastern's CCS keeps arch-specific stuff separate on an NFS share
 ########################################
-if (-d /arch) then
-    set ccsdirs=( /arch/X11R6/bin /arch/Xapps/bin /arch/adm/bin /arch/beta/bin /arch/com/bin /arch/daemons/bin /arch/gnu/bin /arch/unix/bin )
-    set ccsman=( /arch/unix/man /arch/com/man /arch/unix/packages/j2sdk1_3_0beta/man /arch/gnu/man /arch/Xapps/man /arch/X11R6/man )
+if (-d '/arch') then
+    set ccsdirs=( '/arch/X11R6/bin' '/arch/Xapps/bin' '/arch/adm/bin' '/arch/beta/bin' '/arch/com/bin' '/arch/daemons/bin' '/arch/gnu/bin' '/arch/unix/bin' )
+    set ccsman=( '/arch/unix/man' '/arch/com/man' '/arch/unix/packages/j2sdk1_3_0beta/man' '/arch/gnu/man' '/arch/Xapps/man' '/arch/X11R6/man' )
 
     foreach dir ( ${ccsdirs} )
         if (-d ${dir}) then
@@ -591,9 +618,9 @@ if (-d /arch) then
     unset ccsdirs
     unset ccsman
 endif
-if (-d /share) then
-    set ccsdirs=( /share/unix/bin /share/com/bin /share/Xapps/bin )
-    set ccsman=( /share/unix/man /share/com/man /share/Xapps/man /share/Xapps/man )
+if (-d '/share') then
+    set ccsdirs=( '/share/unix/bin' '/share/com/bin' '/share/Xapps/bin' )
+    set ccsman=( '/share/unix/man' '/share/com/man' '/share/Xapps/man' '/share/Xapps/man' )
 
     foreach dir ( ${ccsdirs} )
         if (-d ${dir}) then
@@ -609,9 +636,9 @@ if (-d /share) then
     unset ccsdirs
     unset ccsman
 endif
-if (-d /ccs) then
-    set ccsdirs=( /ccs/bin )
-    set ccsman=( /ccs/man )
+if (-d '/ccs') then
+    set ccsdirs=( '/ccs/bin' )
+    set ccsman=( '/ccs/man' )
 
     foreach dir ( ${ccsdirs} )
         if (-d ${dir}) then
@@ -628,10 +655,12 @@ if (-d /ccs) then
     unset ccsman
 endif
 
+########################################
 ## Is ClearCase on this machine?
-if (-d /usr/atria) then
-    set ccdirs=( /usr/atria/bin )
-    set ccman=( /usr/atria/doc /usr/atria/doc/man )
+########################################
+if (-d '/usr/atria') then
+    set ccdirs=( '/usr/atria/bin' )
+    set ccman=( '/usr/atria/doc' '/usr/atria/doc/man' )
 
     foreach dir ( ${ccdirs} )
         if (-d ${dir}) then
@@ -666,17 +695,30 @@ endif
 ########################################
 setenv PATH "${_path}"
 setenv MANPATH "${_manpath}"
+unset _path
+unset _manpath
 
 # Strip any ':' at the beginning of the path
 setenv PATH    `echo ${PATH}    | sed 's/^://'`
 setenv MANPATH `echo ${MANPATH} | sed 's/^://'`
 
-unset _path
-unset _manpath
-
-###############################################################################
+################################################################################
 # Set the prompt
-###############################################################################
+################################################################################
+
+# This is a fix for cygwin so that we don't pick up the Windows native whoami,
+# which will give a different result than cygwin commands.
+# NOTE: Use -f because there is a cygwin bug where /bin executables are 000!
+if (-f '/bin/whoami') then
+    set WHOAMI='/bin/whoami'
+else
+    set WHOAMI='whoami'
+endif
+set curuser=`${WHOAMI} | sed 's/\\/\//g'`
+set host=`uname -n | awk -F. '{print $1}'`
+
+# Why is there whitespace in $LOGNAME??
+setenv LOGNAME `echo $LOGNAME | sed 's/^[ \t]*\(.*\)[ \t]*$/\1/'`
 if ("${LOGNAME}" != "${curuser}") then
     set hostprompt="${curuser}@${host}"
 else
@@ -688,17 +730,19 @@ else
     set machprompt=
 endif
 
-setenv PROMPT  "$machprompt$hostprompt"
-setenv PROMPT2 '%R>    '
-setenv PROMPT3 'Correct (%R)? [y|n|e|a]: '
+unset curuser
+unset host
 
-unset machtype
-unset machprompt
+setenv BASE_PROMPT  "$machprompt$hostprompt"
+
 unset hostprompt
+unset machprompt
+unset machtype
+unset sysname
 
-###############################################################################
+################################################################################
 # Miscellaneous settings
-###############################################################################
+################################################################################
 # Make user and login name the same thing
 if ((${?USER} == "0") && (${?LOGNAME} != "0")) then
     setenv USER ${LOGNAME}
@@ -706,57 +750,58 @@ endif
 
 umask 022
 
-setenv EDITOR    "emacs"
-setenv VISUAL    "emacs"
-setenv WINEDITOR "emacs"
-setenv ENV       "~/.profile"
+# Less IS more...
+if ((-x '/usr/local/bin/less') || (-x '/usr/bin/less')) then
+    setenv PAGER less
 
-setenv ENSCRIPT  "-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15:15 --mark-wrapped-lines=arrow"
+    # X tends to needlessly clear the screen, so add -F to allow a single
+    # screenful print and quit...
+    setenv LESS "${LESS} -F -M -R -X"
+endif
+
+# Only set Emacs as the editor when we find it in /usr/bin.  This is a
+# simplification because (at least) Git on Cygwin doesn't like to use the
+# Windows Emacs when it exists in the path.  If a valid Emacs lives in a custom
+# location, we can make fixes at that time.
+if ((-x '/usr/bin/emacs') || (-x '/usr/local/bin/emacs')) then
+    setenv EDITOR    'emacs'
+    setenv VISUAL    'emacs'
+    setenv WINEDITOR 'emacs'
+endif
+
+setenv ENV "~/.profile"
+
+setenv ENSCRIPT "-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15:15 --mark-wrapped-lines=arrow"
 
 # Get the timezone set... sigh
 if ( ! ${?TZ} ) then
-    setenv TZ "EST5EDT"
+    setenv TZ 'EST5EDT'
 endif
 
-###############################################################################
-# If the login is on an X display but the DISPLAY variable has not 
-# been set, ask the user what the DISPLAY should be (e.g., rlogin)
-###############################################################################
-
-# Annoying...
-#if (1 == ${?TERM}) then
-#    if (((${TERM} =~ dtterm) || (${TERM} =~ xterm*)) && (0 == ${?DISPLAY})) then
-
-#        echo -n "What DISPLAY are you using [default: NONE]? "
-#        set response=($<)
-
-#        if ("${response}" != "") then
-#            if ("$response" =~ *:*) then
-#                echo "Setting DISPLAY to $response"
-#                setenv DISPLAY "$response"
-#            else
-#                echo "Setting DISPLAY to ${response}:0".0
-#                setenv DISPLAY "${response}":0.0
-#            endif
-#        else
-#            # Allow this to be undefined, and we will display things
-#            # on the terminal window.
-#        endif
-#    endif
-#endif
-
-###############################################################################
+################################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...
-###############################################################################
+################################################################################
+
+# TODO: This should perhaps not be in the log-in script (e.g., when the
+# profile/login is used during X Windows session start).
+
+# Make sysV braindamage look like berzerkeley braindamage
+setenv TTY `tty`
+if (0 == ${status}) then
+    set isatty=1
+else
+    set isatty=0
+endif
+
 if (${isatty}) then
     setenv STTY_PARAM 'intr ^C quit ^\\ kill ^U eof ^D start ^Q stop ^S susp ^Z ixany'
 
     set tmp=`uname`
 
     # ^H isn't right for Linux, it wants ^? instead
-    if (${tmp} != "Linux") then
+#   if (${tmp} != "Linux") then
 #       setenv STTY_PARAM "${STTY_PARAM} erase ^H"
-    endif
+#   endif
 
     # OS Specific stuff
     switch (${tmp})
@@ -769,27 +814,26 @@ if (${isatty}) then
     endsw
 
     unset tmp
-    stty ${STTY_PARAM}
+#   stty ${STTY_PARAM}
 endif
 
-###############################################################################
-# Unset all unnecessary variables...
-###############################################################################
-unset curuser
-unset dir
-unset host
-unset hwclass
 unset isatty
-unset OSname
-unset OSrelease
-unset OSver
 
-unsetenv LS_COLORS
+##############################################################################
+# Set limits for the environment
+##############################################################################
+if (`uname -s` != "CYGWIN_NT-5.1") then # Older Cygwin doesn't do "limit"
+    limit coredumpsize unlimited        # Core file size (blocks)
+endif
 
-###############################################################################
+################################################################################
 # Now read my real initialization file
-###############################################################################
-#if (${SHELL} =~ *tcsh) then            # This seems to persist in nested shells.
+################################################################################
+if (-f "${HOME}/.profile.${HOSTNAME}") then
+    source "${HOME}/.profile.${HOSTNAME}"
+endif
+
+# Do test with "(${SHELL} =~ *tcsh)" as it persists in nested shells.
 if (${?version}) then
     setenv USING_TCSH 1
     source "${HOME}/.tcshrc"
@@ -797,3 +841,4 @@ else
     setenv USING_TCSH 0
     source "${HOME}/.cshrc"
 endif
+#echo '******** DONE    login '`date '+%M:%S.%N'`

@@ -1,5 +1,5 @@
-#! /bin/ksh -x
-# .zshrc
+#!/bin/ksh -x
+# .kshrc
 ################################################################################
 # Bourne/Korn-Shell Interactive start-up script:
 #
@@ -19,9 +19,8 @@
 
 #echo '******** RUNNING kshrc    '`date '+%M:%S.%N'`
 
-# If we've not seen the login script, we need to load it.  Also, if we have
-# seen the thing, but were configured for a different shell, we need to
-# reload it.
+# If we've not seen the login script, we need to load it.  Also, if we have seen
+# the thing, but were configured for a different shell, we need to reload it.
 if [ "" != "${USING_BASH}" ] ; then
     if [ "1" != "${USING_BASH}" ] ; then
         if [ "" != "${BASH}" ] ; then

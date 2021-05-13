@@ -59,6 +59,11 @@ fi
 # Perform machine specific initialization
 ################################################################################
 
+# Sometimes this is missing...
+if [ "${HOSTNAME}" = "" ] ; then
+    HOSTNAME=`hostname`; export HOSTNAME
+fi
+
 hwclass=`uname -m`
 sysname=`uname -s`
 OSrelease=`uname -r`
@@ -226,8 +231,9 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
 
     # Find the compiler (CCs) and Sun IDE (SUNWspro), as well as OpenWindows UI,
     # and any post-Solaris distributions' add-ons ("ooce": OmniOS).
-    machdirs="/usr/ccs/bin /opt/SUNWspro/bin ${OPENWINHOME}/bin /opt/ooce/bin"
-    machman="/opt/SUNWspro/man ${OPENWINHOME}/man /opt/ooce/share/man"
+    machdirs="$machdirs /usr/ccs/bin /opt/SUNWspro/bin ${OPENWINHOME}/bin \
+              /opt/ooce/bin"
+    machman="$machman /opt/SUNWspro/man ${OPENWINHOME}/man /opt/ooce/share/man"
 
     # We should NOT need this...
     #LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/ccs/lib:${OPENWINHOME}/lib:/usr/lib"
@@ -771,6 +777,9 @@ fi
 ################################################################################
 # Old STTY settings.  Uncomment for fun and edutainment...
 ################################################################################
+
+# TODO: This should perhaps not be in the log-in script (e.g., when the
+# profile/login is used during X Windows session start).
 
 # Make sysV braindamage look like berzerkeley braindamage
 TTY=`tty`; export TTY

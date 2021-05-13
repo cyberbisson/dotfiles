@@ -8,7 +8,14 @@
 # Matt Bisson
 
 # Unset frivolous aliases
-unalias -a
+unalias alais 2>/dev/null
+unalias csl 2>/dev/null
+unalias d 2>/dev/null
+unalias helpcommand 2>/dev/null
+unalias l 2>/dev/null
+unalias ll 2>/dev/null
+unalias maek 2>/dev/null
+unalias sl 2>/dev/null
 
 # ClearCase aliases
 if [ -x '/usr/atria/bin/cleartool' ] ; then

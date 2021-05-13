@@ -1,18 +1,24 @@
-#! /bin/tcsh -x
-###############################################################################
-# This file is read by tcsh every time you start a shell.
-###############################################################################
+#!/bin/tcsh -X
+# .tcshrc
+################################################################################
+# (T)CSH Interactive start-up script:
+#
+# This is the script that [t]csh reads when starting an interactive shell.  It
+# is supposed to be read after .login.  Place configuration in this file that
+# customizes how you interact with your shell (prompt, completions, etc.).
+################################################################################
 # For CCS machines:
-# This file loads the central .tcshrc that is stored in /ccs/etc/dotfiles.
-# This is done because the Systems Group will occasionally update that 
-# file to reflect changes in the network, and you may be better off if
-# those changes are made for you.
-###############################################################################
+# This file loads the central .tcshrc that is stored in /ccs/etc/dotfiles.  This
+# is done because the Systems Group will occasionally update that file to
+# reflect changes in the network, and you may be better off if those changes are
+# made for you.
+################################################################################
 # Matt Bisson
 
-# If we've not seen the login script, we need to load it.  Also, if we have
-# seen the thing, but were configured for a different shell, we need to
-# reload it.
+#echo '******** RUNNING tcshrc    '`date '+%M:%S.%N'`
+
+# If we've not seen the login script, we need to load it.  Also, if we have seen
+# the thing, but were configured for a different shell, we need to reload it.
 if (${?USING_TCSH}) then
     if (${USING_TCSH}) then
         if (! {$?version}) then
@@ -36,31 +42,90 @@ else
     exit
 endif
 
-# This is the only way I know of to determine if I am on a CCS computer
-# Place CCS only commands here...
+# This is the only way I know of to determine if I am on a CCS computer Place
+# CCS only commands here...
 if (-f "/ccs/etc/dotfiles/.tcshrc") then
     source "/ccs/etc/dotfiles/.tcshrc"
 endif
 
-# Put csh aliases all in one file, in order to collect them in one
-# place.  If you create more aliases, just add them to that file. 
+# Put csh aliases all in one file, in order to collect them in one place.  If
+# you create more aliases, just add them to that file.
 if (-f "${HOME}/.alias.csh") then
     source "${HOME}/.alias.csh"
 endif
 
 # Add special environment for VMware development if desired
-if (${?VMWARE_BRANCH}) then
-    if (-f "${HOME}/.tcshrc.${VMWARE_BRANCH}") then
-        source "${HOME}/.tcshrc.${VMWARE_BRANCH}"
+if (${?VMWARE_PROFILE}) then
+    source "${HOME}/sb/dotfiles/scripts/use_devprofile.csh"
+endif
+
+################################################################################
+# Terminal-specific customization
+################################################################################
+
+# Using stuff set in .login to get the prompt
+if (${?BASE_PROMPT}) then
+    if ((${USING_TCSH}) && (1 == ${?TERM})) then
+        switch (${TERM})
+            case "cygwin":
+            case "dtterm":
+            case "eterm-color":
+            case "linux":
+            case "rxvt":
+            case "rxvt-unicode":
+            case "rxvt-*color":
+            case "sun-color":
+            case "xterm":
+            case "xterm-*color":
+            case "xterm-xfree86":
+                set prompt="%{^[[01;39m%}${BASE_PROMPT}\%%{^[[00m%} "
+                breaksw
+            default
+                set prompt="${BASE_PROMPT}\% "
+                breaksw
+        endsw
     else
-        echo ".tcshrc: No loadable profile for VMware branch: '${VMWARE_BRANCH}'." \
-        > /dev/stderr
+        set prompt="${BASE_PROMPT}% "
     endif
 endif
 
-###############################################################################
+# For terminal emulators that advertise their color scheme with $COLORFGBG
+# (rxvt, for one), having a value of "default" means it cannot represent the
+# background color from 0-15.  This will be a problem for (terminal) Emacs and
+# friends.
+if (! ${?COLORFGBG}) then
+    if (${TERM} =~ "rxvt") then
+        set reset_color_fgbg=1
+    endif
+else
+    if (${COLORFGBG} =~ "default") then
+        set reset_color_fgbg=1
+    endif
+endif
+# Paradoxically, CSH seems to evaluate COLORFGBG located in the ELSE case of a
+# "!${?COLORFGBG}" condition that is TRUE, raising an "undefined variable"
+# error.  The above nonsense (and reset_color_fgbg) solves the issue.
+if (${?reset_color_fgbg}) then
+    stty -icanon -echo min 0 time 1 ; printf '\e]11;?\e\\' ; read tmp_bg
+    set tmp_bg_avg=`echo $tmp_bg | cat -vet | \
+                    sed 's/.*rgb:\([a-f0-9]*\)\/\([a-f0-9]*\)\/\([a-f0-9]*\).*/0x\1 0x\2 0x\3/' | \
+                    awk '{ print int(((0+$1)+(0+$2)+(0+$3))/3) }'`
+    if (${status} == 0) then
+        if ($tmp_bg_avg > 32784) then
+            setenv COLORFGBG '0;15'
+        else
+            setenv COLORFGBG '15;0'
+        endif
+    endif
+
+    unset tmp_bg
+    unset tmp_bg_avg
+endif
+unset reset_color_fgbg
+
+################################################################################
 # Miscellaneous settings
-###############################################################################
+################################################################################
 
 if (${USING_TCSH}) then
     set   autocomplete                  # TAB does this (not just ^D)
@@ -86,47 +151,4 @@ unset fignore                           # Don't ignore anything in completion
 set   history = 128
 unset ignoreeof                         # I want to log out with ^D
 
-# Using stuff set in .login to get the prompt
-if (${?PROMPT}) then
-    if ((${USING_TCSH}) && (1 == ${?TERM})) then
-        switch (${TERM})
-            case "cygwin"
-            case "dtterm"
-            case "linux"
-            case "rxvt"
-            case "xterm"
-            case "xterm-color"
-            case "xterm-256color"
-            case "xterm-xfree86"
-                set prompt="%{^[[01;39m%}${PROMPT}\%%{^[[00m%} "
-                breaksw
-            default
-                set prompt="${PROMPT}\% "
-                breaksw
-        endsw
-    else
-        set prompt="${PROMPT}% "
-    endif
-endif
-if (${?PROMPT2}) then
-    set prompt2="${PROMPT2}"
-endif
-if (${?PROMPT3}) then
-    set prompt3="${PROMPT3}"
-endif
-
-##############################################################################
-# Set limits for the environment
-##############################################################################
-if (`uname -s` != "CYGWIN_NT-5.1") then # Cygwin doesn't do "limit"
-    limit coredumpsize    unlimited         # Core file size (blocks)
-    #limit datasize        unlimited        # Data seg size (kbytes)
-    #limit filesize        unlimited        # File size (blocks)
-    #limit memorylocked    unlimited        # Max locked memory (kbytes)
-    #limit memoryuse       unlimited        # Max memory size (kbytes)
-    #limit descriptors     1024             # Open file descriptors
-    #limit openfiles       1024             # Open files
-    #limit stacksize       8192 kbytes      # Stack size (kbytes)
-    #limit cputime         unlimited        # CPU time (seconds)
-    #limit maxproc         2048             # Max user processes
-endif
+#echo '******** DONE    tcshrc    '`date '+%M:%S.%N'`
