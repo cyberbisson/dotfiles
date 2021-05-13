@@ -68,8 +68,10 @@ fi
 case ${TERM} in
 cygwin | dtterm | eterm-color | linux | rxvt | rxvt-unicode | rxvt-*color | \
 sun-color | xterm | xterm-*color | xterm-xfree86)
-    if [ "" != "${KSH_VERSION}" ] || [ "" != "${BASH}" ] ; then
+    if [ "" != "${BASH}" ] ; then
         PS1="\[\033[01;39m\]${BASE_PROMPT}\[\033[00m\] "
+    elif [ "" != "${KSH_VERSION}" ] ; then
+        PS1=$'\E[01;39m${BASE_PROMPT}\E[00m '
     else
         PS1="${BASE_PROMPT} "
     fi

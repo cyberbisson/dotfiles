@@ -728,7 +728,7 @@ fi
 unset curuser
 unset host
 
-BASE_PROMPT="${machprompt}${hostprompt}#"; export BASE_PROMPT
+BASE_PROMPT="${machprompt}${hostprompt}$"; export BASE_PROMPT
 
 unset hostprompt
 unset machprompt

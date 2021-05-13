@@ -78,14 +78,14 @@ if (${?BASE_PROMPT}) then
             case "xterm":
             case "xterm-*color":
             case "xterm-xfree86":
-                set prompt="%{^[[01;39m%}${BASE_PROMPT}\%%{^[[00m%} "
+                set prompt="%{^[[01;39m%}${BASE_PROMPT}\#%{^[[00m%} "
                 breaksw
             default
-                set prompt="${BASE_PROMPT}\% "
+                set prompt="${BASE_PROMPT}\# "
                 breaksw
         endsw
     else
-        set prompt="${BASE_PROMPT}% "
+        set prompt="${BASE_PROMPT}# "
     endif
 endif
 
