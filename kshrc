@@ -52,9 +52,19 @@ fi
 
 # Put [k]sh aliases all in one file, in order to collect them in one place.  If
 # you create more aliases, just add them to that file.
-if [ -f "${HOME}/.alias.ksh" ] ; then
-    . "${HOME}/.alias.ksh"
+alias_file="${HOME}/.alias.ksh"
+if [ "${KSH_VERSION}" = "" ] ; then
+    if [ "${USING_BASH}" != "1" ] ; then
+        # Bourne Shell doesn't use "alias", but I've provided functions that
+        # have the same effect for many KSH aliases.
+        alias_file="${HOME}/.alias.sh"
+    fi
 fi
+
+if [ -f "${alias_file}" ] ; then
+    . "${alias_file}"
+fi
+unset alias_file
 
 # Add special environment for VMware development if desired
 if [ "${VMWARE_PROFILE}" ] ; then
