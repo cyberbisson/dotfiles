@@ -30,7 +30,8 @@
 
 (eval-when-compile
   (require 'cc-mode)
-  (require 'cmacexp))
+  (require 'cmacexp)
+  (require 'grep))
 
 ;; -----------------------------------------------------------------------------
 ;; Variables and constants:
@@ -351,6 +352,17 @@ customization points."
                  "cd " (getenv "VMWARE_SRCDIR") " && "
                  (alist-get 'toolchain vmw-c-macro-compcache)
                  (alist-get major-mode vmw-c-macro-preprocessor-alist)))))))
+
+;; When ripgrep exists in the path, use it for `grep-find' instead of grep.
+;; This must be applied only after loading the grep library.  (NOTE: "40"
+;; applies to the position within the '' where the interactive user types the
+;; search expression.
+(when (executable-find "rg")
+  (eval-after-load
+      'grep
+    '(grep-apply-setting
+      'grep-find-command
+      '("rg -nH --no-heading --color=always -e '' \"${VMWARE_SRCDIR}\"" . 40))))
 
 (provide 'vmw-c-dev)
 
