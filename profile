@@ -165,7 +165,7 @@ case ${sysname} in
         distro='lnux'
     fi
 
-    if [ "${machtype}" == "" ] ; then
+    if [ "${machtype}" = "" ] ; then
         machtype=${distro}-${hwclass}
     fi
     unset distro
