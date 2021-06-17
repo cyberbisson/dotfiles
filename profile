@@ -18,7 +18,7 @@
 
 #echo '******** IN      profile '`date '+%M:%S.%N'`
 if [ "${SAW_LOGIN_SCRIPT}" ] ; then
-    return
+    return > /dev/null 2>&1
 fi
 
 #echo '******** RUNNING profile '`date '+%M:%S.%N'`

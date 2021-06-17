@@ -27,21 +27,21 @@ if [ "" != "${USING_BASH}" ] ; then
             # Was set for bash, now using sh
             SAW_LOGIN_SCRIPT=
             . "${HOME}/.profile"
-            return
+            return > /dev/null 2>&1
         fi
     else
         if [ "" = "${BASH}" ] ; then
             # Was set for sh, now using bash
             SAW_LOGIN_SCRIPT=
             . "${HOME}/.profile"
-            return
+            return > /dev/null 2>&1
         fi
     fi
 else
     # We've never seen the LOGIN script
     SAW_LOGIN_SCRIPT=
     . "${HOME}/.profile"
-    return
+    return > /dev/null 2>&1
 fi
 
 # This is the only way I know of to determine if I am on a CCS computer.  Place
