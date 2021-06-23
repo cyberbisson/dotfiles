@@ -20,10 +20,11 @@ set editing on
 # By default, choose to follow the parent process instead of the child.
 set follow-fork-mode parent
 
-# THIS BREAKS AUTO-COMPLETE FOR EMACS 22.  TODO: It should be enough to check
-# for MI as the interpreter.
-if 0
-  set prompt [gdb]
+# THIS BREAKS AUTO-COMPLETE FOR EMACS.  Likely, it's just the addition of escape
+# sequences and/or the lack of a space after the prompt (without escapes).
+# TODO: It should be enough to check for MI as the interpreter.
+if 1
+  set prompt \001\033[1;39m\002[gdb] \001\033[0m\002
 end
 
 # Step into assembly when debugging info is not present (instead of skipping
@@ -76,7 +77,7 @@ end
 
 set disassemble-next-line  auto
 set disassembly-flavor     intel
-set exec-done-display      on
+set exec-done-display      off
 # Skip the paging except after a larger number of lines.
 set height                 0d1024
 set listsize               0d10
@@ -110,7 +111,7 @@ set print null-stop             on
 set print object                on
 set print pascal_static-members on
 set print pretty                on
-set print raw frame-arguments   on
+set print raw-frame-arguments   on
 set print repeats               0d16
 set print sevenbit-strings      on
 set print static-members        on
@@ -122,6 +123,21 @@ set print type methods          on
 set print type typedefs         on
 set print union                 on
 set print vtbl                  on
+
+# ----------------------------------------
+# Styling:
+# ----------------------------------------
+set style address foreground   green
+set style filename foreground  magenta
+set style filename intensity   bold
+set style function foreground  yellow
+set style highlight foreground black
+set style highlight background yellow
+set style metadata foreground  none
+set style title foreground     none
+set style title intensity      bold
+set style variable foreground  red
+#set style variable intensity   bold
 
 # ------------------------------------------------------------------------------
 # Remote Debugging:
