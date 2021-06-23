@@ -371,7 +371,7 @@ unset OSrelease
 ## Root doesn't get to use '.'
 ########################################
 userid=`id | sed 's/[^0-9]*\([0-9]*\).*/\1/'`
-if [ ! ${userid} = 0 ] ; then
+if [ ! "${userid}" = "0" ] ; then
     _path="."
     _manpath="."
 fi
