@@ -33,6 +33,10 @@ ignore_kde=1
 ignore_openwin=1
 ignore_xfce4=1
 
+# NOTE: If possible -- root access is required -- go into (something like)
+# /usr/lib64/X11/xdm/Xsession and remove the "--login" flag from the #!/bin/sh
+# invocation, as it likely pertains to bash, ksh, or even Bourne.  This is
+# redundant, and possibly harmful, as we're about to load up the ZSH settings.
 source "${HOME}/.zprofile" >>${log_file} >${console_log} 2>&1
 
 # TODO: This logic can be factored out a bit to conditionally run common
