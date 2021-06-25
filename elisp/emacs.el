@@ -272,7 +272,11 @@ and still remain compatible with Emacs 22."
   "Enable the mouse wheel.  The name of this change in version 27 Emacs, and it
 may also not be present if it was not added at compilation time."
   (version-if (< 26 emacs-major-version)
-    (version-if (fboundp 'mouse-wheel-mode) '(mouse-wheel-mode 1))
+    ;; NOTE: I'm not using version-if in 27+ (and therefore not compiling out
+    ;; the check) because of a corner case where `mouse-wheel-mode' is defined
+    ;; for Windows Emacs, but not for the Cygwin Emacs (terminal-only).  By
+    ;; contrast, `mwheel-mode' seemd to be present always.
+    '(if (fboundp 'mouse-wheel-mode) (mouse-wheel-mode 1))
     (version-if (fboundp 'mwheel-install) '(mwheel-install))))
 
 ;; These functions are obsolete in Emacs v24.3 and 24.4.
@@ -293,7 +297,11 @@ may also not be present if it was not added at compilation time."
   "Enable the tool-bar if ARG is positive; disable it otherwise."
   (if-running-xemacs
     `(set-specifier default-toolbar-visible-p ,(> arg 0))
-    (version-if (fboundp 'tool-bar-mode) `(tool-bar-mode ,arg) arg)))
+    ;; See the Windows/Cygwin note in `compat-mwheel-install' for why the
+    ;; following line is not the ELSE case here:
+    ;;
+    ;; (version-if (fboundp 'tool-bar-mode) `(tool-bar-mode ,arg) arg)))
+    `(if (fboundp 'tool-bar-mode) (tool-bar-mode ,arg))))
 
 (defmacro compat-tty-type (&optional terminal)
   "Return the type of TTY device that TERMINAL uses.  Returns nil if TERMINAL is
