@@ -94,14 +94,20 @@ fi
 # Use emacs keybindings
 bindkey -e
 
-# Ctrl+LEFT / Ctrl+RIGHT move entire words
-bindkey ';5C' forward-word
-bindkey ';5D' backward-word
-# RXVT versions here, as well.
-bindkey '^[Oc' forward-word
-bindkey '^[Od' backward-word
+# Ctrl+LEFT / Ctrl+RIGHT move entire words (NOTE: read -q prints the keystroke).
+case "${TERM}" in
+rxvt*)
+    bindkey '\eOc' forward-word
+    bindkey '\eOd' backward-word
+    ;;
 
-# Delete ahead with delete key
+*)
+    bindkey '\e[1;5C' forward-word
+    bindkey '\e[1;5D' backward-word
+    ;;
+esac
+
+# Delete ahead with delete key.
 bindkey '\e[3~' delete-char
 
 # TODO: What??  I think this is just marking to compinstall that the
