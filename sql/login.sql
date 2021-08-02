@@ -1,3 +1,4 @@
+-- login.sql ---------------------- -*- mode: sql; sql-product: oracle -*- --===
 SET SQLPROMPT    '&_USER@&_CONNECT_IDENTIFIER> ';
 SET AUTOCOMMIT   OFF;
 SET COLSEP       '|';

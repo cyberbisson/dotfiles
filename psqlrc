@@ -1,5 +1,6 @@
+-- .psqlrc ---------------------- -*- mode: sql; sql-product: postgres -*- --===
 --
---	psql configuration file
+-- PostgreSQL (psql) configuration file
 --
 --  This file is read before the .psqlrc file in the user's home directory.
 --

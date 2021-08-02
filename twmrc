@@ -1,6 +1,6 @@
-#
+# ===-- .twmrc ---------------------------------------------- -*- conf -*- --===
 # $XConsortium: system.twmrc /main/9 1996/10/16 16:14:38 kaleb $
-# 
+#
 # Default twm configuration file; needs to be kept small to conserve string
 # space in systems whose compilers don't handle medium-sized strings.
 #
