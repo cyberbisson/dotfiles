@@ -36,7 +36,8 @@
 ;; systems.
 (eval-and-compile
   (or (require 'htmlize nil t)
-      (load "/usr/share/emacs/site-lisp/htmlize/htmlize" nil t))
+      (load "/usr/share/emacs/site-lisp/htmlize/htmlize" t t)
+      (load "~/elisp/htmlize" nil t))
   (or (require 'protobuf-mode nil t) (load "~/elisp/protobuf-mode" nil t)))
 
 ;; Syntax coloration used in code samples.
