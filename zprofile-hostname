@@ -40,12 +40,25 @@ if [ -f "${SSH_ENV}" ] ; then
         ps -e | grep "\\b${SSH_AGENT_PID}\\b" | grep '\bssh-agent$' > /dev/null
         no_running_agent=$?
     fi
+
+    # The process exists, but maybe something clobbered its IPC channel.
+    if [ ! -S "${SSH_AUTH_SOCK}" ] ; then
+        no_running_agent=1
+    fi
 fi
 
 # Start the new agent (cleaing out the old data) if we didn't find anything
 # real.
 if [ $no_running_agent -ne 0 ] ; then
     echo "Initializing new SSH agent..."
+
+    # Rather than just banging out another process, reap any of the defunct ones
+    # accounted to the current user.
+    if [ -x `which killall` ] ; then
+        killall -u "${USER}" -q 'ssh-agent'
+    else
+        echo "Cannot kill defunct ssh-agent processes." 1>&2
+    fi
 
     # Create the file first, so we don't drop potentially sensitive data into a
     # world-readable file.
