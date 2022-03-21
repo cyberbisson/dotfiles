@@ -360,6 +360,7 @@ were not introduced until Emacs 22."
       (require 'dired)
       (require 'ediff)
       (require 'inf-lisp)
+      (require 'man)
       (require 'server)
       (require 'term)
       (require 'time)
@@ -815,6 +816,11 @@ is light.")
 
    ;; Always making backups.
    make-backup-files            t
+
+   ;; Look, just put the new man page into the currently selected window.  By
+   ;; default to makes a new window, and that's almost always exactly where I
+   ;; don't want it.
+   Man-notify-method            'pushy
 
    ;; Restore functionality s.t. down adds lines to the end of the file.  This
    ;; was changed in Emacs 22.
@@ -1675,10 +1681,17 @@ a similar alias to avoid bucking the trend.")
    #'(lambda ()
      (ansi-color-apply-on-region compilation-filter-start (point-max))))
 
+  ;; Since VMware now requires Kerberos authentication for home directory
+  ;; access, make Emacs renew the Kerberos ticket every 12 hours.  The function
+  ;; returns a timer, but I'm not bothering to cancel anything just now.
+  (run-at-time t (* 12 60 60) #'renew-kerberos-ticket "VMWARE.COM")
+
   (let ((srcdir (getenv "VMWARE_SRCDIR")))
     (if (and srcdir (file-exists-p srcdir))
         (setq compile-command
-              (concat "cd " srcdir " && iscons PRODUCT=esx esx-all"))))
+              (concat "cd " srcdir
+                      " && source " (getenv "SSH_ENV")
+                      " && iscons PRODUCT=esx esx-all"))))
 
   (let ((srcdir (getenv "DR_SRCDIR_UNIX")))
     (if (and srcdir (file-exists-p srcdir))
@@ -1988,6 +2001,26 @@ they are symbols, so they are not sorted alphabetically."
   (interactive)
   (message "Current feature set: %s"
            (sort (mapcar #'symbol-name features) #'string<)))
+
+(defun renew-kerberos-ticket (krb5-domain)
+  "Renew the Kerberos ticket for the given domain, given by KRB5-DOMAIN.
+
+On a system where crontab is not available, Emacs can do it for us.  The only
+reason I'd even have a session running for an extended period of time is because
+of Emacs anyway, so I may as well renew it here, and then there doesn't need to
+be a crontab on every machine."
+
+  (interactive (list (read-from-minibuffer "Kerberos domain: " "VMWARE.COM")))
+  (call-process "/usr/bin/kinit"
+                nil                    ; Input file
+                '("*Kerberos Init*" t) ; Combine output with stderr.
+                nil
+                (concat (getenv "USER") "@" krb5-domain) "-k"
+                "-t" (concat (getenv "HOME") "/.krb5/" krb5-domain ".keytab"))
+  (with-current-buffer "*Kerberos Init*"
+    (goto-char (point-max))
+    (insert "Init completed at "
+            (format-time-string "%A, %e %B %Y" (current-time)) "\n")))
 
 (defun restore-last-desktop-frameset ()
   "Restore the last frameset encountered by `desktop-read'."
