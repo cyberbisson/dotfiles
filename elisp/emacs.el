@@ -2011,16 +2011,34 @@ of Emacs anyway, so I may as well renew it here, and then there doesn't need to
 be a crontab on every machine."
 
   (interactive (list (read-from-minibuffer "Kerberos domain: " "VMWARE.COM")))
-  (call-process "/usr/bin/kinit"
-                nil                    ; Input file
-                '("*Kerberos Init*" t) ; Combine output with stderr.
-                nil
-                (concat (getenv "USER") "@" krb5-domain) "-k"
-                "-t" (concat (getenv "HOME") "/.krb5/" krb5-domain ".keytab"))
-  (with-current-buffer "*Kerberos Init*"
-    (goto-char (point-max))
-    (insert "Init completed at "
-            (format-time-string "%A, %e %B %Y" (current-time)) "\n")))
+
+  (let ((command `("/usr/bin/kinit"
+                   ,(concat (getenv "USER") "@" krb5-domain)
+                    "-k" "-t" ,(concat (getenv "HOME") "/.krb5/"
+                                       krb5-domain ".keytab"))))
+  (process-send-eof ; Send EOF just in case some accident happens, and asks for
+                    ; user input.
+   (make-process
+    :name "kinit"
+
+    ;; Display command output in the *Messages* buffer.
+    :filter
+    #'(lambda (proc string)
+        (dolist (out-line (split-string string "\n"))
+          (unless (string= out-line "")
+            (message "%s: %s" (process-name proc) out-line))))
+
+    ;; Usually, kinit produces no output (on success), so note the return
+    ;; status, and execution time for the user to make sense of what's going on.
+    :sentinel
+    #'(lambda (proc _event)
+        (unless (process-live-p proc)
+          (message "%s: completed at %s with status %d"
+                   (process-name proc)
+                   (format-time-string "%FT%T%z" (current-time))
+                   (process-exit-status proc))
+          (delete-process proc)))
+    :command command))))
 
 (defun restore-last-desktop-frameset ()
   "Restore the last frameset encountered by `desktop-read'."
