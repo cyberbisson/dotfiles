@@ -1,0 +1,9 @@
+default-cache-ttl 300
+default-cache-ttl-ssh 3153600
+enable-ssh-support
+max-cache-ttl 999999
+max-cache-ttl-ssh 3153600
+
+# This doesn't work on the newer version of GPG, rendering it useless as an
+# agent with my NFS home directory.
+no-use-standard-socket
