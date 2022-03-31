@@ -24,8 +24,8 @@
 # based on what I find locally.
 
 if [ -x '/usr/bin/gpg' ] || [ -x '/usr/local/bin/gpg' ] ; then
-    gpgversion=`gpg --version | grep 'gpg (GnuPG) ' | \
-                sed 's/gpg (GnuPG) //' | \
+    gpgversion=`gpg --version | grep 'gpg (GnuPG' | \
+                sed 's/gpg (GnuPG[^0-9]*//' | \
                 awk -F. '{ printf "%d%04d%04d", $1, $2, $3 }'`
     if [ ${gpgversion} -lt 200020000 ] ; then
         # Relegate ancient configurations to this other configuration area.
@@ -81,7 +81,7 @@ if [ -f "${SSH_ENV}" ] ; then
     # GPG, the PID is embedded in GPG_AGENT_INFO, but it's just plain easier to
     # get from SSH_AGENT_PID.
     if [ ${+SSH_AGENT_PID} -ne 0 ] ; then
-        ps -e | grep "\\b${SSH_AGENT_PID}\\b" | grep '\b'${agent_daemon}'$' \
+        ps -e | grep "\\b${SSH_AGENT_PID}\\b" | grep '\b'${agent_daemon}'\b' \
             > /dev/null
         no_running_agent=$?
     fi
@@ -125,11 +125,23 @@ if [ $no_running_agent -ne 0 ] ; then
             # %Assuan%
             # socket=${HOME}/.gnupg/S.gpg-agent.ssh-${HOSTNAME}
 
-            gpg_agent_pid=`ps -x | grep gpg-agent | grep -v grep | \
+            gpg_agent_pid=`ps -x | grep '\sgpg-agent\b' | grep -v grep | \
                            awk '{print $1}'`
-            echo "SSH_AUTH_SOCK=\"${GNUPGHOME}/S.gpg-agent.ssh-${HOSTNAME}\";" \
-                 "export SSH_AUTH_SOCK;" > "${SSH_ENV}"
-            echo SSH_AGENT_PID="${gpg_agent_pid}; export SSH_AGENT_PID;" \
+
+            # If GPG agent serves a socket through the well-known address,
+            # that's what SSH is looking for.  If not, it's doing the redirect
+            # mentioned above, and set SSH at the target of the redirection.
+            gpg_socket="${GNUPGHOME}/S.gpg-agent"
+            if [ -S "${gpg_socket}" ] ; then
+                echo "SSH_AUTH_SOCK=\"${gpg_socket}.ssh\";" \
+                     "export SSH_AUTH_SOCK;" > "${SSH_ENV}"
+            else
+                echo "SSH_AUTH_SOCK=\"${gpg_socket}.ssh-${HOSTNAME}\";" \
+                     "export SSH_AUTH_SOCK;" > "${SSH_ENV}"
+            fi
+            unset gpg_socket
+
+            echo "SSH_AGENT_PID=${gpg_agent_pid}; export SSH_AGENT_PID;" \
                  >> "${SSH_ENV}"
             unset gpg_agent_pid
         fi

@@ -310,8 +310,10 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
         machman=( "${sdkdir}/usr/share/man" )
     fi
 
-    machdirs=( '/Library/TeX/texbin' "${CARBON_EMACS_DIR}" \
-                                     "${CARBON_EMACS_DIR}/bin" )
+    machdirs=( '/Library/TeX/texbin' \
+               "${CARBON_EMACS_DIR}" \
+               "${CARBON_EMACS_DIR}/bin" \
+               "/usr/local/MacGPG2/bin" )
     unset sdkdir
     unset CPU
     ;;
