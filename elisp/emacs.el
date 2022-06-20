@@ -767,6 +767,7 @@ is light.")
    ;; was deprecated fully by Emacs 26).
    fill-column                  ideal-window-columns
 
+
    ;; I hate tabs.
    indent-tabs-mode             nil)
 
@@ -843,8 +844,15 @@ is light.")
    ;; CSS when I paste in source code snippets.
    org-html-htmlize-output-type 'font
 
+   ;; Org-mode introduced a really annoying feature to indent any `src' blocks
+   ;; by 2 spaces whenever they are touched.  No need for that.
+   org-src-preserve-indentation t
+
    ;; I don't like `truncate-lines'.
    org-startup-truncated        nil
+
+   ;; I tend to like to know that I'm working on a certain to-do item.
+   org-todo-keywords             '((sequence "TODO" "BUSY" "DONE"))
 
    ;; Older versions of Emacs ask every time I open this file, but
    ;; `lexical-binding' is definitely OK to be set.
