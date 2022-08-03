@@ -313,7 +313,8 @@ CYGWIN_NT-* | CYGWIN_NT-*-WOW64)
     machdirs=( '/Library/TeX/texbin' \
                "${CARBON_EMACS_DIR}" \
                "${CARBON_EMACS_DIR}/bin" \
-               "/usr/local/MacGPG2/bin" )
+               "/usr/local/MacGPG2/bin"
+               "/opt/homebrew/bin" )
     unset sdkdir
     unset CPU
     ;;
