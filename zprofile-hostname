@@ -135,9 +135,11 @@ if [ $no_running_agent -ne 0 ] ; then
             if [ -S "${gpg_socket}" ] ; then
                 echo "SSH_AUTH_SOCK=\"${gpg_socket}.ssh\";" \
                      "export SSH_AUTH_SOCK;" > "${SSH_ENV}"
-            else
+            elif [ -S "${gpg_socket}.ssh-${HOSTNAME}" ] ; then
                 echo "SSH_AUTH_SOCK=\"${gpg_socket}.ssh-${HOSTNAME}\";" \
                      "export SSH_AUTH_SOCK;" > "${SSH_ENV}"
+                # ...else the socket is in a non-shared area, for example
+                # /var/run/user/$UID/gnupg/S.gpg-agent.ssh
             fi
             unset gpg_socket
 
