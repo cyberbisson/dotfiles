@@ -377,6 +377,7 @@ were not introduced until Emacs 22."
       (when (< 22 emacs-major-version)
         (unless stand-alone (require 'gtags))
         (require 'org)
+        (require 'org-clock)
         (unless stand-alone (require 'xgtags)))
       (when (< 23 emacs-major-version)
         (require 'gdb-mi)
@@ -464,6 +465,10 @@ the time being.")
 (defvar last-restored-frameset nil
   "The last frameset restored by a `desktop-read'.  This will be consulted by
 functions like `restore-last-desktop-frameset'")
+
+(defvar org-i-died-clock-timer nil
+  "A timer that executes after a period of time that means I died while clocked
+in.")
 
 (defvar server-title-mark (if (daemonp) " <%N>" " [%N]")
   "This text will be added to frame titles when Emacs runs in `server-mode'.
@@ -1020,7 +1025,13 @@ is light.")
 
   ;; Org-mode only exists in version 22 and above, but it doesn't seem to alter
   ;; the `auto-mode-alist'.
-  (setq auto-mode-alist (append `(("\\.org$" . ,#'org-mode)) auto-mode-alist)))
+  (setq auto-mode-alist (append `(("\\.org$" . ,#'org-mode)) auto-mode-alist))
+
+  ;; This sets up hooks for org-clock that prevent me from leaving work with a
+  ;; running clock, and accidentally claiming that I've worked 47 straight hours
+  ;; on a single task.
+  (add-hook 'org-clock-in-hook #'on-org-clock-in)
+  (add-hook 'org-clock-out-hook #'on-org-clock-out))
 
 ;; -----------------------------------------------------------------------------
 ;; Customizations for Specific Modules:
@@ -2234,6 +2245,27 @@ width."
                     (split-string (shell-command-to-string osascript) ","))))
     ;; Assuming 65536 values per R, G, and B, this is 98304=(R+B+G)/2.
     (if (< (apply '+ rgb-list) 98304) 'dark 'light)))
+
+(defun on-org-clock-in ()
+  "Execute operations via the `org-clock-in-hook'.
+
+The main purpose of this is to set a timer for some amount of time after
+starting a clock that I could not possibly still be 'clocked in.'  The timer
+will automatically clock me out."
+  (let ((i-died
+         #'(lambda ()
+             (message "I can see you died while clocked in; clocking you out")
+             (org-clock-out))))
+    (setq org-i-died-clock-timer (run-at-time "8 hours" nil i-died))))
+
+(defun on-org-clock-out ()
+  "Execute operations via the `org-clock-out-hook'.
+
+When clocking out, this makes sure to remove the timer set in
+`on-org-clock-in', and reset the global state."
+  (unless (null org-i-died-clock-timer)
+    (cancel-timer org-i-died-clock-timer)
+    (setq org-i-died-clock-timer nil)))
 
 (defun on-server-state-change ()
   "Modifies Emacs when the state of the server changes.
