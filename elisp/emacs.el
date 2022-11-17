@@ -737,7 +737,26 @@ is light.")
       #'(lambda ()
           (add-hook 'c-mode-common-hook
            #'(lambda ()
-               (local-set-key (kbd "C-c \\") #'clang-format-region)))))))
+               (local-set-key (kbd "C-c \\") #'clang-format-region))))))
+
+  (version-if (or (< 27 emacs-major-version)
+                  (and (= 27 emacs-major-version) (< 0 emacs-minor-version)))
+    ;; Checking against 27.1 because some of what I'm looking for exists at that
+    ;; minor version.
+    (provide-customized-features-27)))
+
+(defun provide-customized-features-27 ()
+  "Load features that only work with Emacs 27.1 and above."
+
+  ;; Since Emacs 27, the `fill-column-indicator' works natively, and disrupts
+  ;; fewer minor modes.
+  (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
+
+  ;; We can consider `so-long-mode', but that's a major mode.  A less impacting
+  ;; work-around is to disable the bidirectional parenthesis matching.  I do not
+  ;; use any bidirectional tests, and if I did, I could live without the
+  ;; parentheses matching.
+  (setq bidi-inhibit-bpa t))
 
 ;; -----------------------------------------------------------------------------
 ;; Top-level configuration routines:
