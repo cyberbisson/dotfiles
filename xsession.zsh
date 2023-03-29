@@ -21,7 +21,9 @@ else
 fi
 
 echo '--------Session started: '`date`'--------' >>${log_file} >${console_log}
-chmod 600 ${log_file}
+if [ console_log != '/dev/null' ] ; then
+    chmod 600 ${log_file}
+fi
 
 # Not the most flexible way to do this, but it will work for now.  Define
 # "ignore" variables to skip WMs that you don't want to use.
