@@ -116,9 +116,11 @@ if [ $no_running_agent -ne 0 ] ; then
 
     if [ ${agent_daemon} = 'gpg-agent' ] ; then
         gpg-agent --sh --quiet --daemon > "${SSH_ENV}"
-        if [ ${gpgversion} -ge 200020000 ] ; then
-            # Stomp on the SSH agent configuration after GPG 2.2, because it no
-            # longer supports the "no-standard-socket" option, and the only
+        if [ ${gpgversion} -ge 200020000 ] && \
+           [ ${gpgversion} -lt 200020041 ] ; then
+            # Stomp on the SSH agent configuration after GPG 2.2 (but before
+            # 2.2.41, which seems to now place files under "/run"), because it
+            # no longer supports the "no-standard-socket" option, and the only
             # work-around is to add something like this to the socket file
             # (which SSH doesn't understand):
             #
