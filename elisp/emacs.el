@@ -599,6 +599,14 @@ is light.")
         (org-level-8  "Red"            nil nil nil nil))))
   "Custom faces for `org-mode' buffers.")
 
+;; Without changing blue, certain terminal output is unreadable in a dark
+;; background.
+(defconst ansi-color-faces
+  '((dark
+    . ((ansi-color-blue        "RoyalBlue"      "RoyalBlue"      ign ign ign)
+       (ansi-color-bright-blue "CornflowerBlue" "CornflowerBlue" ign ign ign))))
+  "Custom faces for `term-mode' buffers.")
+
 (defconst whitespace-faces
   '((light . ((whitespace-line "Red1" nil t nil nil))))
   "Custom faces for `whitespace-mode'.  These are modified lazily.")
@@ -648,6 +656,10 @@ is light.")
 (defconst faces-version-25
   '(ebrowse-root-class font-lock-constant-face whitespace-line)
   "Faces introduced in Emacs v25.")
+
+(defconst faces-version-28
+  '(ansi-color-bright-blue ansi-color-blue)
+  "Faces introduced in Emacs v28.")
 
 ;; -----------------------------------------------------------------------------
 ;; External package loaders:
@@ -1013,6 +1025,7 @@ is light.")
 (defun custom-configure-emacs-21 ()
   "Customizations that are only applicable to Emacs 21 and above."
 
+  (eval-after-load 'ansi-color '(merge-font-lock-settings ansi-color-faces))
   (eval-after-load 'diff-mode  '(merge-font-lock-settings diff-faces))
   (eval-after-load 'ebrowse    '(merge-font-lock-settings ebrowse-faces))
   (eval-after-load 'ediff      '(merge-font-lock-settings ediff-faces))
@@ -1569,8 +1582,10 @@ symbol `ign' does nothing."
 
 The SETTINGS-ALIST should contain an association list with zero or more elements
 with the key `light' or `dark'."
-  (setq bg-dark-faces  (append bg-dark-faces  (assq 'dark settings-alist))
-        bg-light-faces (append bg-light-faces (assq 'light settings-alist)))
+  (setq bg-dark-faces  (append bg-dark-faces
+                               (cdr (assq 'dark settings-alist)))
+        bg-light-faces (append bg-light-faces
+                               (cdr (assq 'light settings-alist))))
 
   ;; Refresh the current frame.  We may wish to make this driven by a parameter.
   (customize-font-lock-on-frame (selected-frame)))
@@ -1606,7 +1621,10 @@ WHICH-FRAME parameter specifies the frame whose faces will be altered."
       (version-when (< 21 emacs-major-version)
         (modify-font-lock-faces faces-alist faces-version-22 which-frame)
         (version-when (< 24 emacs-major-version)
-          (modify-font-lock-faces faces-alist faces-version-25 which-frame))))))
+          (modify-font-lock-faces faces-alist faces-version-25 which-frame)
+          (version-when (< 27 emacs-major-version) ; Technically 28.1...
+            (modify-font-lock-faces faces-alist
+                                    faces-version-28 which-frame)))))))
 
 ;; -----------------------------------------------------------------------------
 ;; Location-specific development environment configurations:
