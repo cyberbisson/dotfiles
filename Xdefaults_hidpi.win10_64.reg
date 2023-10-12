@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\GNU\Emacs]
+"Emacs.Geometry"="81x55"
+"Emacs.Font"="-*-Consolas-*-r-*-*-28-*-*-*-c-*-iso8859-1"
+"Emacs.Background"="#D8D0C8"
+"Emacs.Foreground"="#000000"
+"Emacs.toolBar"="false"

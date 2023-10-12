@@ -3,7 +3,7 @@
 ;; Matt Bisson <mbisson@ccs.neu.edu>
 ;; Homepage:		https://cyberbisson.com/
 ;; Keywords:		initialization
-;; Last Major Edit:	20/05/2019
+;; Last Major Edit:	12/10/2023 (MM/DD/YYYY)
 
 ;;; Commentary:
 
@@ -201,6 +201,19 @@ is not specified, this uses the currently selected frame."
 ;; differences between basic functionality in different Emacs versions (e.g.,
 ;; `called-interactively-p' has a different number of parameters in Emacs v24).
 ;; -----------------------------------------------------------------------------
+
+;; Silly kludge to support `alist-get' in older Emacs.  This is probably better
+;; off as a macro (TODO).
+(version-if (and (> 25 emacs-major-version) (not (functionp 'alist-get)))
+    (defun alist-get (key alist &optional default remove)
+      "Return the value associated with KEY in ALIST, using `assq'.
+If KEY is not found in ALIST, return DEFAULT.
+
+This is a generalized variable suitable for use with `setf'.  When using it to
+set a value, optional argument REMOVE non-nil means to remove KEY from ALIST if
+the new value is `eql' to DEFAULT."
+      (let ((x (assq key alist)))
+        (if x (cdr x) default))))
 
 (defmacro compat-called-interactively-p ()
   "Replace `called-interactively-p' with a function that take no parameters.
@@ -1300,7 +1313,7 @@ first created frame)."
            (find-first-defined-font
             "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
             '(;; Consolas 11
-              "-*-Consolas-normal-r-*-*-12-90-*-*-c-*-iso8859-1"
+              "-*-Consolas-normal-r-*-*-12-*-*-*-c-*-iso8859-1"
               ;; Liberation Mono 9
               "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
               ;; Lucida Console 8 (thinner)
@@ -1322,7 +1335,7 @@ first created frame)."
     (setq default-frame-alist
           (append
            `((cursor-type . box)
-             (font . ,chosen-gui-font))
+             (font . ,(adjust-font-for-hires chosen-gui-font)))
            (cond
             ((eq system-type 'windows-nt)
              ;; Preserve the background at configuration time for future frames.
@@ -1332,7 +1345,7 @@ first created frame)."
 
                ;; TODO: Perhaps this hard coded value should be given in a hook,
                ;; or in initial-frame-alist?
-               (height . 70)
+               (height . ,(if (use-high-dpi-p) 55 70))
                (width  . 81)))
             ((eq system-type 'darwin)
              `((height . 60)
@@ -2160,6 +2173,15 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
 ;; The Kitchen Sink (TKS):
 ;; =========================================================
 
+(defun adjust-font-for-hires (font-name)
+  "Detect a high resolution screen, and scale FONT-NAME as needed."
+  (if (not (use-high-dpi-p)) font-name ;; TODO: Check for high-res...
+    (let ((spec (font-spec :name font-name)))
+      (font-put spec :size (round (* 2.5 11)))
+      ;; Assuming this is used for default-frame-alist (or something), convert
+      ;; the font-spec back into an X font descriptor string.
+      (font-xlfd-name spec))))
+
 (defun buffer-list-sorted-by-path ()
   "Gather a list of buffers, ordered by their file name (see ‘sort-buffers’)."
 
@@ -2380,6 +2402,18 @@ restoration, and it is optional.  It should have the same behavior as
                        (or desktop-restore-func
                            #'desktop-restore-fileless-buffer)))))
 ) ;; End TODO
+
+(defun use-high-dpi-p ()
+  "Determine if Emacs should be 'high-DPI' on the current montitor."
+  (version-when (and (< 23 emacs-major-version) (eq system-type 'windows-nt))
+    ;; The monitor geometry is (x, y, width, height) in pixels, so ask for the
+    ;; 3rd (height) zero-based index, and compare it against a "low-res"
+    ;; 1920x1200 type of monitor.  Do not do this before Emacs 23, since the
+    ;; dependent font-spec utilities don't exist yet.
+    ;;
+    ;; Only Windows requires modification, as MacOS ("Darwin") handles this
+    ;; automatically, and I modify settings under Xresources for X Windows.
+    (> (nth 3 (alist-get 'geometry (frame-monitor-attributes))) 1200)))
 
 ;; -----------------------------------------------------------------------------
 ;; GO CONFIGURE!!
