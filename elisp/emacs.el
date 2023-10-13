@@ -2159,6 +2159,7 @@ buffer is in Term mode; see `term-mode' for the commands to use in that buffer.
 The filename of this definition file is defined by `custom-loaddefs-file'."
   (interactive)
 
+  (require 'autoload)
   (let ((updated-something nil))
     (mapc #'(lambda (file)
               (when (file-exists-p file)
