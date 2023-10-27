@@ -76,7 +76,7 @@
 ;; Put this early in the file to control the behavior of the Macros section.
 (eval-and-compile
   (defvar lock-dotfile-version t
-    "Determines if the configuration should 'lock' to a particular Emacs version
+    "Determines if the configuration should `lock' to a particular Emacs version
 by compiling version checks out of existence.
 
 If NIL, the configuration will dynamically check what features may run by
@@ -1549,7 +1549,7 @@ This function behaves similarly to the interactive function, `modify-face',
 The parameters FG and BG specify the face names for foreground and background
 colors, and they may be NIL.  BOLD-P, ITALIC-P, and UNDERLINE-P enable or
 disable boldness, italics, and underlines (respectively), and the special
-symbol 'ign' does nothing."
+symbol `ign' does nothing."
 
   (if-running-xemacs
     (progn ;; XEmacs doesn't like setting colors to NIL.
@@ -1568,7 +1568,7 @@ symbol 'ign' does nothing."
   "Merge a list of faces for into `bg-light-faces' and `bg-dark-faces'.
 
 The SETTINGS-ALIST should contain an association list with zero or more elements
-with the key 'light' or 'dark'."
+with the key `light' or `dark'."
   (setq bg-dark-faces  (append bg-dark-faces  (assq 'dark settings-alist))
         bg-light-faces (append bg-light-faces (assq 'light settings-alist)))
 
@@ -1929,7 +1929,7 @@ from the command-line switch handler."
     (ediff file1 file2)))
 
 (defun command-line-instance-id (_switch)
-  "Allow us to 'name' our Emacs instance.
+  "Allow us to `name' our Emacs instance.
 
 This is not strict, nor does it need to be unique.  The main   purpose of this
 is for when I have more than one Emacs   environment running.  This way, I can
@@ -2211,7 +2211,7 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
         (revert-buffer :ignore-auto :noconfirm :preserve-modes)))))
 
 (defun dark-background-p (frame)
-  "Determine if Emacs considers the background color to be 'dark'.
+  "Determine if Emacs considers the background color to be `dark'.
 
 As different frames have different backgrounds, the FRAME parameter specifies
 which frame to check."
@@ -2256,7 +2256,7 @@ or the current frame's display, if none was specified."
            display))))))
 
 (defun ideal-frame-width (window-count)
-  "Compute the width in 'columns' that a frame must be to accommodate
+  "Compute the width in `columns' that a frame must be to accommodate
 WINDOW-COUNT windows horizontally.
 
 Note that on a TTY, columns is exact, but on a GUI, the columns is whatever
@@ -2272,7 +2272,7 @@ width."
      (* (if (terminal-frame-p) 1 scroll-bar-fudge) (- window-count 1))))
 
 (defun get-macos-terminal-bg-mode ()
-  "Retrieves the background 'mode' for the Terminal application on MacOS."
+  "Retrieves the background `mode' for the Terminal application on MacOS."
 
   ;; Note: "window 1" is merely the Terminal window closest to the foreground.
   ;; There is a chance, I suppose, that Emacs could start up, move to the
@@ -2292,7 +2292,7 @@ width."
   "Execute operations via the `org-clock-in-hook'.
 
 The main purpose of this is to set a timer for some amount of time after
-starting a clock that I could not possibly still be 'clocked in.'  The timer
+starting a clock that I could not possibly still be `clocked in.'  The timer
 will automatically clock me out."
   (let ((i-died
          #'(lambda ()
@@ -2405,7 +2405,7 @@ restoration, and it is optional.  It should have the same behavior as
 ) ;; End TODO
 
 (defun use-high-dpi-p ()
-  "Determine if Emacs should be 'high-DPI' on the current montitor."
+  "Determine if Emacs should be `high-DPI' on the current montitor."
   (version-when (and (< 23 emacs-major-version) (eq system-type 'windows-nt))
     ;; The monitor geometry is (x, y, width, height) in pixels, so ask for the
     ;; 3rd (height) zero-based index, and compare it against a "low-res"
