@@ -963,6 +963,9 @@ is light.")
   ;; There is not a great way to paste into the term-mode buffer by default.
   (add-hook 'term-mode-hook
    #'(lambda ()
+       ;; The "fixed" function can be version-if removed when the fix reaches
+       ;; the Emacs code base.
+       (define-key term-raw-map [xterm-paste]   #'term--xterm-paste-fixed)
        (define-key term-raw-map (kbd "C-c C-y") #'term-paste)
        (define-key term-raw-map (kbd "C-c M-y") #'yank-pop))) ;; Doesn't work.
 
@@ -2170,6 +2173,14 @@ buffer is in Term mode; see `term-mode' for the commands to use in that buffer.
     (term-mode)
     (term-char-mode)
     (switch-to-buffer (format "*%s*" term-name))))
+
+;; Up to (at least) Emacs v29, term-mode hangs when pasting via XTerm.  See bug
+;; 49253 for details.  I'm re-binding the offending event handler to fix prior
+;; versions of this function.
+(defun term--xterm-paste-fixed (event)
+   "Insert the text pasted in an XTerm bracketed paste operation."
+   (interactive "e")
+   (term-send-raw-string (nth 1 event)))
 
 (defun update-custom-autoloads ()
   "Generate the autoload file for my custom Emacs packages.
