@@ -703,7 +703,7 @@ is light.")
       (add-hook 'c-initialization-hook
         #'(lambda ()
             (require 'vmw-c-dev)
-            (condition-case err (vmw-c-macro-initialize t t)
+            (condition-case err (vmw-c-macro-initialize t)
               (error (message "Cannot use C++ preprocessor (yet): %s"
                               (error-message-string err))))
             (add-hook 'c-mode-hook   #'vmw-c-macro-initialize)
@@ -1763,7 +1763,9 @@ a similar alias to avoid bucking the trend.")
         (setq compile-command
               (concat "cd " srcdir
                       " && source " (getenv "SSH_ENV")
-                      " && iscons PRODUCT=esx esx-all"))))
+                      " && iscons PRODUCT=esx esx-all 2>&1"
+                      " | grep -v \"depends on deprecated target '@\""
+                      " | grep -v tmpfs.inc.sh"))))
 
   (let ((srcdir (getenv "DR_SRCDIR_UNIX")))
     (if (and srcdir (file-exists-p srcdir))
