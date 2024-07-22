@@ -384,6 +384,29 @@ unset basedirs
 unset baseman
 
 ########################################
+## Drop PyEnv in the path before any potential Python versions
+########################################
+if [ -d "${HOME}/.pyenv" ] ; then
+    export PYENV_ROOT="${HOME}/.pyenv"
+    pydirs=( "${PYENV_ROOT}/bin" )
+    pyman=( "${PYENV_ROOT}/man" )
+
+    for dir in ${pydirs} ; do
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    done
+    for dir in ${pyman} ; do
+        if [ -d ${dir} ] ; then
+            _path="${_path}:${dir}"
+        fi
+    done
+
+    unset pydirs
+    unset pyman
+fi
+
+########################################
 ## Search the /usr/local area
 ########################################
 if [ -d '/usr/local' ] ; then
@@ -746,6 +769,13 @@ export ENSCRIPT='-2 -C -E -G -r -T4 --color=1 --style=mbisson --margins=15:15:15
 # Get the timezone set... sigh
 if [ ${+TZ} -eq 0 ] ; then
     export TZ='EST5EDT'
+fi
+
+# If PyEnv is in the path, initialize all the machinery here.
+if [ ${+PYENV_ROOT} -ne 0 ] ; then
+    # Skip the "push" of path, since it invokes Bash (regardless of the current
+    # shell), and this dotfile only ever runs once.
+    eval "$(pyenv init - --no-push-path)"
 fi
 
 ################################################################################
