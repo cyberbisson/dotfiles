@@ -1289,6 +1289,26 @@ display."
                          (string= (frame-parameter frame 'name) "Ediff"))
                      0 1))))
 
+    ;; With Emacs as a daemon, and adding in a "persistent" terminal, like Mosh,
+    ;; terminals come and go, and sometimes are lost.  This leaves confused
+    ;; windows that may be open in the defunct frame.  Add the TTY/PTS number to
+    ;; the assigned frame as a side-effect (this function is not idempotent!).
+    ;; This allows me to find and exit a terminal (or close the frame) that
+    ;; seems to be lost.
+    (when terminal-frame-p
+      (let* ((term-name (terminal-name frame))
+             (substr-begin (string-match "/(?ttys)*\\([^/]+\\)$" term-name)))
+        ;; To make this idempotent, the 'name parameter of frame would have to
+        ;; be checked for previous TTY numbers.  Since I expect this to be run
+        ;; from the `after-make-frame-functions' hook, this should not be an
+        ;; issue.
+        (unless (null substr-begin)
+          (modify-frame-parameters
+           frame `((name .
+                         ,(concat (frame-parameter frame 'name)
+                                  "/"
+                                  (match-string 1 term-name))))))))
+
     ;; Emacs doesn't properly set the cursor/mouse color for dark backgrounds
     ;; unless the background is pure black.  TODO: There is something wrong
     ;; somewhere here -- maybe with Xresources?
