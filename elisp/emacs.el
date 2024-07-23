@@ -1297,7 +1297,12 @@ display."
     ;; seems to be lost.
     (when terminal-frame-p
       (let* ((term-name (terminal-name frame))
-             (substr-begin (string-match "/(?ttys)*\\([^/]+\\)$" term-name)))
+             (substr-begin (string-match
+                            ;; I.e., "/\\(?:ttys?\\)?\\([[:digit:]]+\\)$"
+                            (rx "/"
+                                (optional "tty" (optional "s"))
+                                (group (one-or-more (any digit))) eol)
+                            term-name)))
         ;; To make this idempotent, the 'name parameter of frame would have to
         ;; be checked for previous TTY numbers.  Since I expect this to be run
         ;; from the `after-make-frame-functions' hook, this should not be an
