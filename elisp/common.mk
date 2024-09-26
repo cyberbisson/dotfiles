@@ -17,6 +17,7 @@ ELISP_FILES = \
     mud.el \
     output-org.el \
     p4.el \
+    powershell.el \
     sql.el \
     undo-tree.el \
     visual-basic-mode.el \
