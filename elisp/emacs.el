@@ -475,6 +475,11 @@ the time being.")
   "Used to set the title for Emacs frames (iconized or not).  See
 `set-emacs-title-format' for details.")
 
+(defvar force-high-dpi nil
+  "Allow some module to convince the initialization script that the monitor has
+a `high' DPI.  This is useful, for instance, when Emacs starts with a fake
+frame (and its fake dimensions) from the `--daemon' switch.")
+
 (defvar last-restored-frameset nil
   "The last frameset restored by a `desktop-read'.  This will be consulted by
 functions like `restore-last-desktop-frameset'")
@@ -802,6 +807,12 @@ is light.")
       (warn (concat "Emacs initialization file has been locked to (major) "
                     "version %d (running: %d)")
             compiled-dotfile-version emacs-major-version))
+
+  ;; Force a high DPI based on user direction.  See `force-high-dpi' for
+  ;; details.
+  (when (member "--force-high-dpi" command-line-args)
+    (setq command-line-args (delete "--force-high-dpi" command-line-args))
+    (setq force-high-dpi t))
 
   (provide-customized-features)
 
@@ -1378,15 +1389,15 @@ first created frame)."
            `((cursor-type . box)
              (font . ,(adjust-font-for-hires chosen-gui-font)))
            (cond
-            ((eq system-type 'windows-nt)
+            ((and (eq system-type 'windows-nt) (>= 23 emacs-major-version))
              ;; Preserve the background at configuration time for future frames.
              ;; Because there's no .Xdefaults on older version of Windows Emacs,
-             ;; we rely on command-line arguments.
+             ;; we rely on command-line arguments, or just forcing the values.
              `((background-color . ,(frame-parameter frame 'background-color))
 
                ;; TODO: Perhaps this hard coded value should be given in a hook,
                ;; or in initial-frame-alist?
-               (height . ,(if (use-high-dpi-p) 55 70))
+               (height . ,(if (use-high-dpi-p) 50 70))
                (width  . 81)))
             ((eq system-type 'darwin)
              `((height . 60)
@@ -2463,14 +2474,18 @@ restoration, and it is optional.  It should have the same behavior as
 (defun use-high-dpi-p ()
   "Determine if Emacs should be `high-DPI' on the current montitor."
   (version-when (and (< 23 emacs-major-version) (eq system-type 'windows-nt))
-    ;; The monitor geometry is (x, y, width, height) in pixels, so ask for the
-    ;; 3rd (height) zero-based index, and compare it against a "low-res"
-    ;; 1920x1200 type of monitor.  Do not do this before Emacs 23, since the
-    ;; dependent font-spec utilities don't exist yet.
-    ;;
-    ;; Only Windows requires modification, as MacOS ("Darwin") handles this
-    ;; automatically, and I modify settings under Xresources for X Windows.
-    (> (nth 3 (alist-get 'geometry (frame-monitor-attributes))) 1200)))
+    ;; Allow the DPI to be "forced" from the command line.  If Emacs starts as a
+    ;; daemon, the initial frame will be minuscule, so it's up to manual input
+    ;; from whoever has started the process.
+    (or force-high-dpi
+        ;; The monitor geometry is (x, y, width, height) in pixels, so ask for
+        ;; the 3rd (height) zero-based index, and compare it against a "low-res"
+        ;; 1920x1200 type of monitor.  Do not do this before Emacs 23, since the
+        ;; dependent font-spec utilities don't exist yet.
+        ;;
+        ;; Only Windows requires modification, as MacOS ("Darwin") handles this
+        ;; automatically, and I modify settings under Xresources for X Windows.
+        (> (nth 3 (alist-get 'geometry (frame-monitor-attributes))) 1200))))
 
 ;; -----------------------------------------------------------------------------
 ;; GO CONFIGURE!!
