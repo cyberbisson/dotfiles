@@ -189,9 +189,10 @@ is not specified, this uses the currently selected frame."
 
 (defmacro thin-thickness-p ()
   "Return T if the Motif `enableThinThickness' resource has been set to `true'."
-  `(and (boundp 'motif-version-string)
-        x-initialized
-        (string= "true" (x-get-resource "enableThinThickness" "Emacs"))))
+  (if (boundp 'x-initialized)
+    `(and (boundp 'motif-version-string)
+          x-initialized
+          (string= "true" (x-get-resource "enableThinThickness" "Emacs")))))
 
 ;; -----------------------------------------------------------------------------
 ;; Compatibility functions:
@@ -240,6 +241,27 @@ Before version 21, the font system had a different set of APIs."
       (if (fboundp #'x-defined-colors)
           (length (x-defined-colors frame)) ; Very approximate...
         16))))
+
+(defun compat-flatten-tree (tree)
+  "Return a \"flattened\" copy of TREE.
+
+In other words, return a list of the non-nil terminal nodes, or leaves, of the
+tree of cons cells rooted at TREE.  Leaves in the returned list are in the same
+order as in TREE.
+
+\(flatten-tree \\='(1 (2 . 3) nil (4 5 (6)) 7))
+=> (1 2 3 4 5 6 7)"
+  (version-if (> 27 emacs-major-version)
+      (let (elems)
+        (while (consp tree)
+          (let ((elem (pop tree)))
+            (while (consp elem)
+              (push (cdr elem) tree)
+              (setq elem (car elem)))
+            (if elem (push elem elems))))
+        (if tree (push tree elems))
+        (nreverse elems))
+    (flatten-tree tree)))
 
 (defun compat-font-exists-p (font-name &optional frame)
   "Determine if a font (given by FONT-NAME) exists by its name on FRAME.
@@ -366,6 +388,7 @@ were not introduced until Emacs 22."
       (unless stand-alone
         (add-to-list 'load-path (file-name-directory this-file-name)))
 
+      (require 'autoload)
       (require 'battery)
       (require 'cc-vars)
       (require 'compile)
@@ -398,6 +421,9 @@ were not introduced until Emacs 22."
           (require 'clang-format)
           (require 'vmw-c-dev)))
       (when (< 24 emacs-major-version)
+        (require 'eshell)
+        (require 'em-dirs)
+        (require 'em-prompt)
         (require 'ox-html)))))
 
 ;; -----------------------------------------------------------------------------
@@ -577,6 +603,11 @@ is light.")
     (light . ((ebrowse-root-class "Maroon" nil nil nil nil))))
   "Custom faces for `ebrowse-mode'.  These are modified lazily.")
 
+(defconst eshell-faces
+  '((dark  . ((eshell-prompt "IndianRed" nil t nil nil)))
+    (light . ((eshell-prompt "SlateBlue" nil t nil nil))))
+  "Custom faces for `eshell-mode'.  These are modified lazily.")
+
 (defconst gud-faces
   '((dark  . ((gdb-selection ign "MidnightBlue"  ign ign ign)))
     (light . ((gdb-selection ign "DarkSeaGreen3" ign ign ign))))
@@ -653,7 +684,8 @@ is light.")
   "Faces introduced in Emacs v21.")
 
 (defconst faces-version-22
-  '(org-ellipsis
+  '(eshell-prompt
+    org-ellipsis
     ;; All the structural faces for `org-mode':
     org-level-1 org-level-2 org-level-3 org-level-4 org-level-5 org-level-6
     org-level-7 org-level-8)
@@ -745,6 +777,14 @@ is light.")
       ;; package must be loaded at all time, just so it can keep asking
       ;; Perforce, "are we looking at a version file yet??"
       (require 'p4))
+
+  (version-if (< 21 emacs-major-version) (provide-customized-features-22)))
+
+(defun provide-customized-features-22 ()
+  "Load features that only work with Emacs 22 and above."
+  ;; Use this hook because `eshell-load-hook' is apparently too late to set the
+  ;; prompt color.
+  (add-hook 'eshell-first-time-mode-hook #'custom-configure-eshell)
 
   (version-if (< 22 emacs-major-version) (provide-customized-features-23)))
 
@@ -1428,6 +1468,59 @@ execution, the hook removes itself."
   (unless (terminal-frame-p frame)
     (remove-hook 'after-make-frame-functions #'exec-on-first-gui)
     (custom-configure-on-first-gui frame)))
+
+;; -----------------------------------------------------------------------------
+;; Font-lock Customization:
+;;
+;; Add new EShell commands here, as well as any setup that should be done when
+;; loading (`custom-configure-eshell').
+;; -----------------------------------------------------------------------------
+
+(defun custom-configure-eshell ()
+  "Execute these commands the first time EShell loads."
+  (merge-font-lock-settings eshell-faces)
+
+  ;; Be sure to set both the regexp and prompt when changing things!
+  (setq eshell-prompt-function
+        #'(lambda ()
+            (concat "[ " (abbreviate-file-name (eshell/pwd)) " ]"
+                    (if (= (user-uid) 0) " # " " $ "))))
+  (setq eshell-prompt-regexp "^[^#$\n]* [#$] "))
+
+(defun eshell/open (&rest args)
+  "Intelligently open files and directories in ARGS for `eshell'."
+  (eshell-eval-using-options
+   "open" args
+   ;; SHORT  LONG    VALUE  SYMBOL
+   '((?h     "help"  nil    nil
+             "Output this help screen.")
+     :preserve-args
+     :usage "FILE-OR-DIR...
+Open one or more files or directories."
+     :post-usage "If a parameter is a directory, it is opened with `dired';
+if it's a file, or does not exist, it's opened with `find-file'."))
+
+  (if (null args) (error "No parameters!"))
+
+  ;; Find the full path of the file passed to the function, because each call to
+  ;; find-file (etc) will potentially change the CWD, and thus, break relative
+  ;; paths as inputs.
+  ;;
+  ;; Reverse the list so the first file appears on top of the opened files.
+  ;;
+  ;; Flatten the list, since EShell evaluates wildcards as a list, and all but
+  ;; the first parameter will also be a list.
+  (let ((file-list (mapcar #'expand-file-name
+                           (reverse (compat-flatten-tree args)))))
+    ;; Switch windows on the first operation.
+    (if (file-directory-p (car file-list))
+        (dired-other-window (car file-list))
+      (find-file-other-window (car file-list)))
+
+    ;; Rec-use that given window so the command isn't spraying new buffers all
+    ;; over the place.
+    (dolist (file (cdr file-list))
+      (if (file-directory-p file) (dired file) (find-file file)))))
 
 ;; -----------------------------------------------------------------------------
 ;; Font-lock Customization:
