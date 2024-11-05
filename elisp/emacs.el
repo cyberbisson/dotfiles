@@ -310,7 +310,7 @@ may also not be present if it was not added at compilation time."
     ;; NOTE: I'm not using version-if in 27+ (and therefore not compiling out
     ;; the check) because of a corner case where `mouse-wheel-mode' is defined
     ;; for Windows Emacs, but not for the Cygwin Emacs (terminal-only).  By
-    ;; contrast, `mwheel-mode' seemd to be present always.
+    ;; contrast, `mwheel-mode' seemed to be present always.
     '(if (fboundp 'mouse-wheel-mode) (mouse-wheel-mode 1))
     (version-if (fboundp 'mwheel-install) '(mwheel-install))))
 
@@ -518,7 +518,7 @@ in.")
 (defvar server-title-mark (if (daemonp) " <%N>" " [%N]")
   "This text will be added to frame titles when Emacs runs in `server-mode'.
 
-The string is printed verbatim, except if it contains a formatter string.  Aside
+The string is printed verbatim, except if it contains a formatted string.  Aside
 from those available to `frame-title-format', this function supports %N, which
 displays the `server-name' in the title.")
 
@@ -1411,12 +1411,16 @@ first created frame)."
           ((eq system-type 'windows-nt)
            (find-first-defined-font
             "-*-Courier New-*-*-*-*-11-*-*-*-c-*-iso8859-1"
-            '(;; Consolas 11
-              "-*-Consolas-normal-r-*-*-12-*-*-*-c-*-iso8859-1"
-              ;; Liberation Mono 9
-              "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
-              ;; Lucida Console 8 (thinner)
-              "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1")
+            ;; Emacs prior to version 23 does not understand how to specify
+            ;; (GDI) font names.  Prefer these names, since the legacy XLFD
+            ;; format does not understand the Windows font scaling.
+            (version-if (>= emacs-major-version 23)
+                '("Consolas 11"
+                  "Liberation Mono 9"
+                  "Lucida Console 8") ;; (thinner)
+              '("-*-Consolas-normal-r-*-*-12-*-*-*-c-*-iso8859-1"
+                "-*-Liberation Mono-*-*-*-*-12-*-*-*-c-*-iso8859-1"
+                "-*-Lucida Console-*-*-*-*-11-*-*-*-c-*-iso8859-1"))
             frame))
           ((eq system-type 'darwin)
            (find-first-defined-font "Menlo 12" '("DejaVu Sans Mono 9") frame))
@@ -1463,6 +1467,12 @@ first created frame)."
     (when (thin-thickness-p)
       (setq default-frame-alist
             (append default-frame-alist '((scroll-bar-width . 13)))))
+
+    ;; Minor annoyance: the fixed-pitch font is set unconditionally to
+    ;; "Monospace", and on Windows, this appears as a proportional font for some
+    ;; bizarre reason.
+    (version-when (>= emacs-major-version 23)
+      (set-face-font 'fixed-pitch (adjust-font-for-hires chosen-gui-font)))
 
     ;; This function runs after the frame has been modified, so apply whatever
     ;; settings needed from `default-frame-alist' here.
@@ -2343,12 +2353,14 @@ The filename of this definition file is defined by `custom-loaddefs-file'."
 
 (defun adjust-font-for-hires (font-name)
   "Detect a high resolution screen, and scale FONT-NAME as needed."
-  (if (not (use-high-dpi-p)) font-name ;; TODO: Check for high-res...
-    (let ((spec (font-spec :name font-name)))
-      (font-put spec :size (round (* 2.5 11)))
-      ;; Assuming this is used for default-frame-alist (or something), convert
-      ;; the font-spec back into an X font descriptor string.
-      (font-xlfd-name spec))))
+  (version-if (>= emacs-major-version 23)
+      font-name  ;; Irrelevant after version 22, since XLFD is not used.
+    (if (not (use-high-dpi-p)) font-name ;; TODO: Check for high-res...
+      (let ((spec (font-spec :name font-name)))
+        (font-put spec :size (round (* 2.5 11)))
+        ;; Assuming this is used for default-frame-alist (or something), convert
+        ;; the font-spec back into an X font descriptor string.
+        (font-xlfd-name spec)))))
 
 (defun buffer-list-sorted-by-path ()
   "Gather a list of buffers, ordered by their file name (see ‘sort-buffers’)."
@@ -2571,8 +2583,14 @@ restoration, and it is optional.  It should have the same behavior as
                            #'desktop-restore-fileless-buffer)))))
 ) ;; End TODO
 
+;; TODO: !!! Remove this, and all its dependencies !!!
+;;
+;; The only thing it functionally does now is make the frame slightly smaller,
+;; only on Windows, and only for Emacs v23+.  Instead, if needed, this should be
+;; done by determining how much can fit on the screen, and adjusting
+;; accordingly.
 (defun use-high-dpi-p ()
-  "Determine if Emacs should be `high-DPI' on the current montitor."
+  "Determine if Emacs should be `high-DPI' on the current monitor."
   (version-when (and (< 23 emacs-major-version) (eq system-type 'windows-nt))
     ;; Allow the DPI to be "forced" from the command line.  If Emacs starts as a
     ;; daemon, the initial frame will be minuscule, so it's up to manual input
