@@ -868,7 +868,6 @@ is light.")
    ;; was deprecated fully by Emacs 26).
    fill-column                  ideal-window-columns
 
-
    ;; I hate tabs.
    indent-tabs-mode             nil)
 
@@ -915,6 +914,13 @@ is light.")
    ;; I'm not sure why anybody thought this was a good idea...
    isearch-lax-whitespace       nil
    isearch-regexp-lax-whitespace nil
+
+   ;; Move lock files out of (eventually-consistent) remote locations like
+   ;; Microsoft OneDrive.  Since the locking is not atomic anyway, it doesn't
+   ;; serve much purpose to enforce it.  Let OneDrive decide what to do with
+   ;; conflicts.  Instead put the lock into the `~/tmp' folder (assuming
+   ;; "OneDrive" is in "~"), which still enforces the lock on the local node.
+   lock-file-name-transforms '(("/OneDrive - Microsoft/" "/tmp/" t))
 
    ;; Always making backups.
    make-backup-files            t
