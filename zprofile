@@ -144,6 +144,11 @@ case ${sysname} in
         distro='lnux'
     fi
 
+    # A little extra support for Windows Subsystem for Linux (WSL).
+    if [ ${+WSL_DISTRO_NAME} -ne 0 ] ; then
+        machdirs=( ${machdirs} '/usr/lib/wsl/lib' '/snap/bin' )
+    fi
+
     if [ ${+machtype} -eq 0 ] ; then
         machtype=${distro}-${hwclass}
     fi
