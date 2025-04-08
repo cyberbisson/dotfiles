@@ -391,6 +391,13 @@ function Write-InstalledPkgMessage {
 #
 Write-InstalledPkgMessage
 
+# Let's ensure SSH agent can start first.
+$SshAgent = Get-Service -Name ssh-agent
+if ($SshAgent.StartType -eq "Disabled") {
+    Write-Output "SSH Agent is disabled; moving to manual start-up."
+    Set-Service $SshAgent.Name -StartupType Manual
+}
+
 #
 # Make directories
 #
