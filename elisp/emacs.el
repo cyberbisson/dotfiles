@@ -749,6 +749,9 @@ is light.")
        (message "Wouldn't it be nice if there were a VMware mode..."))
     (add-to-list 'custom-environments 'vmware-dev))
 
+  (when (getenv "MS_CODE")
+    (add-to-list 'custom-environments 'ms-dev))
+
   (version-if (< 19 emacs-major-version) (provide-customized-features-20)))
 
 (defun provide-customized-features-20 ()
@@ -1067,6 +1070,7 @@ is light.")
   ;; needed.  These should be done last so they can even override the
   ;; configurations above.
   (let ((custom-env-funcs `((ccs-dev    . ,#'configure-ccs-dev-env)
+                            (ms-dev     . ,#'configure-ms-dev-env)
                             (palm-dev   . ,#'configure-palm-dev-env)
                             (vmware-dev . ,#'configure-vmware-dev-env))))
     (mapc #'(lambda (custom-env)
@@ -1797,6 +1801,62 @@ a similar alias to avoid bucking the trend.")
 
   ;; Set up my mail preferences
   (setq rmail-file-name       "~/mail/mbisson.ccs.neu.edu"))
+
+(defun configure-ms-dev-env ()
+  "Configure Emacs to develop for Microsoft (Azure Storage)."
+
+  ;; Colon shrug...
+  (setq ideal-window-columns   100
+        whitespace-line-column 100)
+
+  ;; Give Microsoft its own coding style definition...
+  (let ((microsoft-c-style
+         `((fill-column . 100)          ; Lines are 100 columns :(
+           (c-basic-offset . 4)         ; Four-space indent
+           (indent-tabs-mode . nil)     ; Use spaces instead of tabs
+           (c-comment-only-line-offset . 0)
+           (c-hanging-braces-alist . ((substatement-open before after)))
+           (c-offsets-alist
+            . ((access-label         . -)
+               (cpp-macro            . [0])
+               (extern-lang-open     . 0)
+               (inclass              . +)
+               (inline-open          . 0)
+               (inextern-lang        . 0)
+               (innamespace          . 0)
+               (label                . 0)
+               (statement-case-open  . +)
+               (statement-cont       . +)
+               (substatement         . +)
+               (substatement-open    . 0)
+               (topmost-intro        . 0)
+               (topmost-intro-cont   . 0))))))
+
+    ;; Must match guards around `add-doxygen-comment-style'.  It's initialized
+    ;; lazily, so there's no other way than this manual coordination.
+    (version-if (< 22 emacs-major-version)
+      (setq microsoft-c-style
+            (append microsoft-c-style '((c-doc-comment-style . doxygen)))))
+    (c-add-style "microsoft" microsoft-c-style))
+
+  (let ((microsoft-style-hook #'(lambda () (c-set-style "microsoft"))))
+    (add-hook 'c-mode-hook   microsoft-style-hook)
+    (add-hook 'c++-mode-hook microsoft-style-hook)
+    (add-hook 'java-mode-hook
+              #'(lambda () (setq c-basic-offset 4
+                                 fill-column    100)))
+    (add-hook 'protobuf-mode-hook
+              #'(lambda () (setq c-basic-offset 4
+                                 fill-column    100))))
+
+  ;; Remove the redundant doxygen style hook (see `configure-ms-dev-env' for
+  ;; details).
+  (version-if (< 22 emacs-major-version)
+    (add-hook 'c-initialization-hook
+              #'(lambda ()
+                  (remove-hook 'c-mode-hook   #'set-doxygen-style-hook)
+                  (remove-hook 'c++-mode-hook #'set-doxygen-style-hook))
+              t)))
 
 (defun configure-palm-dev-env ()
   "Configure Emacs to develop for Palm Hollywood (Foleo)."
